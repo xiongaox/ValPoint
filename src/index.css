@@ -1,0 +1,50 @@
+/* Base Settings */
+body { font-family: 'Microsoft YaHei', sans-serif; background-color: #0f1923; color: white; overflow: hidden; overscroll-behavior: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #ff4655; }
+
+/* Leaflet Customization */
+.leaflet-container { background: #0f1923; outline: none; z-index: 1; }
+.leaflet-popup-content-wrapper { background: #1f2326; color: white; border: 1px solid #ff4655; padding: 0; }
+.leaflet-popup-tip { background: #ff4655; }
+
+/* Markers */
+.custom-marker { display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.marker-icon-wrapper { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.6); background: #1f2326; border: 2px solid white; overflow: hidden; transition: all 0.2s; }
+.marker-img { width: 100%; height: 100%; object-fit: cover; }
+.marker-img-skill { width: 80%; height: 80%; object-fit: contain; }
+
+/* Active State */
+.marker-active .marker-icon-wrapper { border-color: #ff4655; box-shadow: 0 0 15px rgba(255, 70, 85, 0.8); transform: scale(1.2); }
+.marker-inactive { opacity: 0.6; filter: grayscale(0.5); }
+
+/* Agent Grid */
+.agent-item { transition: all 0.2s; border: 1px solid transparent; }
+.agent-item:hover { border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
+.agent-item.selected { border-color: #ff4655; background: rgba(255, 70, 85, 0.2); box-shadow: 0 0 10px rgba(255,70,85,0.2); }
+
+/* Count Badge */
+.count-badge { position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold; padding: 0 4px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
+.count-has-data { background: #ff4655; color: white; }
+.count-empty { background: #333; color: #888; }
+
+/* Ability Icon */
+.ability-icon { transition: all 0.2s; opacity: 0.6; filter: grayscale(0.8); }
+.ability-icon:hover { opacity: 1; filter: grayscale(0); }
+.ability-icon.selected { opacity: 1; filter: grayscale(0); border-bottom: 2px solid #ff4655; }
+
+/* Map Card */
+.map-card { transition: all 0.2s; }
+.map-card:hover { transform: scale(1.02); border-color: #ff4655; }
+
+/* UI Utilities */
+.glass { background: rgba(31, 35, 38, 0.9); backdrop-filter: blur(10px); }
+.lightbox-img { max-height: 90vh; max-width: 90vw; object-fit: contain; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.modal-content { animation: fadeIn 0.2s ease-out; }

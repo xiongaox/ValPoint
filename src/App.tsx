@@ -121,7 +121,7 @@ function App() {
   const [previewInput, setPreviewInput] = useState('');
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const [sharedLineup, setSharedLineup] = useState(null);
-  const [newLineupData, setNewLineupData] = useState({
+  const createEmptyLineup = () => ({
     title: '',
     agentPos: null,
     skillPos: null,
@@ -135,6 +135,7 @@ function App() {
     landDesc: '',
     sourceLink: '',
   });
+  const [newLineupData, setNewLineupData] = useState(createEmptyLineup());
   const [placingType, setPlacingType] = useState(null);
   const [customUserIdInput, setCustomUserIdInput] = useState('');
   const [isSharing, setIsSharing] = useState(false);
@@ -324,19 +325,7 @@ function App() {
       } catch (e) {}
     }
     if (tab === 'create') {
-      setNewLineupData({
-        title: '',
-        agentPos: null,
-        skillPos: null,
-        standImg: '',
-        standDesc: '',
-        aimImg: '',
-        aimDesc: '',
-        aim2Img: '',
-        aim2Desc: '',
-        landImg: '',
-        landDesc: '',
-      });
+      setNewLineupData(createEmptyLineup());
       if (selectedSide === 'all') setSelectedSide('attack');
     } else if (tab === 'view') {
       // 返回查看时重置筛选并刷新，若当前未选特工则选第一名，保持用户已有选择
@@ -354,6 +343,18 @@ function App() {
     if (!newLineupData.agentPos || !newLineupData.skillPos) return setAlertMessage('请先在地图上完成标注');
     if (!selectedAgent) return setAlertMessage('请先选择一名特工');
     setIsEditorOpen(true);
+  };
+
+  const handleEditorClose = () => {
+    setIsEditorOpen(false);
+    setEditingLineupId(null);
+    setNewLineupData(createEmptyLineup());
+    setPlacingType(null);
+    setActiveTab('view');
+    setSelectedSide('all');
+    setSelectedAbilityIndex(null);
+    setSelectedLineupId(null);
+    setViewingLineup(null);
   };
 
   const handleEditStart = (lineup) => {
@@ -410,7 +411,8 @@ function App() {
       }
       setIsEditorOpen(false);
       setEditingLineupId(null);
-      setNewLineupData({ title: '', agentPos: null, skillPos: null, standImg: '', standDesc: '', aimImg: '', aimDesc: '', aim2Img: '', aim2Desc: '', landImg: '', landDesc: '' });
+      setNewLineupData(createEmptyLineup());
+      setActiveTab('view');
       fetchLineups();
     } catch (e) {
       console.error(e);
@@ -735,11 +737,11 @@ function App() {
 
       <EditorModal
         isEditorOpen={isEditorOpen}
-        setIsEditorOpen={setIsEditorOpen}
         editingLineupId={editingLineupId}
         newLineupData={newLineupData}
         setNewLineupData={setNewLineupData}
         handleEditorSave={handleEditorSave}
+        onClose={handleEditorClose}
       />
 
       <ViewerModal

@@ -9,7 +9,7 @@ const fields = [
   { k: 'land', l: '技能落点图' },
 ];
 
-const EditorModal = ({ isEditorOpen, setIsEditorOpen, editingLineupId, newLineupData, setNewLineupData, handleEditorSave }) => {
+const EditorModal = ({ isEditorOpen, editingLineupId, newLineupData, setNewLineupData, handleEditorSave, onClose }) => {
   if (!isEditorOpen) return null;
   return (
     <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
@@ -18,7 +18,7 @@ const EditorModal = ({ isEditorOpen, setIsEditorOpen, editingLineupId, newLineup
           <h2 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
             <Icon name="FileText" className="text-[#ff4655]" /> {editingLineupId ? '编辑图文攻略' : '新增图文攻略'}
           </h2>
-          <button onClick={() => setIsEditorOpen(false)} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
             <Icon name="X" size={24} />
           </button>
         </div>
@@ -82,7 +82,7 @@ const EditorModal = ({ isEditorOpen, setIsEditorOpen, editingLineupId, newLineup
           </div>
         </div>
         <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#252a30]">
-          <button onClick={() => setIsEditorOpen(false)} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold transition-colors">
+          <button onClick={onClose} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold transition-colors">
             取消
           </button>
           <button

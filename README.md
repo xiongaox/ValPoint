@@ -53,7 +53,7 @@ on valorant_lineups for delete using (auth.role() = 'anon');
 （如需更严格控制，可在表中记录 user_id，并在 policy 中校验 `user_id = current_setting('request.jwt.claim.sub', true)`，并改用 Supabase Auth 登录。当前前端默认用 localStorage 生成匿名 userId。）
 
 ### 一键建表与权限（可直接点击复制）
-在 GitHub/IDE 中对下方代码块点击复制按钮，粘贴到 Supabase 控制台 → SQL Editor 运行，即可完成建表 + RLS + 匿名策略：
+点击复制按钮，粘贴到 Supabase 控制台 → SQL Editor 运行，即可完成建表 + RLS + 匿名策略：
 
 ```sql
 create extension if not exists "uuid-ossp";

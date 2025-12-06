@@ -1,51 +1,51 @@
 export const CUSTOM_MAP_URLS = {
   Ascent: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E4%BA%9A%E6%B5%B7%E6%82%AC%E5%9F%8E(Ascent).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E4%BA%9A%E6%B5%B7%E6%82%AC%E5%9F%8E(Ascent).svg",
+    attack: "/maps/attack/攻方-亚海悬城(Ascent).svg",
+    defense: "/maps/defense/守方-亚海悬城(Ascent).svg",
   },
   Breeze: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E5%BE%AE%E9%A3%8E%E5%B2%9B%E5%B1%BF(Breeze).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E5%BE%AE%E9%A3%8E%E5%B2%9B%E5%B1%BF(Breeze).svg",
+    attack: "/maps/attack/攻方-微风岛屿(Breeze).svg",
+    defense: "/maps/defense/守方-微风岛屿(Breeze).svg",
   },
   Sunset: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E6%97%A5%E8%90%BD%E4%B9%8B%E5%9F%8E(Sunset).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E6%97%A5%E8%90%BD%E4%B9%8B%E5%9F%8E(Sunset).svg",
+    attack: "/maps/attack/攻方-日落之城(Sunset).svg",
+    defense: "/maps/defense/守方-日落之城(Sunset).svg",
   },
   Icebox: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E6%A3%AE%E5%AF%92%E5%86%AC%E6%B8%AF(Icebox).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E6%A3%AE%E5%AF%92%E5%86%AC%E6%B8%AF(Icebox).svg",
+    attack: "/maps/attack/攻方-森寒冬港(Icebox).svg",
+    defense: "/maps/defense/守方-森寒冬港(Icebox).svg",
   },
   Pearl: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E6%B7%B1%E6%B5%B7%E6%98%8E%E7%8F%A0(Pearl).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E6%B7%B1%E6%B5%B7%E6%98%8E%E7%8F%A0(Pearl).svg",
+    attack: "/maps/attack/攻方-深海明珠(Pearl).svg",
+    defense: "/maps/defense/守方-深海明珠(Pearl).svg",
   },
   Bind: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E6%BA%90%E5%B7%A5%E9%87%8D%E9%95%87(Bind).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E6%BA%90%E5%B7%A5%E9%87%8D%E9%95%87(Bind).svg",
+    attack: "/maps/attack/攻方-源工重镇(Bind).svg",
+    defense: "/maps/defense/守方-源工重镇(Bind).svg",
   },
   Lotus: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E8%8E%B2%E5%8D%8E%E5%8F%A4%E5%9F%8E(Lotus).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E8%8E%B2%E5%8D%8E%E5%8F%A4%E5%9F%8E(Lotus).svg",
+    attack: "/maps/attack/攻方-莲华古城(Lotus).svg",
+    defense: "/maps/defense/守方-莲华古城(Lotus).svg",
   },
   Fracture: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E8%A3%82%E5%8F%98%E5%B3%A1%E8%B0%B7(Fracture).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E8%A3%82%E5%8F%98%E5%B3%A1%E8%B0%B7(Fracture).svg",
+    attack: "/maps/attack/攻方-裂变峡谷(Fracture).svg",
+    defense: "/maps/defense/守方-裂变峡谷(Fracture).svg",
   },
   Haven: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E9%9A%90%E4%B8%96%E4%BF%AE%E6%89%80(Haven).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E9%9A%90%E4%B8%96%E4%BF%AE%E6%89%80(Haven).svg",
+    attack: "/maps/attack/攻方-隐世修所(Haven).svg",
+    defense: "/maps/defense/守方-隐世修所(Haven).svg",
   },
   Split: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E9%9C%93%E8%99%B9%E7%94%BA(Split).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E9%9C%93%E8%99%B9%E7%94%BA(Split).svg",
+    attack: "/maps/attack/攻方-霓虹町(Split).svg",
+    defense: "/maps/defense/守方-霓虹町(Split).svg",
   },
   Abyss: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E6%94%BB%E6%96%B9-%E5%B9%BD%E9%82%83%E5%9C%B0%E7%AA%9F(Abyss).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E5%B9%BD%E9%82%83%E5%9C%B0%E7%AA%9F(Abyss).svg",
+    attack: "/maps/attack/攻方-幽邃地窟(Abyss).svg",
+    defense: "/maps/defense/守方-幽邃地窟(Abyss).svg",
   },
   Corrode: {
-    attack: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E7%9B%90%E6%B5%B7%E7%9F%BF%E9%95%87(Corrode).svg",
-    defense: "https://valpoint.oss-cn-guangzhou.aliyuncs.com/img/%E5%AE%88%E6%96%B9-%E7%9B%90%E6%B5%B7%E7%9F%BF%E9%95%87(Corrode).svg",
+    attack: "/maps/attack/攻方-盐海矿镇(Corrode).svg",
+    defense: "/maps/defense/守方-盐海矿镇(Corrode).svg",
   },
 };
 

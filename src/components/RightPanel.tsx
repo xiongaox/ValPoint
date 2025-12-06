@@ -21,6 +21,11 @@ type Props = {
   handleClearAll: () => void;
   getMapDisplayName: (name: string) => string;
   setIsPreviewModalOpen: (v: boolean) => void;
+  userId: string | null;
+  customUserIdInput: string;
+  setCustomUserIdInput: (v: string) => void;
+  handleApplyCustomUserId: () => void;
+  handleResetUserId: () => void;
 };
 
 const RightPanel: React.FC<Props> = ({
@@ -42,6 +47,11 @@ const RightPanel: React.FC<Props> = ({
   handleClearAll,
   getMapDisplayName,
   setIsPreviewModalOpen,
+  userId,
+  customUserIdInput,
+  setCustomUserIdInput,
+  handleApplyCustomUserId,
+  handleResetUserId,
 }) => {
   return (
     <div className="w-96 flex-shrink-0 flex flex-col bg-[#1f2326] border-l border-white/10 z-20 shadow-2xl">
@@ -72,6 +82,38 @@ const RightPanel: React.FC<Props> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+        <div className="bg-[#0f1923] border border-white/10 rounded-lg p-4 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-[12px] font-bold text-[#ff4655] uppercase tracking-wider">自定义 ID（跨设备共享）</div>
+            {userId && (
+              <span className="text-[11px] text-gray-500 truncate max-w-[180px]" title={`当前 ID：${userId}`}>
+                当前：{userId}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customUserIdInput}
+              onChange={(e) => setCustomUserIdInput(e.target.value)}
+              placeholder="例如 TEAM1234"
+              className="flex-1 bg-black/30 border border-gray-700 rounded-lg py-2 px-3 text-sm text-white focus:border-[#ff4655] outline-none transition-colors"
+            />
+            <button
+              onClick={handleApplyCustomUserId}
+              className="px-3 py-2 rounded-lg bg-[#ff4655] text-white text-sm font-bold hover:bg-[#d93a49] transition-colors whitespace-nowrap"
+            >
+              应用
+            </button>
+          </div>
+          <div className="flex items-center justify-between text-[11px] text-gray-500">
+            <span>用同一 ID 在不同设备访问即可看到同步数据</span>
+            <button onClick={handleResetUserId} className="text-blue-400 hover:text-blue-200 transition-colors underline">
+              随机 ID
+            </button>
+          </div>
+        </div>
+
         {activeTab === 'create' ? (
           <div className="space-y-6 animate-in fade-in">
             <div>
@@ -90,7 +132,9 @@ const RightPanel: React.FC<Props> = ({
                 <button
                   onClick={() => setSelectedSide('defense')}
                   className={`flex-1 rounded-md text-sm font-bold flex items-center justify-center gap-2 transition-all border ${
-                    selectedSide === 'defense' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow' : 'text-gray-500 border-transparent hover:text-emerald-400'
+                    selectedSide === 'defense'
+                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow'
+                      : 'text-gray-500 border-transparent hover:text-emerald-400'
                   }`}
                 >
                   <Icon name="Shield" size={18} /> 防守
@@ -181,7 +225,9 @@ const RightPanel: React.FC<Props> = ({
                 <button
                   onClick={() => setSelectedSide('defense')}
                   className={`flex-1 py-2 rounded text-xs font-bold flex items-center justify-center gap-1 transition-all border ${
-                    selectedSide === 'defense' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow' : 'text-gray-500 border-transparent hover:text-emerald-400'
+                    selectedSide === 'defense'
+                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow'
+                      : 'text-gray-500 border-transparent hover:text-emerald-400'
                   }`}
                 >
                   <Icon name="Shield" size={14} /> 防守

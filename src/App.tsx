@@ -16,11 +16,22 @@ import { supabase } from './supabaseClient';
 
 const LOCAL_USER_KEY = 'valpoint_user_id';
 const TABLE = 'valorant_lineups';
+const ID_LENGTH = 8;
+const ID_REGEX = /^[A-Za-z0-9]{8}$/;
 
+const generateRandomUserId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const arr = crypto.getRandomValues(new Uint32Array(ID_LENGTH));
+  let out = '';
+  for (let i = 0; i < ID_LENGTH; i++) {
+    out += chars[arr[i] % chars.length];
+  }
+  return out;
+};
 const ensureUserId = () => {
   let id = localStorage.getItem(LOCAL_USER_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
+  if (!id || !ID_REGEX.test(id)) {
+    id = generateRandomUserId();
     localStorage.setItem(LOCAL_USER_KEY, id);
   }
   return id;
@@ -114,6 +125,7 @@ function App() {
     landDesc: '',
   });
   const [placingType, setPlacingType] = useState(null);
+  const [customUserIdInput, setCustomUserIdInput] = useState('');
 
   const getMapDisplayName = (apiMapName) => MAP_TRANSLATIONS[apiMapName] || apiMapName;
   const getMapEnglishName = (displayName) =>
@@ -170,6 +182,7 @@ function App() {
   useEffect(() => {
     const id = ensureUserId();
     setUserId(id);
+    setCustomUserIdInput(id);
 
     fetch('https://valorant-api.com/v1/maps')
       .then((res) => res.json())
@@ -199,6 +212,40 @@ function App() {
   useEffect(() => {
     fetchLineups();
   }, [fetchLineups]);
+
+  const handleApplyCustomUserId = async () => {
+    const trimmed = customUserIdInput.trim().toUpperCase();
+    if (!ID_REGEX.test(trimmed)) {
+      setAlertMessage('ID 必须是 8 位字母或数字（不区分大小写）');
+      return;
+    }
+    localStorage.setItem(LOCAL_USER_KEY, trimmed);
+    setCustomUserIdInput(trimmed);
+    setUserId(trimmed);
+    setLineups([]);
+    setSelectedLineupId(null);
+    setViewingLineup(null);
+    setSharedLineup(null);
+    setEditingLineupId(null);
+    setAlertMessage('ID 已保存，正在加载该 ID 的数据');
+    await fetchLineups();
+    setAlertMessage(null);
+  };
+
+  const handleResetUserId = async () => {
+    const newId = generateRandomUserId();
+    localStorage.setItem(LOCAL_USER_KEY, newId);
+    setCustomUserIdInput(newId);
+    setUserId(newId);
+    setLineups([]);
+    setSelectedLineupId(null);
+    setViewingLineup(null);
+    setSharedLineup(null);
+    setEditingLineupId(null);
+    setAlertMessage('已生成新的匿名 ID');
+    await fetchLineups();
+    setAlertMessage(null);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -263,11 +310,13 @@ function App() {
       });
       if (selectedSide === 'all') setSelectedSide('attack');
     } else if (tab === 'view') {
-      // 返回查看时重置筛选并刷新，默认选中第一名特工
+      // 返回查看时重置筛选并刷新，若当前未选特工则选第一名，保持用户已有选择
       setSelectedSide('all');
       setSelectedAbilityIndex(null);
-      const firstAgent = agents[0];
-      if (firstAgent) setSelectedAgent(firstAgent);
+      if (!selectedAgent) {
+        const firstAgent = agents[0];
+        if (firstAgent) setSelectedAgent(firstAgent);
+      }
       fetchLineups();
     }
   };
@@ -597,6 +646,11 @@ function App() {
         handleClearAll={handleClearAll}
         getMapDisplayName={getMapDisplayName}
         setIsPreviewModalOpen={setIsPreviewModalOpen}
+        userId={userId}
+        customUserIdInput={customUserIdInput}
+        setCustomUserIdInput={setCustomUserIdInput}
+        handleApplyCustomUserId={handleApplyCustomUserId}
+        handleResetUserId={handleResetUserId}
       />
 
       <MapPickerModal

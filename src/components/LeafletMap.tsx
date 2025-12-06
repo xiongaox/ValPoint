@@ -46,7 +46,7 @@ const LeafletMap: React.FC<Props> = ({
   const mapRef = useRef(null);
   const mapInstance = useRef<any>(null);
   const markerMap = useRef<Record<string, any>>({});
-  const layers = useRef<{ activeLine: any; createLayer: any[] }>({ activeLine: null, createLayer: [] });
+  const layers = useRef<{ activeLine: any; createLayer: any[]; sharedLayer: any[] }>({ activeLine: null, createLayer: [], sharedLayer: [] });
   const [hoveredLineupId, setHoveredLineupId] = useState<string | null>(null);
   const hoverLayer = useRef<any>(null);
 
@@ -160,15 +160,31 @@ const LeafletMap: React.FC<Props> = ({
 
     layers.current.createLayer.forEach((l) => map.removeLayer(l));
     layers.current.createLayer = [];
+    if (layers.current.sharedLayer.length) {
+      layers.current.sharedLayer.forEach((l) => map.removeLayer(l));
+      layers.current.sharedLayer = [];
+    }
 
     if (activeTab === 'shared' && sharedLineup) {
+      // 清理之前可能残留的 marker/line，避免叠加
+      Object.values(markerMap.current).forEach(({ agent, skill }) => {
+        map.removeLayer(agent);
+        map.removeLayer(skill);
+      });
+      markerMap.current = {};
+      if (layers.current.activeLine) {
+        map.removeLayer(layers.current.activeLine);
+        layers.current.activeLine = null;
+      }
+
       const l = sharedLineup;
       const viewAgentPos = transformPos(l.agentPos);
       const viewSkillPos = transformPos(l.skillPos);
       if (viewAgentPos && viewSkillPos) {
-        L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon) }).addTo(map);
-        L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon) }).addTo(map);
-        L.polyline([viewAgentPos, viewSkillPos], { color: '#ff4655', weight: 3, dashArray: '8, 8' }).addTo(map);
+        const am = L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon) }).addTo(map);
+        const sm = L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon) }).addTo(map);
+        const line = L.polyline([viewAgentPos, viewSkillPos], { color: '#ff4655', weight: 3, dashArray: '8, 8' }).addTo(map);
+        layers.current.sharedLayer = [am, sm, line];
       }
       return;
     }

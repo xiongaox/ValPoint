@@ -7,22 +7,24 @@ const ViewerModal = ({ viewingLineup, setViewingLineup, handleEditStart, setView
   return (
     <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
       <div className="modal-content bg-[#1f2326] w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-white/10 shadow-2xl overflow-hidden relative">
-        <button
-          type="button"
-          onClick={() => setViewingLineup(null)}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all z-20 backdrop-blur-sm border border-white/10"
-          title="关闭"
-        >
-          <Icon name="X" size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => handleEditStart(viewingLineup)}
-          className="absolute top-4 right-16 w-8 h-8 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all z-20 backdrop-blur-sm border border-white/10"
-          title="编辑"
-        >
-          <Icon name="Pencil" size={16} />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+          <button
+            type="button"
+            onClick={() => handleEditStart(viewingLineup)}
+            className="w-8 h-8 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-sm border border-white/10"
+            title="编辑"
+          >
+            <Icon name="Pencil" size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewingLineup(null)}
+            className="w-8 h-8 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-sm border border-white/10"
+            title="关闭"
+          >
+            <Icon name="X" size={18} />
+          </button>
+        </div>
 
         <div className="p-6 border-b border-white/10 bg-[#252a30]">
           <div className="flex items-center gap-3 mb-1">

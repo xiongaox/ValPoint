@@ -263,7 +263,7 @@ function App() {
       });
       if (selectedSide === 'all') setSelectedSide('attack');
     } else if (tab === 'view') {
-      // 杩斿洖鏌ョ湅鏃堕噸缃瓫閫夊苟涓诲姩鍒锋柊锛岄伩鍏嶆棫鏁版嵁琚瓫鎺夛紱榛樿閫変腑棣栦釜鐗瑰伐
+      // 返回查看时重置筛选并刷新，默认选中第一名特工
       setSelectedSide('all');
       setSelectedAbilityIndex(null);
       const firstAgent = agents[0];
@@ -305,7 +305,7 @@ function App() {
   };
 
   const handleEditorSave = async () => {
-    if (!newLineupData.title.trim()) return setAlertMessage('鏍囬涓嶈兘涓虹┖');
+    if (!newLineupData.title.trim()) return setAlertMessage('标题不能为空');
     const commonData = {
       ...newLineupData,
       mapName: selectedMap.displayName,
@@ -322,11 +322,11 @@ function App() {
           .update({ ...toDbPayload(commonData, userId), updated_at: new Date().toISOString() })
           .eq('id', editingLineupId);
         if (error) throw error;
-        setAlertMessage('鏇存柊鎴愬姛');
+        setAlertMessage('更新成功');
       } else {
         const { error } = await supabase.from(TABLE).insert({ ...toDbPayload(commonData, userId), created_at: new Date().toISOString() });
         if (error) throw error;
-        setAlertMessage('淇濆瓨鎴愬姛');
+        setAlertMessage('保存成功');
       }
       setIsEditorOpen(false);
       setEditingLineupId(null);
@@ -334,7 +334,7 @@ function App() {
       fetchLineups();
     } catch (e) {
       console.error(e);
-      setAlertMessage('淇濆瓨澶辫触');
+      setAlertMessage('保存失败');
     }
   };
 
@@ -347,20 +347,18 @@ function App() {
     if (!deleteTargetId) return;
     const { error } = await supabase.from(TABLE).delete().eq('id', deleteTargetId);
     if (error) {
-    if (error) {
       setAlertMessage('删除失败，请重试。');
     } else {
-        setSelectedLineupId(null);
-        setViewingLineup(null);
-      }
-      setDeleteTargetId(null);
-      fetchLineups();
+      setSelectedLineupId(null);
+      setViewingLineup(null);
     }
+    setDeleteTargetId(null);
+    fetchLineups();
   };
 
   const handleShare = (id, e) => {
     e.stopPropagation();
-    // 浠呭鍒剁偣锟?ID锛岄伩鍏嶆毚闇插煙锟?IP
+    // 仅复制点位 ID，避免暴露域名或 IP
     const url = id;
     const textArea = document.createElement('textarea');
     textArea.value = url;
@@ -371,9 +369,9 @@ function App() {
     textArea.select();
     try {
       document.execCommand('copy');
-      setAlertMessage('鐐逛綅 ID 宸插鍒跺埌鍓创鏉匡紝鍙洿鎺ュ彂閫佺粰濂藉弸');
+      setAlertMessage('点位 ID 已复制到剪贴板，可直接发送给好友');
     } catch (err) {
-      setAlertMessage('澶嶅埗澶辫触锛岃鎵嬪姩澶嶅埗 ID锛歕n' + url);
+      setAlertMessage('复制失败，请手动复制 ID：\\n' + url);
     }
     document.body.removeChild(textArea);
   };
@@ -415,7 +413,7 @@ function App() {
       };
       const { error } = await supabase.from(TABLE).insert({ ...toDbPayload(payload, userId), created_at: new Date().toISOString() });
       if (error) throw error;
-      setAlertMessage('宸叉垚鍔熶繚瀛樺埌鎮ㄧ殑鐐逛綅鍒楄〃');
+      setAlertMessage('已成功保存到你的点位列表');
       handleTabSwitch('view');
       fetchLineups();
     } catch (err) {
@@ -479,7 +477,8 @@ function App() {
                 onClick={handleSaveShared}
                 className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-200 transition-colors px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30"
               >
-                <Icon name="Save" size={14} /> 淇濆瓨鍒版垜鐨勭偣锟?              </button>
+                <Icon name="Save" size={14} /> 保存到我的点位
+              </button>
             </div>
             <h2 className="text-2xl font-bold text-white leading-tight mb-4">{sharedLineup.title}</h2>
             <div className="flex items-center gap-3 text-sm text-gray-400">
@@ -564,8 +563,8 @@ function App() {
         <div className="absolute top-6 left-6 z-[400] pointer-events-none">
           <div className="glass px-6 py-3 rounded-r-xl border-l-4 border-[#ff4655] shadow-2xl backdrop-blur-md bg-black/50">
             <div className="text-xs uppercase tracking-[0.2em] text-gray-300 font-bold">Map</div>
-            <div className="text-lg font-bold text-white">{selectedMap ? getMapDisplayName(selectedMap.displayName) : '鍔犺浇锟?..'}</div>
-            <div className="text-xs text-gray-500">渚ф爮鍙垏鎹㈡敾锟?& 鐗瑰伐</div>
+            <div className="text-lg font-bold text-white">{selectedMap ? getMapDisplayName(selectedMap.displayName) : '加载中...'}</div>
+            <div className="text-xs text-gray-500">侧栏可切换攻防 & 特工</div>
           </div>
         </div>
         <LeafletMap
@@ -659,5 +658,11 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
 
 

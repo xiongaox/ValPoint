@@ -262,6 +262,12 @@ function App() {
         landDesc: '',
       });
       if (selectedSide === 'all') setSelectedSide('attack');
+    } else if (tab === 'view') {
+      // 返回查看时重置筛选并主动刷新，避免旧数据被筛掉
+      setSelectedSide('all');
+      setSelectedAbilityIndex(null);
+      setSelectedAgent(null);
+      fetchLineups();
     }
   };
 

@@ -456,31 +456,31 @@ function App() {
     return (
       <div className="flex h-screen w-screen bg-[#0f1923] text-white overflow-hidden">
         <div className="w-[360px] flex-shrink-0 flex flex-col bg-[#1f2326] border-r border-white/10 z-20 shadow-2xl">
-          <div className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-[#1f2326] shadow-sm">
+          <div className="flex items-center justify-between gap-3 px-6 py-3 border-b border-white/5 bg-[#1f2326] shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="bg-[#ff4655] p-1.5 rounded transform -skew-x-12 shadow-lg shadow-red-500/20">VAL<span className="text-[#ff4655]">HUB</span></div>
+              <img src="/brand-logo.svg" alt="Logo" className="w-[168px] h-[32px]" />
             </div>
-            <div className="flex gap-2">
+            <button onClick={() => handleTabSwitch('view')} className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors">
+              返回主页
+            </button>
+          </div>
+
+          <div className="p-6 border-b border-white/10 bg-[#252a30]">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${sharedLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                  {sharedLineup.side === 'attack' ? '进攻 (ATK)' : '防守 (DEF)'}
+                </span>
+                <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">
+                  {getMapDisplayName(getMapEnglishName(sharedLineup.mapName))}
+                </span>
+              </div>
               <button
                 onClick={handleSaveShared}
                 className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-200 transition-colors px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30"
               >
                 <Icon name="Save" size={14} /> 保存到我的点位
               </button>
-              <button onClick={() => handleTabSwitch('view')} className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors">
-                返回主页
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 border-b border-white/10 bg-[#252a30]">
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`text-xs font-bold px-2 py-0.5 rounded ${sharedLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
-                {sharedLineup.side === 'attack' ? '进攻 (ATK)' : '防守 (DEF)'}
-              </span>
-              <span className="text-xs text-gray-400 font-mono uppercase tracking-wider">
-                {getMapDisplayName(getMapEnglishName(sharedLineup.mapName))}
-              </span>
             </div>
             <h2 className="text-2xl font-bold text-white leading-tight mb-4">{sharedLineup.title}</h2>
             <div className="flex items-center gap-3 text-sm text-gray-400">

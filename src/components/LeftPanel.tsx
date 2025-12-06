@@ -46,12 +46,7 @@ const LeftPanel: React.FC<Props> = ({
     <div className="w-80 flex-shrink-0 flex flex-col bg-[#1f2326] border-r border-white/10 z-20 shadow-2xl">
       <div className="h-16 flex items-center px-6 border-b border-white/5 bg-[#1f2326] shadow-sm flex justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-[#ff4655] p-1.5 rounded transform -skew-x-12 shadow-lg shadow-red-500/20">
-            <Icon name="Crosshair" className="text-white w-5 h-5 transform skew-x-12" />
-          </div>
-          <h1 className="text-xl font-bold font-mono tracking-tighter uppercase">
-            VAL<span className="text-[#ff4655]">HUB</span>
-          </h1>
+          <img src="/brand-logo.svg" alt="Logo" className="w-[168px] h-[32px]" />
         </div>
         <button
           onClick={() => setIsPreviewModalOpen(true)}

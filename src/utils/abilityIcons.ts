@@ -141,7 +141,7 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Ultimate: 'Ultimate',
     }
   },
-  KO: {
+  'K/O': {
     iconRedirect: {
       Ability1: 'Ability1',
       Ability2: 'Ability2',
@@ -204,7 +204,7 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Grenade: 'Ultimate',
       Ultimate: 'Ability1',
     }
-  }, 
+  },
   暮蝶: {
     iconRedirect: {
       Ability1: 'Ultimate',
@@ -212,7 +212,7 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Grenade: 'Grenade',
       Ultimate: 'Ability2',
     }
-  }, 
+  },
   维斯: {
     iconRedirect: {
       Ability1: 'Grenade',
@@ -228,7 +228,7 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Grenade: 'Ultimate',
       Ultimate: 'Ability2',
     }
-  }, 
+  },
   幻棱: {
     iconRedirect: {
       Ability1: 'Ability2',
@@ -245,224 +245,6 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Ultimate: 'Ability2',
     }
   },
-
-  // 英文名同样预置，避免缺漏
-  // //炼狱
-  // Brimstone: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //不死鸟
-  // Phoenix: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability2',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //贤者
-  // Sage: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //猎枭
-  // Sova: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //蝰蛇
-  // Viper: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //零
-  // Cypher: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //芮娜
-  // Reyna: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //奇乐
-  // Killjoy: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //雷兹
-  // Raze: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //铁臂
-  // Breach: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //幽影
-  // Omen: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //捷风
-  // Jett: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //斯凯
-  // Skye: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //夜露
-  // Yoru: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //星礈
-  // Astra: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //KO
-  // KAYO: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //尚勃勒
-  // Chamber: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability2',
-  //     Ability2: 'Grenade',
-  //     Grenade: 'Ability1',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //霓虹
-  // Neon: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Grenade',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //黑梦
-  // Fade: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Ability2',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //海神
-  // Harbor: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Ability1',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //盖可
-  // Gekko: {
-  //   iconRedirect: {
-  //     Ability1: 'Ability1',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //钢锁
-  // Deadlock: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Ability1',
-  //     Ultimate: 'Ultimate',
-  //   }
-  // },
-  // //壹决
-  // Iso: {
-  //   iconRedirect: {
-  //     Ability1: 'Grenade',
-  //     Ability2: 'Ability2',
-  //     Grenade: 'Ultimate',
-  //     Ultimate: 'Ability1',
-  //   }
-  // },
-  // //暮蝶
-  // Clove: {
-  //   iconRedirect: {
-  //     Ability1: 'Ultimate',
-  //     Ability2: 'Ability1',
-  //     Grenade: 'Grenade',
-  //     Ultimate: 'Ability2',
-  //   }
-  // },
 };
 
 const normalizeAgentKey = (agent: Agent) => agent?.displayName || '';
@@ -491,4 +273,188 @@ export const getAbilityIcon = (agent: Agent, abilityIndex: number | null) => {
   }
 
   return ability.displayIcon || null;
+};
+
+// ===== Title 占位配置（为所有已列出的英雄生成示例，便于手工修改）=====
+const DEFAULT_TITLES = {
+  Ability1: 'Ability1',
+  Ability2: 'Ability2',
+  Grenade: 'Grenade',
+  Ultimate: 'Ultimate',
+};
+
+const TITLE_OVERRIDES: Record<string, Record<string, string>> = Object.fromEntries(
+  Object.keys(OVERRIDES).map((key) => [key, { ...DEFAULT_TITLES }]),
+);
+  TITLE_OVERRIDES['炼狱'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['不死鸟'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['贤者'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['猎枭'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['蝰蛇'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['零'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['芮娜'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['奇乐'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['雷兹'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['铁臂'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['幽影'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['捷风'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['斯凯'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['夜露'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['星礈'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['K/O'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['尚勃勒'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['霓虹'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['黑梦'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['海神'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['盖可'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['钢锁'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['壹决'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['暮蝶'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['维斯'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['钛狐'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['幻棱'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+  TITLE_OVERRIDES['禁灭'] = {
+    Ability1: '技能Q的标题',
+    Ability2: '技能E的标题',
+    Grenade: '技能C的标题',
+    Ultimate: '技能X的标题',
+  };
+export const getAbilityTitle = (agent: Agent, slot: string, fallback?: string) => {
+  const key = normalizeAgentKey(agent);
+  return TITLE_OVERRIDES[key]?.[slot] || fallback || slot;
 };

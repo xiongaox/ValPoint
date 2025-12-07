@@ -1,7 +1,7 @@
 ﻿// @ts-nocheck
 import React from 'react';
 import Icon from './Icon';
-import { getAbilityIcon } from '../utils/abilityIcons';
+import { getAbilityIcon, getAbilityTitle } from '../utils/abilityIcons';
 
 type Props = {
   activeTab: string;
@@ -115,7 +115,7 @@ const LeftPanel: React.FC<Props> = ({
                     key={idx}
                   onClick={() => setSelectedAbilityIndex(selectedAbilityIndex === idx ? null : idx)}
                   className={`ability-icon flex flex-col items-center gap-1 flex-1 p-1 rounded ${selectedAbilityIndex === idx ? 'selected bg-white/5' : ''}`}
-                  title={ability.displayName}
+                  title={getAbilityTitle(selectedAgent, ability.slot, ability.displayName)}
                 >
                   <img src={getAbilityIcon(selectedAgent, idx)} className="w-8 h-8 object-contain" />
                   <span className="text-[10px] uppercase font-bold text-gray-500">

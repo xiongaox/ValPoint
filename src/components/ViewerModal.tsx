@@ -65,9 +65,10 @@ const ViewerModal = ({ viewingLineup, onClose, handleEditStart, setViewingImage,
           <div className="grid grid-cols-2 gap-6">
             {[
               { src: viewingLineup.standImg, desc: viewingLineup.standDesc, label: '1. 站位 (Stand)' },
-              { src: viewingLineup.aimImg, desc: viewingLineup.aimDesc, label: '2. 瞄点 1 (Aim)' },
-              { src: viewingLineup.aim2Img, desc: viewingLineup.aim2Desc, label: '3. 瞄点 2 (Aim)' },
-              { src: viewingLineup.landImg, desc: viewingLineup.landDesc, label: '4. 落点 (Land)' },
+              { src: viewingLineup.stand2Img, desc: viewingLineup.stand2Desc, label: '2. 站位 2 (Stand)' },
+              { src: viewingLineup.aimImg, desc: viewingLineup.aimDesc, label: '3. 瞄点 1 (Aim)' },
+              { src: viewingLineup.aim2Img, desc: viewingLineup.aim2Desc, label: '4. 瞄点 2 (Aim)' },
+              { src: viewingLineup.landImg, desc: viewingLineup.landDesc, label: '5. 落点 (Land)' },
             ].map((item, idx) =>
               item.src ? (
                 <div key={idx} className="flex flex-col gap-2">
@@ -86,7 +87,11 @@ const ViewerModal = ({ viewingLineup, onClose, handleEditStart, setViewingImage,
               ) : null,
             )}
           </div>
-          {!viewingLineup.standImg && !viewingLineup.aimImg && !viewingLineup.aim2Img && !viewingLineup.landImg && (
+          {!viewingLineup.standImg &&
+            !viewingLineup.stand2Img &&
+            !viewingLineup.aimImg &&
+            !viewingLineup.aim2Img &&
+            !viewingLineup.landImg && (
             <div className="h-full flex items-center justify-center text-gray-500 text-sm">暂无图片资料</div>
           )}
         </div>

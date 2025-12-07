@@ -50,6 +50,8 @@ const toDbPayload = (data, userId) => ({
   skill_pos: data.skillPos,
   stand_img: data.standImg,
   stand_desc: data.standDesc,
+  stand2_img: data.stand2Img,
+  stand2_desc: data.stand2Desc,
   aim_img: data.aimImg,
   aim_desc: data.aimDesc,
   aim2_img: data.aim2Img,
@@ -77,6 +79,8 @@ const normalizeLineup = (raw, mapNameZhToEn) => {
     skillPos: pick(raw.skill_pos, raw.skillPos),
     standImg: pick(raw.stand_img, raw.standImg),
     standDesc: pick(raw.stand_desc, raw.standDesc),
+    stand2Img: pick(raw.stand2_img, raw.stand2Img),
+    stand2Desc: pick(raw.stand2_desc, raw.stand2Desc),
     aimImg: pick(raw.aim_img, raw.aimImg),
     aimDesc: pick(raw.aim_desc, raw.aimDesc),
     aim2Img: pick(raw.aim2_img, raw.aim2Img),
@@ -120,6 +124,8 @@ function App() {
     skillPos: null,
     standImg: '',
     standDesc: '',
+    stand2Img: '',
+    stand2Desc: '',
     aimImg: '',
     aimDesc: '',
     aim2Img: '',
@@ -127,6 +133,8 @@ function App() {
     landImg: '',
     landDesc: '',
     sourceLink: '',
+    enableStand2: false,
+    enableAim2: false,
   });
   const [newLineupData, setNewLineupData] = useState(createEmptyLineup());
   const [placingType, setPlacingType] = useState(null);
@@ -442,6 +450,8 @@ function App() {
       skillPos: lineup.skillPos,
       standImg: lineup.standImg || '',
       standDesc: lineup.standDesc || '',
+      stand2Img: lineup.stand2Img || '',
+      stand2Desc: lineup.stand2Desc || '',
       aimImg: lineup.aimImg || '',
       aimDesc: lineup.aimDesc || '',
       aim2Img: lineup.aim2Img || '',
@@ -449,6 +459,8 @@ function App() {
       landImg: lineup.landImg || '',
       landDesc: lineup.landDesc || '',
       sourceLink: lineup.sourceLink || '',
+      enableStand2: !!(lineup.stand2Img || lineup.stand2Desc),
+      enableAim2: !!(lineup.aim2Img || lineup.aim2Desc),
     });
     setEditingLineupId(lineup.id);
     setViewingLineup(null);
@@ -462,8 +474,15 @@ function App() {
       return;
     }
     if (!newLineupData.title.trim()) return setAlertMessage('标题不能为空');
-    const commonData = {
+    const cleaned = {
       ...newLineupData,
+      stand2Img: newLineupData.enableStand2 ? newLineupData.stand2Img : '',
+      stand2Desc: newLineupData.enableStand2 ? newLineupData.stand2Desc : '',
+      aim2Img: newLineupData.enableAim2 ? newLineupData.aim2Img : '',
+      aim2Desc: newLineupData.enableAim2 ? newLineupData.aim2Desc : '',
+    };
+    const commonData = {
+      ...cleaned,
       mapName: selectedMap.displayName,
       agentName: selectedAgent.displayName,
       agentIcon: selectedAgent.displayIcon,
@@ -693,9 +712,10 @@ function App() {
             <div className="grid grid-cols-1 gap-4">
               {[
                 { src: sharedLineup.standImg, desc: sharedLineup.standDesc, label: '1. 站位 (Stand)' },
-                { src: sharedLineup.aimImg, desc: sharedLineup.aimDesc, label: '2. 瞄点 1 (Aim)' },
-                { src: sharedLineup.aim2Img, desc: sharedLineup.aim2Desc, label: '3. 瞄点 2 (Aim)' },
-                { src: sharedLineup.landImg, desc: sharedLineup.landDesc, label: '4. 落点 (Land)' },
+                { src: sharedLineup.stand2Img, desc: sharedLineup.stand2Desc, label: '2. 站位 2 (Stand)' },
+                { src: sharedLineup.aimImg, desc: sharedLineup.aimDesc, label: '3. 瞄点 1 (Aim)' },
+                { src: sharedLineup.aim2Img, desc: sharedLineup.aim2Desc, label: '4. 瞄点 2 (Aim)' },
+                { src: sharedLineup.landImg, desc: sharedLineup.landDesc, label: '5. 落点 (Land)' },
               ].map((item, idx) =>
                 item.src ? (
                   <div key={idx} className="flex flex-col gap-2">
@@ -714,7 +734,11 @@ function App() {
                 ) : null,
               )}
             </div>
-            {!sharedLineup.standImg && !sharedLineup.aimImg && !sharedLineup.aim2Img && !sharedLineup.landImg && (
+            {!sharedLineup.standImg &&
+              !sharedLineup.stand2Img &&
+              !sharedLineup.aimImg &&
+              !sharedLineup.aim2Img &&
+              !sharedLineup.landImg && (
               <div className="h-full flex items-center justify-center text-gray-500 text-sm">暂无图片资料</div>
             )}
           </div>

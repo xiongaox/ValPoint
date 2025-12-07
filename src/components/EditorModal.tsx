@@ -4,13 +4,30 @@ import Icon from './Icon';
 
 const fields = [
   { k: 'stand', l: '站位图' },
+  { k: 'stand2', l: '站位图 2', toggleKey: 'enableStand2' },
   { k: 'aim', l: '瞄点图' },
-  { k: 'aim2', l: '瞄点图2' },
+  { k: 'aim2', l: '瞄点图 2', toggleKey: 'enableAim2' },
   { k: 'land', l: '技能落点图' },
 ];
 
 const EditorModal = ({ isEditorOpen, editingLineupId, newLineupData, setNewLineupData, handleEditorSave, onClose }) => {
   if (!isEditorOpen) return null;
+
+  const toggleField = (field) => {
+    if (!field.toggleKey) return;
+    const enabled = newLineupData[field.toggleKey];
+    if (enabled) {
+      setNewLineupData({
+        ...newLineupData,
+        [field.toggleKey]: false,
+        [`${field.k}Img`]: '',
+        [`${field.k}Desc`]: '',
+      });
+    } else {
+      setNewLineupData({ ...newLineupData, [field.toggleKey]: true });
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
       <div className="modal-content bg-[#1f2326] w-full max-w-3xl h-[85vh] flex flex-col rounded-xl border border-white/10 shadow-2xl">
@@ -46,39 +63,77 @@ const EditorModal = ({ isEditorOpen, editingLineupId, newLineupData, setNewLineu
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            {fields.map((field) => (
-              <div key={field.k} className="bg-[#181b1f] p-4 rounded border border-white/5">
-                <div className="text-[#ff4655] font-bold text-sm mb-3 flex items-center gap-2 uppercase tracking-wider">
-                  <Icon name="Image" size={14} /> {field.l}
+            {fields.map((field) => {
+              const enabled = field.toggleKey ? newLineupData[field.toggleKey] : true;
+              const hasData = newLineupData[`${field.k}Img`] || newLineupData[`${field.k}Desc`];
+              const shouldShow = enabled || hasData || !field.toggleKey;
+              if (!shouldShow) {
+                return (
+                  <div key={field.k} className="bg-[#181b1f] p-4 rounded border border-dashed border-white/10 flex flex-col gap-3">
+                    <div className="flex items-center justify-between text-sm text-gray-400">
+                      <span className="flex items-center gap-2">
+                        <Icon name="Image" size={14} /> {field.l}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleField(field)}
+                        className="px-3 py-1 rounded border border-white/10 text-xs text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                      >
+                        启用
+                      </button>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center text-xs text-gray-600 bg-[#0f1923] rounded border border-white/5 h-32">
+                      已关闭，点击启用后填写
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={field.k} className="bg-[#181b1f] p-4 rounded border border-white/5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="text-[#ff4655] font-bold text-sm flex items-center gap-2 uppercase tracking-wider">
+                      <Icon name="Image" size={14} /> {field.l}
+                    </div>
+                    {field.toggleKey && (
+                      <button
+                        type="button"
+                        onClick={() => toggleField(field)}
+                        className="px-3 py-1 rounded border border-white/10 text-xs text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                      >
+                        关闭
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white mb-2 focus:border-[#ff4655] outline-none"
+                    placeholder="图片链接（可选）"
+                    value={newLineupData[`${field.k}Img`]}
+                    onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Img`]: e.target.value })}
+                  />
+                  <textarea
+                    className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white h-20 resize-none focus:border-[#ff4655] outline-none"
+                    placeholder="描述（可选）"
+                    value={newLineupData[`${field.k}Desc`]}
+                    onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Desc`]: e.target.value })}
+                  />
+                  {newLineupData[`${field.k}Img`] ? (
+                    <div className="mt-3 relative overflow-hidden rounded border border-white/10 bg-[#0f1923]">
+                      <img
+                        src={newLineupData[`${field.k}Img`]}
+                        alt={`${field.l} 预览`}
+                        className="w-full h-40 object-cover"
+                        onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                      />
+                    </div>
+                  ) : (
+                    <div className="mt-3 h-40 flex items-center justify-center text-xs text-gray-600 border border-dashed border-white/10 rounded bg-[#0f1923]">
+                      暂无预览
+                    </div>
+                  )}
                 </div>
-                <input
-                  className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white mb-2 focus:border-[#ff4655] outline-none"
-                  placeholder="图片链接（可选）"
-                  value={newLineupData[`${field.k}Img`]}
-                  onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Img`]: e.target.value })}
-                />
-                <textarea
-                  className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white h-20 resize-none focus:border-[#ff4655] outline-none"
-                  placeholder="描述（可选）"
-                  value={newLineupData[`${field.k}Desc`]}
-                  onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Desc`]: e.target.value })}
-                />
-                {newLineupData[`${field.k}Img`] ? (
-                  <div className="mt-3 relative overflow-hidden rounded border border-white/10 bg-[#0f1923]">
-                    <img
-                      src={newLineupData[`${field.k}Img`]}
-                      alt={`${field.l} 预览`}
-                      className="w-full h-40 object-cover"
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                    />
-                  </div>
-                ) : (
-                  <div className="mt-3 h-40 flex items-center justify-center text-xs text-gray-600 border border-dashed border-white/10 rounded bg-[#0f1923]">
-                    暂无预览
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
         <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#252a30]">

@@ -242,10 +242,10 @@ const RightPanel: React.FC<Props> = ({
               <button
                 onClick={handleClearAll}
                 disabled={userMode === 'guest' || isSharedMode}
-                className={`h-12 px-3 whitespace-nowrap font-bold rounded-lg flex items-center justify-center gap-2 uppercase tracking-wider shadow-lg shadow-red-900/20 group transition-colors ${
+                className={`h-12 px-3 whitespace-nowrap font-bold rounded-lg flex items-center justify-center gap-2 uppercase tracking-wider group transition-colors ${
                   userMode === 'guest' || isSharedMode
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed border border-white/10'
-                    : 'bg-[#ff4655] hover:bg-[#d93a49] text-white'
+                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed border border-white/10 shadow-none'
+                    : 'bg-[#ff4655] hover:bg-[#d93a49] text-white shadow-lg shadow-red-900/20'
                 }`}
                 title={
                   userMode === 'guest'

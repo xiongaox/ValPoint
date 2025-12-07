@@ -13,31 +13,14 @@ import LeftPanel from './components/LeftPanel';
 import RightPanel from './components/RightPanel';
 import Icon from './components/Icon';
 import { changelogEntries } from './changelog';
-import { supabase, shareSupabase } from './supabaseClient';
-
-const LOCAL_USER_KEY = 'valpoint_user_id';
-const LOCAL_USER_MODE_KEY = 'valpoint_user_mode';
-const TABLE = 'valorant_lineups';
-const SHARE_TABLE = 'valorant_shared';
-const USER_TABLE = 'valorant_users';
-const ID_LENGTH = 8;
-const ID_REGEX = /^[A-Za-z0-9]{8}$/;
-
-const generateRandomUserId = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const arr = crypto.getRandomValues(new Uint32Array(ID_LENGTH));
-  let out = '';
-  for (let i = 0; i < ID_LENGTH; i++) {
-    out += chars[arr[i] % chars.length];
-  }
-  return out;
-};
-const toShortShareId = (uuid) => {
-  if (!uuid) return '';
-  const parts = uuid.split('-');
-  if (parts.length === 5) return `${parts[3]}-${parts[4]}`;
-  return uuid;
-};
+import { useAuth } from './hooks/useAuth';
+import { useLineups } from './hooks/useLineups';
+import { useSharedLineups } from './hooks/useSharedLineups';
+import { useLineupActions } from './hooks/useLineupActions';
+import { useShareActions } from './hooks/useShareActions';
+import { useValorantData } from './hooks/useValorantData';
+import { useLineupFiltering } from './hooks/useLineupFiltering';
+import { useModalState } from './hooks/useModalState';
 
 const toDbPayload = (data, userId) => ({
   title: data.title,
@@ -64,64 +47,47 @@ const toDbPayload = (data, userId) => ({
   cloned_from: data.clonedFrom || null,
 });
 
-const normalizeLineup = (raw, mapNameZhToEn) => {
-  const pick = (a, b) => (a !== undefined ? a : b);
-  const mapNameRaw = pick(raw.map_name, raw.mapName);
-  return {
-    id: raw.id,
-    title: pick(raw.title, ''),
-    mapName: mapNameZhToEn[mapNameRaw] || mapNameRaw,
-    agentName: pick(raw.agent_name, raw.agentName),
-    agentIcon: pick(raw.agent_icon, raw.agentIcon),
-    skillIcon: pick(raw.skill_icon, raw.skillIcon),
-    side: pick(raw.side, 'attack'),
-    abilityIndex: pick(raw.ability_index, raw.abilityIndex),
-    agentPos: pick(raw.agent_pos, raw.agentPos),
-    skillPos: pick(raw.skill_pos, raw.skillPos),
-    standImg: pick(raw.stand_img, raw.standImg),
-    standDesc: pick(raw.stand_desc, raw.standDesc),
-    stand2Img: pick(raw.stand2_img, raw.stand2Img),
-    stand2Desc: pick(raw.stand2_desc, raw.stand2Desc),
-    aimImg: pick(raw.aim_img, raw.aimImg),
-    aimDesc: pick(raw.aim_desc, raw.aimDesc),
-    aim2Img: pick(raw.aim2_img, raw.aim2Img),
-    aim2Desc: pick(raw.aim2_desc, raw.aim2Desc),
-    landImg: pick(raw.land_img, raw.landImg),
-    landDesc: pick(raw.land_desc, raw.landDesc),
-    sourceLink: pick(raw.source_link, raw.sourceLink),
-    createdAt: pick(raw.created_at, raw.createdAt),
-    updatedAt: pick(raw.updated_at, raw.updatedAt),
-    clonedFrom: pick(raw.cloned_from, raw.clonedFrom),
-    userId: pick(raw.user_id, raw.userId),
-  };
-};
-
 function App() {
-  const [userId, setUserId] = useState(null);
   const [activeTab, setActiveTab] = useState('view');
-  const [selectedMap, setSelectedMap] = useState(null);
-  const [selectedAgent, setSelectedAgent] = useState(null);
   const [selectedSide, setSelectedSide] = useState('all');
   const [selectedAbilityIndex, setSelectedAbilityIndex] = useState(null);
-  const [maps, setMaps] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [lineups, setLineups] = useState([]);
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const { maps, agents, selectedMap, setSelectedMap, selectedAgent, setSelectedAgent } = useValorantData();
+  const {
+    isMapModalOpen,
+    setIsMapModalOpen,
+    isPreviewModalOpen,
+    setIsPreviewModalOpen,
+    previewInput,
+    setPreviewInput,
+    isEditorOpen,
+    setIsEditorOpen,
+    isClearConfirmOpen,
+    setIsClearConfirmOpen,
+    deleteTargetId,
+    setDeleteTargetId,
+    alertMessage,
+    setAlertMessage,
+    viewingImage,
+    setViewingImage,
+    isChangelogOpen,
+    setIsChangelogOpen,
+  } = useModalState();
+  const mapNameZhToEn = useMemo(() => {
+    const reverse = {};
+    Object.entries(MAP_TRANSLATIONS).forEach(([en, zh]) => {
+      reverse[zh] = en;
+    });
+    return reverse;
+  }, []);
+  const { lineups, setLineups, fetchLineups } = useLineups(mapNameZhToEn);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLineupId, setSelectedLineupId] = useState(null);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
-  const [alertMessage, setAlertMessage] = useState(null);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [viewingLineup, setViewingLineup] = useState(null);
-  const [viewingImage, setViewingImage] = useState(null);
   const [editingLineupId, setEditingLineupId] = useState(null);
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [previewInput, setPreviewInput] = useState('');
-  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const [sharedLineup, setSharedLineup] = useState(null);
-  const [sharedLineups, setSharedLineups] = useState([]);
+  const { sharedLineups, setSharedLineups, fetchSharedLineups, fetchSharedById } = useSharedLineups(mapNameZhToEn);
+  const { saveNewLineup, updateLineup, deleteLineup, clearLineups } = useLineupActions();
   const [libraryMode, setLibraryMode] = useState('personal'); // personal | shared
-  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const createEmptyLineup = () => ({
     title: '',
     agentPos: null,
@@ -142,251 +108,76 @@ function App() {
   });
   const [newLineupData, setNewLineupData] = useState(createEmptyLineup());
   const [placingType, setPlacingType] = useState(null);
-  const [customUserIdInput, setCustomUserIdInput] = useState('');
   const [isSharing, setIsSharing] = useState(false);
-  const [userMode, setUserMode] = useState('login'); // login | guest
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [pendingUserId, setPendingUserId] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
-  const [isAuthLoading, setIsAuthLoading] = useState(false);
-  const isGuest = userMode === 'guest';
-  const targetUserId = pendingUserId || customUserIdInput || userId || '';
-
+  const {
+    userId,
+    userMode,
+    isGuest,
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+    pendingUserId,
+    setPendingUserId,
+    customUserIdInput,
+    setCustomUserIdInput,
+    passwordInput,
+    setPasswordInput,
+    isAuthLoading,
+    targetUserId,
+    handleApplyCustomUserId,
+    handleResetUserId,
+    handleConfirmUserAuth,
+  } = useAuth({
+    onAuthSuccess: async () => {},
+    setAlertMessage,
+  });
   const getMapDisplayName = (apiMapName) => MAP_TRANSLATIONS[apiMapName] || apiMapName;
   const getMapEnglishName = (displayName) =>
     Object.keys(MAP_TRANSLATIONS).find((key) => MAP_TRANSLATIONS[key] === displayName) || displayName;
 
-  const mapNameZhToEn = useMemo(() => {
-    const reverse = {};
-    Object.entries(MAP_TRANSLATIONS).forEach(([en, zh]) => {
-      reverse[zh] = en;
-    });
-    return reverse;
-  }, []);
-
-  const agentCounts = useMemo(() => {
-    if (!selectedMap) return {};
-    const mapKey = selectedMap.displayName;
-    const counts = {};
-    const source = libraryMode === 'shared' ? sharedLineups : lineups;
-    source.forEach((l) => {
-      if (l.mapName !== mapKey) return;
-      if (selectedSide !== 'all' && l.side !== selectedSide) return;
-      counts[l.agentName] = (counts[l.agentName] || 0) + 1;
-    });
-    return counts;
-  }, [lineups, sharedLineups, selectedMap, selectedSide, libraryMode]);
-
-  const filteredLineups = useMemo(() => {
-    if (!selectedMap) return [];
-    const mapKey = selectedMap.displayName;
-    return lineups.filter((l) => {
-      const mapMatch = l.mapName === mapKey;
-      const agentMatch = !selectedAgent || l.agentName === selectedAgent.displayName;
-      const sideMatch = selectedSide === 'all' || l.side === selectedSide;
-      const abilityMatch = selectedAbilityIndex === null || l.abilityIndex === selectedAbilityIndex;
-      const searchMatch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
-      return mapMatch && agentMatch && sideMatch && abilityMatch && searchMatch;
-    });
-  }, [lineups, selectedMap, selectedAgent, selectedSide, selectedAbilityIndex, searchQuery]);
-
-  const sharedFilteredLineups = useMemo(() => {
-    if (!selectedMap) return [];
-    const mapKey = selectedMap.displayName;
-    return sharedLineups.filter((l) => {
-      const mapMatch = l.mapName === mapKey;
-      const agentMatch = !selectedAgent || l.agentName === selectedAgent.displayName;
-      const sideMatch = selectedSide === 'all' || l.side === selectedSide;
-      const abilityMatch = selectedAbilityIndex === null || l.abilityIndex === selectedAbilityIndex;
-      const searchMatch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
-      return mapMatch && agentMatch && sideMatch && abilityMatch && searchMatch;
-    });
-  }, [sharedLineups, selectedMap, selectedAgent, selectedSide, selectedAbilityIndex, searchQuery]);
-
-  const fetchLineups = useCallback(
-    async (targetUserId = userId) => {
-      const resolvedUserId = targetUserId || userId;
-      if (!resolvedUserId) return;
-      const { data, error } = await supabase
-        .from(TABLE)
-        .select('*')
-        .eq('user_id', resolvedUserId)
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error('Supabase fetch error', error);
-        return;
-      }
-      const normalized = data.map((d) => normalizeLineup(d, mapNameZhToEn));
-      setLineups(normalized);
-    },
-    [userId, mapNameZhToEn],
-  );
+  const { agentCounts, filteredLineups, sharedFilteredLineups, isFlipped, mapLineups } = useLineupFiltering({
+    lineups,
+    sharedLineups,
+    libraryMode,
+    selectedMap,
+    selectedAgent,
+    selectedSide,
+    selectedAbilityIndex,
+    searchQuery,
+    activeTab,
+    sharedLineup,
+  });
 
   useEffect(() => {
-    const savedId = localStorage.getItem(LOCAL_USER_KEY);
-    const savedMode = localStorage.getItem(LOCAL_USER_MODE_KEY);
-    if (savedId && ID_REGEX.test(savedId)) {
-      setUserId(savedId);
-      setCustomUserIdInput(savedId);
-      const mode = savedMode === 'guest' ? 'guest' : 'login';
-      setUserMode(mode);
-    } else {
-      const newId = generateRandomUserId();
-      setPendingUserId(newId);
-      setCustomUserIdInput(newId);
-      setIsAuthModalOpen(true);
-    }
-
-    fetch('https://valorant-api.com/v1/maps')
-      .then((res) => res.json())
-      .then((data) => {
-        const validMaps = data.data.filter((m) => MAP_TRANSLATIONS[m.displayName] || CUSTOM_MAP_URLS[m.displayName]);
-        setMaps(validMaps);
-        if (validMaps.length > 0) {
-          const ascent = validMaps.find((m) => m.displayName === 'Ascent');
-          setSelectedMap(ascent || validMaps[0]);
-        }
-      });
-
-    fetch('https://valorant-api.com/v1/agents?language=zh-CN&isPlayableCharacter=true')
-      .then((res) => res.json())
-      .then((data) => {
-        const sorted = data.data.sort((a, b) => a.displayName.localeCompare(b.displayName));
-        setAgents(sorted);
-        const sova = sorted.find((a) => a.displayName === '猎枭' || a.displayName === 'Sova');
-        if (sova) setSelectedAgent(sova);
-        else if (sorted.length > 0) setSelectedAgent(sorted[0]);
-      });
-
     const params = new URLSearchParams(window.location.search);
     if (params.get('id')) setActiveTab('shared');
   }, []);
 
   useEffect(() => {
-    fetchLineups();
-  }, [fetchLineups]);
+    if (!userId) return;
+    fetchLineups(userId);
+  }, [fetchLineups, userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    setLineups([]);
+    setSelectedLineupId(null);
+    setViewingLineup(null);
+    setSharedLineup(null);
+    setEditingLineupId(null);
+    setIsEditorOpen(false);
+    setPlacingType(null);
+    setNewLineupData(createEmptyLineup());
+    setActiveTab('view');
+  }, [userId]);
 
   useEffect(() => {
     setSelectedLineupId(null);
     setViewingLineup(null);
   }, [libraryMode]);
 
-  const fetchSharedLineups = useCallback(async () => {
-    const { data, error } = await shareSupabase
-      .from(SHARE_TABLE)
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) {
-      console.error('Supabase shared fetch error', error);
-      return;
-    }
-    const normalized = data.map((d) => normalizeLineup(d, mapNameZhToEn));
-    setSharedLineups(normalized);
-  }, [mapNameZhToEn]);
-
   useEffect(() => {
     if (libraryMode === 'shared') fetchSharedLineups();
   }, [libraryMode, fetchSharedLineups]);
-
-  const openAuthModalForId = (id) => {
-    setPendingUserId(id);
-    setPasswordInput('');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleApplyCustomUserId = async () => {
-    const trimmed = customUserIdInput.trim().toUpperCase();
-    if (!ID_REGEX.test(trimmed)) {
-      setAlertMessage('ID 必须是 8 位字母或数字（不区分大小写）');
-      return;
-    }
-    openAuthModalForId(trimmed);
-  };
-
-  const handleResetUserId = async () => {
-    const newId = generateRandomUserId();
-    setCustomUserIdInput(newId);
-    openAuthModalForId(newId);
-  };
-
-  const handleConfirmUserAuth = async (forcedPassword = null) => {
-    const finalId = (pendingUserId || customUserIdInput || '').trim().toUpperCase();
-    if (!ID_REGEX.test(finalId)) {
-      setAlertMessage('ID 必须是 8 位字母或数字（不区分大小写）');
-      return;
-    }
-    const password = forcedPassword !== null ? forcedPassword.trim() : passwordInput.trim();
-    const nextMode = password ? 'login' : 'guest';
-    setIsAuthLoading(true);
-    try {
-      if (nextMode === 'login') {
-        const { data, error } = await supabase
-          .from(USER_TABLE)
-          .select('password, created_at')
-          .eq('user_id', finalId);
-        if (error) throw error;
-        const existing = data?.[0];
-        if (existing && existing.password && existing.password !== password) {
-          setAlertMessage('密码不正确，请重新输入。');
-          setIsAuthLoading(false);
-          return;
-        }
-        const now = new Date().toISOString();
-        const { error: upsertError } = await supabase
-          .from(USER_TABLE)
-          .upsert({
-            user_id: finalId,
-            password,
-            created_at: existing?.created_at || now,
-            updated_at: now,
-          });
-        if (upsertError) throw upsertError;
-      }
-
-      localStorage.setItem(LOCAL_USER_KEY, finalId);
-      localStorage.setItem(LOCAL_USER_MODE_KEY, nextMode);
-      setUserId(finalId);
-      setCustomUserIdInput(finalId);
-      setUserMode(nextMode);
-      setLineups([]);
-      setSelectedLineupId(null);
-      setViewingLineup(null);
-      setSharedLineup(null);
-      setEditingLineupId(null);
-      setIsEditorOpen(false);
-      setPlacingType(null);
-      setNewLineupData(createEmptyLineup());
-      setActiveTab('view');
-      setIsAuthModalOpen(false);
-      setPendingUserId('');
-      await fetchLineups(finalId);
-    } catch (e) {
-      console.error(e);
-      setAlertMessage('保存账号信息失败，请稍后重试');
-    } finally {
-      setIsAuthLoading(false);
-    }
-  };
-
-  const fetchSharedById = useCallback(
-    async (shareId) => {
-      if (!shareId) return null;
-      // 先查公共分享表
-    const { data: sharedData, error: sharedError } = await shareSupabase.from(SHARE_TABLE).select('*').eq('share_id', shareId).single();
-      if (!sharedError && sharedData) {
-        const normalized = normalizeLineup(sharedData, mapNameZhToEn);
-        return { ...normalized, id: sharedData.source_id || sharedData.id || shareId, shareId: sharedData.share_id || shareId };
-      }
-      // 兼容旧链接：按原表 id 查询
-      const { data: legacyData, error: legacyError } = await supabase.from(TABLE).select('*').eq('id', shareId).single();
-      if (!legacyError && legacyData) {
-        const normalized = normalizeLineup(legacyData, mapNameZhToEn);
-        return { ...normalized, id: legacyData.id, shareId: shareId };
-      }
-      return null;
-    },
-    [mapNameZhToEn],
-  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -448,7 +239,7 @@ function App() {
         const firstAgent = agents[0];
         if (firstAgent) setSelectedAgent(firstAgent);
       }
-      fetchLineups();
+      fetchLineups(userId);
     }
   };
 
@@ -534,22 +325,17 @@ function App() {
     };
     try {
       if (editingLineupId) {
-        const { error } = await supabase
-          .from(TABLE)
-          .update({ ...toDbPayload(commonData, userId), updated_at: new Date().toISOString() })
-          .eq('id', editingLineupId);
-        if (error) throw error;
+        await updateLineup(editingLineupId, { ...toDbPayload(commonData, userId), updated_at: new Date().toISOString() });
         setAlertMessage('更新成功');
       } else {
-        const { error } = await supabase.from(TABLE).insert({ ...toDbPayload(commonData, userId), created_at: new Date().toISOString() });
-        if (error) throw error;
+        await saveNewLineup({ ...toDbPayload(commonData, userId), created_at: new Date().toISOString() });
         setAlertMessage('保存成功');
       }
       setIsEditorOpen(false);
       setEditingLineupId(null);
       setNewLineupData(createEmptyLineup());
       setActiveTab('view');
-      fetchLineups();
+      fetchLineups(userId);
     } catch (e) {
       console.error(e);
       setAlertMessage('保存失败');
@@ -572,57 +358,39 @@ function App() {
       return;
     }
     if (!deleteTargetId) return;
-    const { error } = await supabase.from(TABLE).delete().eq('id', deleteTargetId);
-    if (error) {
-      setAlertMessage('删除失败，请重试。');
-    } else {
+    try {
+      await deleteLineup(deleteTargetId);
       setSelectedLineupId(null);
       setViewingLineup(null);
+    } catch (e) {
+      setAlertMessage('删除失败，请重试。');
     }
     setDeleteTargetId(null);
-    fetchLineups();
+    fetchLineups(userId);
   };
 
-  const handleShare = async (id, e) => {
-    e.stopPropagation();
-    const lineup = lineups.find((l) => l.id === id);
-    if (!lineup) {
-      setAlertMessage('未找到要分享的点位');
-      return;
-    }
-    const shareId = toShortShareId(id);
-    const payload = {
-      share_id: shareId,
-      source_id: id,
-      ...toDbPayload({ ...lineup, mapName: getMapEnglishName(lineup.mapName) }, userId),
-      created_at: lineup.createdAt || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    try {
-      setIsSharing(true);
-      const { error } = await shareSupabase.from(SHARE_TABLE).upsert(payload, { onConflict: 'share_id' });
-      if (error) throw error;
-      const textArea = document.createElement('textarea');
-      textArea.value = shareId;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-9999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setAlertMessage('分享 ID 已复制，好友可直接预览。\n提示：分享库数据会在 15 天后自动清理，请及时保存到个人库。');
-      } catch (err) {
-        setAlertMessage('复制失败，请手动复制 ID：\\n' + shareId + '\\n提示：分享库数据会在 15 天后自动清理，请及时保存到个人库。');
-      }
-      document.body.removeChild(textArea);
-    } catch (err) {
-      console.error(err);
-      setAlertMessage('分享失败，请重试');
-    } finally {
-      setIsSharing(false);
-    }
-  };
+  const { handleShare, handleSaveShared } = useShareActions({
+    lineups,
+    userId,
+    isGuest,
+    getMapEnglishName,
+    setAlertMessage,
+    setIsSharing,
+    saveNewLineup,
+    fetchLineups,
+    handleTabSwitch,
+  });
+  const onShare = useCallback(
+    (id, e) => {
+      e?.stopPropagation();
+      handleShare(id);
+    },
+    [handleShare],
+  );
+  const onSaveShared = useCallback(
+    (lineupParam = null) => handleSaveShared(lineupParam, sharedLineup),
+    [handleSaveShared, sharedLineup],
+  );
 
   const togglePlacingType = (type) => {
     if (isGuest) {
@@ -645,43 +413,15 @@ function App() {
   };
 
   const performClearAll = async () => {
-    const { error } = await supabase.from(TABLE).delete().eq('user_id', userId);
-    if (error) {
-      setAlertMessage('清空失败，请重试。');
-    } else {
+    try {
+      await clearLineups(userId);
       setIsClearConfirmOpen(false);
       setSelectedLineupId(null);
       setViewingLineup(null);
       setAlertMessage('已清空当前账号的点位。');
-      fetchLineups();
-    }
-  };
-
-  const handleSaveShared = async (lineupParam = null) => {
-    if (isGuest) {
-      setAlertMessage('游客模式无法保存点位，请先输入密码切换到登录模式');
-      return;
-    }
-    const lineupToSave = lineupParam || sharedLineup;
-    if (!lineupToSave) return;
-    try {
-      const mapNameEn = getMapEnglishName(lineupToSave.mapName);
-      const { id, ...data } = lineupToSave;
-      const payload = {
-        ...data,
-        mapName: mapNameEn,
-        agentPos: data.agentPos,
-        skillPos: data.skillPos,
-        clonedFrom: id,
-      };
-      const { error } = await supabase.from(TABLE).insert({ ...toDbPayload(payload, userId), created_at: new Date().toISOString() });
-      if (error) throw error;
-      setAlertMessage('已成功保存到你的点位列表');
-      handleTabSwitch('view');
-      fetchLineups();
-    } catch (err) {
-      console.error(err);
-      setAlertMessage('保存失败，请重试。');
+      fetchLineups(userId);
+    } catch (e) {
+      setAlertMessage('清空失败，请重试。');
     }
   };
 
@@ -694,13 +434,6 @@ function App() {
     },
     [lineups, sharedLineups, libraryMode],
   );
-
-  const isFlipped = activeTab === 'shared' ? sharedLineup?.side === 'defense' : selectedSide === 'defense';
-  const mapLineups = useMemo(() => {
-    if (activeTab === 'shared' && sharedLineup) return [sharedLineup];
-    if (activeTab === 'view' || activeTab === 'create') return libraryMode === 'shared' ? sharedFilteredLineups : filteredLineups;
-    return libraryMode === 'shared' ? sharedLineups : lineups;
-  }, [activeTab, sharedLineup, filteredLineups, sharedFilteredLineups, lineups, sharedLineups, libraryMode]);
 
   const getMapUrl = () => {
     if (activeTab === 'shared' && sharedLineup) {
@@ -738,7 +471,7 @@ function App() {
                 </span>
               </div>
               <button
-                onClick={handleSaveShared}
+                onClick={() => onSaveShared(sharedLineup)}
                 className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-200 transition-colors px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30"
               >
                 <Icon name="Save" size={14} /> 保存到我的点位
@@ -889,7 +622,7 @@ function App() {
         filteredLineups={libraryMode === 'shared' ? sharedFilteredLineups : filteredLineups}
         selectedLineupId={selectedLineupId}
         handleViewLineup={handleViewLineup}
-        handleShare={handleShare}
+        handleShare={onShare}
         handleRequestDelete={handleRequestDelete}
         handleClearAll={handleClearAll}
         getMapDisplayName={getMapDisplayName}
@@ -1048,7 +781,7 @@ function App() {
         getMapEnglishName={getMapEnglishName}
         isGuest={isGuest}
         libraryMode={libraryMode}
-        handleCopyShared={handleSaveShared}
+        handleCopyShared={onSaveShared}
       />
 
       <Lightbox viewingImage={viewingImage} setViewingImage={setViewingImage} />

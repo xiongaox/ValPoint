@@ -109,13 +109,31 @@ export const useShareActions = ({
         const mapNameEn = getMapEnglishName(target.mapName);
         const { id, ...data } = target;
         const payload = {
-          ...data,
-          mapName: mapNameEn,
-          agentPos: data.agentPos,
-          skillPos: data.skillPos,
-          clonedFrom: id,
+          title: data.title,
+          map_name: mapNameEn,
+          agent_name: data.agentName,
+          agent_icon: data.agentIcon,
+          skill_icon: data.skillIcon,
+          side: data.side,
+          ability_index: data.abilityIndex ?? null,
+          agent_pos: data.agentPos,
+          skill_pos: data.skillPos,
+          stand_img: data.standImg,
+          stand_desc: data.standDesc,
+          stand2_img: data.stand2Img,
+          stand2_desc: data.stand2Desc,
+          aim_img: data.aimImg,
+          aim_desc: data.aimDesc,
+          aim2_img: data.aim2Img,
+          aim2_desc: data.aim2Desc,
+          land_img: data.landImg,
+          land_desc: data.landDesc,
+          source_link: data.sourceLink,
+          user_id: userId,
+          cloned_from: id,
+          created_at: new Date().toISOString(),
         };
-        await saveNewLineup({ ...payload, map_name: payload.mapName, user_id: userId, created_at: new Date().toISOString() });
+        await saveNewLineup(payload);
         setAlertMessage('已成功保存到你的点位列表');
         handleTabSwitch('view');
         fetchLineups(userId);

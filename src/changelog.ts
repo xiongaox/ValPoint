@@ -5,6 +5,7 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
     date: '2025-12-07',
     items: [
       '新增地图封面背景',
+      '使用国服（无畏契约）的api替换掉原来的技能图标和文案，自动映射正确的技能图标顺序和技能文案',
       '新增技能名称对照配置',
       '映射维斯、钛狐、幻棱、禁灭',
       '重新映射所有英雄的技能图标',

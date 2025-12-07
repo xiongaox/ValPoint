@@ -609,9 +609,9 @@ function App() {
       textArea.select();
       try {
         document.execCommand('copy');
-        setAlertMessage('分享 ID 已复制，好友可直接预览');
+        setAlertMessage('分享 ID 已复制，好友可直接预览。\n提示：分享库数据会在 15 天后自动清理，请及时保存到个人库。');
       } catch (err) {
-        setAlertMessage('复制失败，请手动复制 ID：\\n' + shareId);
+        setAlertMessage('复制失败，请手动复制 ID：\\n' + shareId + '\\n提示：分享库数据会在 15 天后自动清理，请及时保存到个人库。');
       }
       document.body.removeChild(textArea);
     } catch (err) {

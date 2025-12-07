@@ -16,6 +16,7 @@ type Props = {
   setSelectedAbilityIndex: (idx: number | null) => void;
   setIsPreviewModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
+  openChangelog: () => void;
 };
 
 const LeftPanel: React.FC<Props> = ({
@@ -32,6 +33,7 @@ const LeftPanel: React.FC<Props> = ({
   setSelectedAbilityIndex,
   setIsPreviewModalOpen,
   getMapDisplayName,
+  openChangelog,
 }) => {
   const handleAgentClick = (agent: any) => {
     if (selectedAgent?.uuid === agent.uuid) {
@@ -44,10 +46,16 @@ const LeftPanel: React.FC<Props> = ({
 
   return (
     <div className="w-80 flex-shrink-0 flex flex-col bg-[#1f2326] border-r border-white/10 z-20 shadow-2xl">
-      <div className="h-16 flex items-center px-6 border-b border-white/5 bg-[#1f2326] shadow-sm flex justify-between">
+      <div className="h-16 flex items-center px-6 border-b border-white/5 bg-[#1f2326] shadow-sm flex justify-between gap-3">
         <div className="flex items-center gap-3">
           <img src="/brand-logo.svg" alt="Logo" className="w-[168px] h-[32px]" />
         </div>
+        <button
+          onClick={openChangelog}
+          className="px-3.5 py-2 rounded-lg border border-white/10 text-xs text-gray-200 hover:text-white hover:border-[#ff4655] hover:bg-[#ff4655]/10 transition-colors"
+        >
+          更新日志
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">

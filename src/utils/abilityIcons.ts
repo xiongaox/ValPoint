@@ -213,224 +213,256 @@ const OVERRIDES: Record<string, IconOverrides> = {
       Ultimate: 'Ability2',
     }
   }, 
+  维斯: {
+    iconRedirect: {
+      Ability1: 'Grenade',
+      Ability2: 'Ability1',
+      Grenade: 'Ability2',
+      Ultimate: 'Ultimate',
+    }
+  },
+  钛狐: {
+    iconRedirect: {
+      Ability1: 'Ability1',
+      Ability2: 'Grenade',
+      Grenade: 'Ultimate',
+      Ultimate: 'Ability2',
+    }
+  }, 
+  幻棱: {
+    iconRedirect: {
+      Ability1: 'Ability2',
+      Ability2: 'Grenade',
+      Grenade: 'Ability1',
+      Ultimate: 'Ultimate',
+    }
+  },
+  禁灭: {
+    iconRedirect: {
+      Ability1: 'Ultimate',
+      Ability2: 'Grenade',
+      Grenade: 'Ability1',
+      Ultimate: 'Ability2',
+    }
+  },
 
   // 英文名同样预置，避免缺漏
-  //炼狱
-  Brimstone: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //不死鸟
-  Phoenix: {
-    iconRedirect: {
-      Ability1: 'Ability2',
-      Ability2: 'Ability1',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //贤者
-  Sage: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //猎枭
-  Sova: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //蝰蛇
-  Viper: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //零
-  Cypher: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //芮娜
-  Reyna: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //奇乐
-  Killjoy: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //雷兹
-  Raze: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //铁臂
-  Breach: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //幽影
-  Omen: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //捷风
-  Jett: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //斯凯
-  Skye: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //夜露
-  Yoru: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //星礈
-  Astra: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //KO
-  KAYO: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //尚勃勒
-  Chamber: {
-    iconRedirect: {
-      Ability1: 'Ability2',
-      Ability2: 'Grenade',
-      Grenade: 'Ability1',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //霓虹
-  Neon: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Grenade',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //黑梦
-  Fade: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability1',
-      Grenade: 'Ability2',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //海神
-  Harbor: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability2',
-      Grenade: 'Ability1',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //盖可
-  Gekko: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //钢锁
-  Deadlock: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability2',
-      Grenade: 'Ability1',
-      Ultimate: 'Ultimate',
-    }
-  },
-  //壹决
-  Iso: {
-    iconRedirect: {
-      Ability1: 'Grenade',
-      Ability2: 'Ability2',
-      Grenade: 'Ultimate',
-      Ultimate: 'Ability1',
-    }
-  },
-  //暮蝶
-  Clove: {
-    iconRedirect: {
-      Ability1: 'Ability1',
-      Ability2: 'Ability2',
-      Grenade: 'Grenade',
-      Ultimate: 'Ultimate',
-    }
-  },
+  // //炼狱
+  // Brimstone: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //不死鸟
+  // Phoenix: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability2',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //贤者
+  // Sage: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //猎枭
+  // Sova: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //蝰蛇
+  // Viper: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //零
+  // Cypher: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //芮娜
+  // Reyna: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //奇乐
+  // Killjoy: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //雷兹
+  // Raze: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //铁臂
+  // Breach: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //幽影
+  // Omen: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //捷风
+  // Jett: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //斯凯
+  // Skye: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //夜露
+  // Yoru: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //星礈
+  // Astra: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //KO
+  // KAYO: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //尚勃勒
+  // Chamber: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability2',
+  //     Ability2: 'Grenade',
+  //     Grenade: 'Ability1',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //霓虹
+  // Neon: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Grenade',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //黑梦
+  // Fade: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Ability2',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //海神
+  // Harbor: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Ability1',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //盖可
+  // Gekko: {
+  //   iconRedirect: {
+  //     Ability1: 'Ability1',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //钢锁
+  // Deadlock: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Ability1',
+  //     Ultimate: 'Ultimate',
+  //   }
+  // },
+  // //壹决
+  // Iso: {
+  //   iconRedirect: {
+  //     Ability1: 'Grenade',
+  //     Ability2: 'Ability2',
+  //     Grenade: 'Ultimate',
+  //     Ultimate: 'Ability1',
+  //   }
+  // },
+  // //暮蝶
+  // Clove: {
+  //   iconRedirect: {
+  //     Ability1: 'Ultimate',
+  //     Ability2: 'Ability1',
+  //     Grenade: 'Grenade',
+  //     Ultimate: 'Ability2',
+  //   }
+  // },
 };
 
 const normalizeAgentKey = (agent: Agent) => agent?.displayName || '';

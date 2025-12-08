@@ -19,7 +19,6 @@ const EditorModal = ({
   onClose,
   selectedSide,
   setSelectedSide,
-  onJumpToMap, // 聚焦地图标注（关闭弹窗，切换标注模式）
 }) => {
   if (!isEditorOpen) return null;
 
@@ -39,60 +38,65 @@ const EditorModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="modal-content bg-[#1f2326] w-full max-w-3xl h-[85vh] flex flex-col rounded-xl border border-white/10 shadow-2xl">
-        <div className="flex justify-between items-center p-6 border-b border-white/10 bg-[#252a30] rounded-t-xl">
-          <h2 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-            <Icon name="FileText" className="text-[#ff4655]" /> {editingLineupId ? '编辑图文攻略' : '新增图文攻略'}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            <Icon name="X" size={24} />
+    <div className="fixed inset-0 z-[1200] pointer-events-none flex justify-end">
+      <div className="pointer-events-auto h-full w-[383px] max-w-[383px] min-w-[383px] bg-[#10151b]/95 backdrop-blur-md border-l border-[#1b1f2a] shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+        <div className="flex items-start justify-between gap-3 p-5 border-b border-[#1b1f2a] bg-[#1f2326]/90">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Icon name="FileText" className="text-[#ff4655]" /> {editingLineupId ? '编辑图文攻略' : '新增图文攻略'}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg border border-[#1b1f2a] text-gray-400 hover:text-white hover:border-[#ff4655]/50 transition-colors"
+          >
+            <Icon name="X" size={18} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           <div className="space-y-3">
             <div>
               <label className="text-xs font-bold text-gray-500 uppercase block mb-2">标题 (Title)</label>
               <input
-                className="w-full bg-[#0f1923] border border-gray-700 rounded p-3 text-white focus:border-[#ff4655] outline-none"
+                className="w-full bg-[#0f1923] border border-[#2a323d] rounded-lg p-3 text-white focus:border-[#ff4655] outline-none transition-colors"
                 placeholder="例如：B区窗户进攻瞬爆烟"
                 value={newLineupData.title}
                 onChange={(e) => setNewLineupData({ ...newLineupData, title: e.target.value })}
                 autoFocus
               />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="space-y-2">
               <div className="text-xs font-bold text-gray-500 uppercase">阵营 (Side)</div>
-              <div className="flex items-center gap-2 bg-[#0f1923] border border-gray-700 rounded px-2 py-1">
+              <div className="w-full flex items-center gap-2 bg-[#0b1220] border border-[#2a323d] rounded-xl px-2 py-2 shadow-inner shadow-black/40">
                 <button
                   type="button"
                   onClick={() => setSelectedSide('attack')}
-                  className={`px-3 py-1 rounded text-sm font-bold ${selectedSide === 'attack' ? 'bg-[#ff4655] text-white' : 'text-gray-200 hover:text-white hover:bg-white/10'}`}
+                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                    selectedSide === 'attack'
+                      ? 'bg-gradient-to-r from-[#ff5b6b] to-[#ff3c4d] text-white shadow-lg shadow-red-900/30'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  }`}
                 >
-                  进攻 (ATK)
+                  <Icon name="Sword" size={16} /> 进攻 (ATK)
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedSide('defense')}
-                  className={`px-3 py-1 rounded text-sm font-bold ${selectedSide === 'defense' ? 'bg-emerald-500 text-white' : 'text-gray-200 hover:text-white hover:bg-white/10'}`}
+                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                    selectedSide === 'defense'
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-900/30'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  }`}
                 >
-                  防守 (DEF)
+                  <Icon name="Shield" size={16} /> 防守 (DEF)
                 </button>
               </div>
-              {onJumpToMap && (
-                <button
-                  type="button"
-                  onClick={() => onJumpToMap()}
-                  className="ml-auto px-3 py-2 rounded border border-white/15 text-xs text-gray-200 hover:text-white hover:border-[#ff4655] hover:bg-[#ff4655]/10 transition-colors"
-                >
-                  去地图重新标注
-                </button>
-              )}
             </div>
             <div>
               <label className="text-xs font-bold text-gray-500 uppercase block mb-2">点位来源链接 (可选)</label>
               <input
-                className="w-full bg-[#0f1923] border border-gray-700 rounded p-3 text-white focus:border-[#ff4655] outline-none"
+                className="w-full bg-[#0f1923] border border-[#2a323d] rounded-lg p-3 text-white focus:border-[#ff4655] outline-none transition-colors"
                 placeholder="视频/来源链接，查看时可点击跳转"
                 value={newLineupData.sourceLink || ''}
                 onChange={(e) => setNewLineupData({ ...newLineupData, sourceLink: e.target.value })}
@@ -100,35 +104,32 @@ const EditorModal = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-4">
             {fields.map((field) => {
               const enabled = field.toggleKey ? newLineupData[field.toggleKey] : true;
               const hasData = newLineupData[`${field.k}Img`] || newLineupData[`${field.k}Desc`];
               const shouldShow = enabled || hasData || !field.toggleKey;
               if (!shouldShow) {
                 return (
-                  <div key={field.k} className="bg-[#181b1f] p-4 rounded border border-dashed border-white/10 flex flex-col gap-3">
-                    <div className="flex items-center justify-between text-sm text-gray-400">
-                      <span className="flex items-center gap-2">
-                        <Icon name="Image" size={14} /> {field.l}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => toggleField(field)}
-                        className="px-3 py-1 rounded border border-white/10 text-xs text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
-                      >
-                        启用
-                      </button>
+                  <div key={field.k} className="bg-[#11161d] p-4 rounded-lg border border-dashed border-[#2a323d] flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Icon name="Image" size={14} className="text-[#ff4655]" />
+                      <span>{field.l}</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#1c2430] border border-[#1b1f2a] text-gray-500">未启用</span>
                     </div>
-                    <div className="flex-1 flex items-center justify-center text-xs text-gray-600 bg-[#0f1923] rounded border border-white/5 h-32">
-                      已关闭，点击启用后填写
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggleField(field)}
+                      className="px-3 py-1.5 rounded border border-[#1b1f2a] text-xs text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                    >
+                      启用
+                    </button>
                   </div>
                 );
               }
 
               return (
-                <div key={field.k} className="bg-[#181b1f] p-4 rounded border border-white/5">
+                <div key={field.k} className="bg-[#11161d] p-4 rounded-lg border border-[#1b1f2a]">
                   <div className="flex items-start justify-between mb-3">
                     <div className="text-[#ff4655] font-bold text-sm flex items-center gap-2 uppercase tracking-wider">
                       <Icon name="Image" size={14} /> {field.l}
@@ -137,20 +138,20 @@ const EditorModal = ({
                       <button
                         type="button"
                         onClick={() => toggleField(field)}
-                        className="px-3 py-1 rounded border border-white/10 text-xs text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                        className="px-3 py-1 rounded border border-[#1b1f2a] text-xs text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
                       >
                         关闭
                       </button>
                     )}
                   </div>
                   <input
-                    className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white mb-2 focus:border-[#ff4655] outline-none"
+                    className="w-full bg-[#0f1923] border border-[#2a323d] rounded p-2 text-white mb-2 focus:border-[#ff4655] outline-none"
                     placeholder="图片链接（可选）"
                     value={newLineupData[`${field.k}Img`]}
                     onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Img`]: e.target.value })}
                   />
                   <textarea
-                    className="w-full bg-[#0f1923] border border-gray-700 rounded p-2 text-white h-20 resize-none focus:border-[#ff4655] outline-none"
+                    className="w-full bg-[#0f1923] border border-[#2a323d] rounded p-2 text-white h-16 resize-none overflow-y-auto focus:border-[#ff4655] outline-none"
                     placeholder="描述（可选）"
                     value={newLineupData[`${field.k}Desc`]}
                     onChange={(e) => setNewLineupData({ ...newLineupData, [`${field.k}Desc`]: e.target.value })}
@@ -165,7 +166,7 @@ const EditorModal = ({
                       />
                     </div>
                   ) : (
-                    <div className="mt-3 h-40 flex items-center justify-center text-xs text-gray-600 border border-dashed border-white/10 rounded bg-[#0f1923]">
+                    <div className="mt-3 h-40 flex items-center justify-center text-xs text-gray-600 border border-dashed border-[#2a323d] rounded bg-[#0f1923]">
                       暂无预览
                     </div>
                   )}
@@ -174,7 +175,7 @@ const EditorModal = ({
             })}
           </div>
         </div>
-        <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-[#252a30] rounded-b-xl">
+        <div className="p-5 border-t border-[#1b1f2a] flex justify-end gap-3 bg-[#1f2326]/90">
           <button onClick={onClose} className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold transition-colors">
             取消
           </button>

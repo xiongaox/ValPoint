@@ -802,12 +802,6 @@ function App() {
         onClose={handleEditorClose}
         selectedSide={selectedSide}
         setSelectedSide={setSelectedSide}
-        onJumpToMap={() => {
-          setIsEditorOpen(false);
-          setActiveTab('create');
-          setPlacingType('agent');
-          setAlertMessage('已进入标注模式，请在地图点击更新站位或技能，再次打开编辑器完成保存。');
-        }}
       />
 
       <ViewerModal

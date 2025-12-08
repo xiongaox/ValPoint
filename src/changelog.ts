@@ -4,6 +4,8 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
     date: '2025-12-08',
     items: [
+      '修复左侧栏技能图标选中与中间栏技能图标不吻合的情况',
+      '角标展示该地图下该特工的总数，不受攻/防筛选影响',
       '新增AI记忆文档（AGENTS.md）',
       '修改刷新页面后总是选中sova的BUG',
       '修复用户可以无限复制共享库点位数据问题',

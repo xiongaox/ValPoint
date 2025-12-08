@@ -27,6 +27,18 @@ export async function deleteLineupApi(id: string) {
   if (error) throw error;
 }
 
+export async function findLineupByClone(userId: string, clonedFrom: string) {
+  if (!userId || !clonedFrom) return null;
+  const { data, error } = await supabase
+    .from(TABLE.lineups)
+    .select('id')
+    .eq('user_id', userId)
+    .eq('cloned_from', clonedFrom)
+    .limit(1);
+  if (error) throw error;
+  return data?.[0] || null;
+}
+
 export async function clearLineupsApi(userId: string) {
   const { error } = await supabase.from(TABLE.lineups).delete().eq('user_id', userId);
   if (error) throw error;

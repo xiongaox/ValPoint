@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useCallback } from 'react';
 import { upsertShared } from '../services/shared';
+import { findLineupByClone } from '../services/lineups';
 
 const toShortShareId = (uuid: string) => {
   if (!uuid) return '';
@@ -136,11 +137,22 @@ export const useShareActions = ({
         setAlertMessage('游客模式无法保存点位，请先输入密码切换到登录模式');
         return;
       }
+      if (!userId) {
+        setAlertMessage('请先登录再保存点位');
+        return;
+      }
       setAlertActionLabel(null);
       setAlertAction(null);
       const target = lineupToSave || fallbackSharedLineup;
       if (!target) return;
       try {
+        const existing = await findLineupByClone(userId, target.id);
+        if (existing) {
+          setAlertMessage('你已经保存过这个共享点位，无需重复添加。');
+          handleTabSwitch('view');
+          fetchLineups(userId);
+          return;
+        }
         const mapNameEn = getMapEnglishName(target.mapName);
         const { id, ...data } = target;
         const payload = {

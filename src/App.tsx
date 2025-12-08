@@ -21,6 +21,7 @@ import { useShareActions } from './hooks/useShareActions';
 import { useValorantData } from './hooks/useValorantData';
 import { useLineupFiltering } from './hooks/useLineupFiltering';
 import { useModalState } from './hooks/useModalState';
+import { getAbilityIcon } from './utils/abilityIcons';
 
 const toDbPayload = (data, userId) => ({
   title: data.title,
@@ -332,7 +333,7 @@ function App() {
       mapName: selectedMap.displayName,
       agentName: selectedAgent.displayName,
       agentIcon: selectedAgent.displayIcon,
-      skillIcon: selectedAbilityIndex !== null ? selectedAgent.abilities[selectedAbilityIndex].displayIcon : null,
+      skillIcon: getAbilityIcon(selectedAgent, selectedAbilityIndex),
       side: selectedSide,
       abilityIndex: selectedAbilityIndex,
       sourceLink: newLineupData.sourceLink,
@@ -348,6 +349,11 @@ function App() {
       setIsEditorOpen(false);
       setEditingLineupId(null);
       setNewLineupData(createEmptyLineup());
+      setSelectedSide('all');
+      setSelectedAbilityIndex(null);
+      setSelectedLineupId(null);
+      setViewingLineup(null);
+      setPlacingType(null);
       setActiveTab('view');
       fetchLineups(userId);
     } catch (e) {

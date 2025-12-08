@@ -30,7 +30,7 @@ export function useLineupFiltering({
     const source = libraryMode === 'shared' ? sharedLineups : lineups;
     source.forEach((l) => {
       if (l.mapName !== mapKey && l.mapName !== mapKeyEn) return;
-      if (selectedSide !== 'all' && l.side !== selectedSide) return;
+      // 角标展示该地图下该特工的总数，不受攻/防筛选影响
       counts[l.agentName] = (counts[l.agentName] || 0) + 1;
     });
     return counts;

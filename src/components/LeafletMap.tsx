@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { getAbilityIcon } from '../utils/abilityIcons';
 
 type Lineup = {
   id: string;
@@ -203,8 +204,7 @@ const LeafletMap: React.FC<Props> = ({
     if (activeTab === 'create') {
       const { agentPos, skillPos } = newLineupData;
       const currentAgentIcon = selectedAgent?.displayIcon || null;
-      const currentSkillIcon =
-        selectedAgent && selectedAbilityIndex !== null ? selectedAgent.abilities[selectedAbilityIndex]?.displayIcon : null;
+      const currentSkillIcon = getAbilityIcon(selectedAgent, selectedAbilityIndex);
 
       const viewAgentPos = transformPos(agentPos);
       const viewSkillPos = transformPos(skillPos);

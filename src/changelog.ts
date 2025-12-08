@@ -2,6 +2,18 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2025-12-08',
+    items: [
+      '新增AI记忆文档（AGENTS.md）',
+      '修改刷新页面后总是选中sova的BUG',
+      '修复用户可以无限复制共享库点位数据问题',
+      '新增地图封面背景',
+      '使用国服（无畏契约）api，自动映射正确的技能图标顺序和技能文案',
+      '新增技能名称对照配置',
+      '映射维斯、钛狐、幻棱、禁灭',
+    ],
+  },
+  {
     date: '2025-12-07',
     items: [
       '新增地图封面背景',

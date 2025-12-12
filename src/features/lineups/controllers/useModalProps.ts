@@ -2,6 +2,7 @@ import React from 'react';
 import AppModals from '../AppModals';
 import { MapOption, NewLineupForm, SharedLineup, BaseLineup, LibraryMode } from '../../../types/lineup';
 import { ImageBedConfig } from '../../../types/imageBed';
+import { ImageProcessingSettings } from '../../../types/imageProcessing';
 import { LightboxImage } from '../../../types/ui';
 
 type Params = {
@@ -66,6 +67,11 @@ type Params = {
   imageBedConfig: ImageBedConfig;
   onImageConfigSave: (cfg: ImageBedConfig) => void;
   setIsImageConfigOpen: (v: boolean) => void;
+  // image processing
+  isImageProcessingOpen: boolean;
+  imageProcessingSettings: ImageProcessingSettings;
+  onImageProcessingSave: (cfg: ImageProcessingSettings) => void;
+  setIsImageProcessingOpen: (v: boolean) => void;
   // editor/viewer
   isEditorOpen: boolean;
   editingLineupId: string | null;
@@ -157,8 +163,12 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     setIsChangePasswordOpen: params.setIsChangePasswordOpen,
     isImageConfigOpen: params.isImageConfigOpen,
     imageBedConfig: params.imageBedConfig,
-    onImageConfigClose: () => params.setIsImageConfigOpen(false),
-    onImageConfigSave: params.onImageConfigSave,
+  onImageConfigClose: () => params.setIsImageConfigOpen(false),
+  onImageConfigSave: params.onImageConfigSave,
+  isImageProcessingOpen: params.isImageProcessingOpen,
+  imageProcessingSettings: params.imageProcessingSettings,
+  onImageProcessingClose: () => params.setIsImageProcessingOpen(false),
+  onImageProcessingSave: params.onImageProcessingSave,
     isEditorOpen: params.isEditorOpen,
     editingLineupId: params.editingLineupId,
     newLineupData: params.newLineupData,

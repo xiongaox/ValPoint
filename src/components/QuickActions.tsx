@@ -8,6 +8,7 @@ type Props = {
   onImageBedConfig: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
+  onAdvancedSettings: () => void;
   pendingTransfers?: number;
 };
 
@@ -17,6 +18,7 @@ const QuickActions: React.FC<Props> = ({
   onImageBedConfig,
   onChangePassword,
   onClearLineups,
+  onAdvancedSettings,
   pendingTransfers = 0,
 }) => {
   const showProgress = pendingTransfers > 0;
@@ -49,6 +51,13 @@ const QuickActions: React.FC<Props> = ({
                 className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white border border-white/10 transition-colors"
               >
                 <span className="flex items-center gap-2"><Icon name="Image" size={16} /> 图床配置</span>
+                <Icon name="ChevronRight" size={14} className="text-gray-400" />
+              </button>
+              <button
+                onClick={onAdvancedSettings}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white border border-white/10 transition-colors"
+              >
+                <span className="flex items-center gap-2"><Icon name="SlidersHorizontal" size={16} /> 高级设置</span>
                 <Icon name="ChevronRight" size={14} className="text-gray-400" />
               </button>
               <button

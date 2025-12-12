@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { uploadToOss } from '../utils/ossUpload';
+import { prepareClipboardImage } from '../lib/imageCompression';
 
 const fields = [
   { k: 'stand', l: '站位图' },
@@ -22,6 +23,7 @@ const EditorModal = ({
   setSelectedSide,
   imageBedConfig,
   setAlertMessage,
+  imageProcessingSettings,
 }) => {
   if (!isEditorOpen) return null;
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -29,12 +31,12 @@ const EditorModal = ({
 
     const handleClipboardUpload = async (fieldKey) => {
     if (!navigator.clipboard?.read) {
-      setAlertMessage?.('当前浏览器不支持从剪贴板读取图片');
+      setAlertMessage?.('????????????????');
       return;
     }
     const missing = ['accessKeyId', 'accessKeySecret', 'bucket', 'region'].filter((k) => !imageBedConfig?.[k]);
     if (missing.length) {
-      setAlertMessage?.('请先在快捷功能中配置图床（AK/AS/Bucket/Region）');
+      setAlertMessage?.('?????????????AK/AS/Bucket/Region?');
       return;
     }
     try {
@@ -42,21 +44,26 @@ const EditorModal = ({
       const items = await navigator.clipboard.read();
       const imgItem = items.find((item) => item.types.some((t) => t.startsWith('image/')));
       if (!imgItem) {
-        setAlertMessage?.('剪贴板中未检测到图片');
+        setAlertMessage?.('??????????');
         return;
       }
       const imgType = imgItem.types.find((t) => t.startsWith('image/')) || 'image/png';
       const blob = await imgItem.getType(imgType);
-      const ext = imgType.split('/')[1] || 'png';
-      const file = new File([blob], 'clipboard_' + Date.now() + '.' + ext, { type: imgType });
-      const result = await uploadToOss(file, imageBedConfig);
+      const fileForUpload = await prepareClipboardImage(blob, 'clipboard_' + Date.now(), imageProcessingSettings);
+      const result = await uploadToOss(fileForUpload, imageBedConfig);
       setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
     } catch (e) {
       console.error(e);
       if (e?.message === 'MISSING_CONFIG') {
-        setAlertMessage?.('请先配置图床信息后再上传');
+        setAlertMessage?.('????????????');
+      } else if (
+        e?.message === 'JPEG_CONVERSION_FAILED' ||
+        e?.message === 'IMAGE_LOAD_FAILED' ||
+        e?.message === 'CANVAS_CONTEXT_UNAVAILABLE'
+      ) {
+        setAlertMessage?.('?????????????????');
       } else {
-        setAlertMessage?.('上传失败，请检查权限或稍后再试');
+        setAlertMessage?.('???????????????');
       }
     } finally {
       setUploadingField(null);

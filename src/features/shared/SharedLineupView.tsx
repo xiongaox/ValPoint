@@ -8,6 +8,7 @@ type QuickActionsProps = {
   isActionMenuOpen: boolean;
   onToggle: () => void;
   onImageBedConfig: () => void;
+  onAdvancedSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
   pendingTransfers: number;
@@ -153,6 +154,7 @@ const SharedLineupView: React.FC<Props> = ({
           isOpen={quickActions.isActionMenuOpen}
           onToggle={quickActions.onToggle}
           onImageBedConfig={quickActions.onImageBedConfig}
+          onAdvancedSettings={quickActions.onAdvancedSettings}
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
           pendingTransfers={quickActions.pendingTransfers}

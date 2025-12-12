@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { defaultImageBedConfig } from '../../../components/ImageBedConfigModal';
 import { ImageBedConfig } from '../../../types/imageBed';
+import { useImageProcessingSettings } from '../../../hooks/useImageProcessingSettings';
+import { ImageProcessingSettings } from '../../../types/imageProcessing';
 
 type Params = {
   userId: string | null;
@@ -25,7 +27,9 @@ export function useActionMenu({
 }: Params) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isImageConfigOpen, setIsImageConfigOpen] = useState(false);
+  const [isImageProcessingOpen, setIsImageProcessingOpen] = useState(false);
   const [imageBedConfig, setImageBedConfig] = useState<ImageBedConfig>(defaultImageBedConfig);
+  const { settings: imageProcessingSettings, saveSettings: saveImageProcessingSettings } = useImageProcessingSettings();
 
   useEffect(() => {
     try {
@@ -66,8 +70,19 @@ export function useActionMenu({
     } catch (e) {
       console.error(e);
     }
-    setAlertMessage('图床配置已保存，仅当前设备生效。');
+    setAlertMessage('图床配置已保存，仅当前设备生效');
     setIsImageConfigOpen(false);
+  };
+
+  const handleOpenAdvancedSettings = () => {
+    setIsActionMenuOpen(false);
+    setIsImageProcessingOpen(true);
+  };
+
+  const handleImageProcessingSave = (cfg: ImageProcessingSettings) => {
+    saveImageProcessingSettings(cfg);
+    setAlertMessage('高级设置已保存，仅当前设备生效');
+    setIsImageProcessingOpen(false);
   };
 
   return {
@@ -75,11 +90,16 @@ export function useActionMenu({
     setIsActionMenuOpen,
     isImageConfigOpen,
     setIsImageConfigOpen,
+    isImageProcessingOpen,
+    setIsImageProcessingOpen,
     imageBedConfig,
     setImageBedConfig,
+    imageProcessingSettings,
     handleImageBedConfig,
+    handleOpenAdvancedSettings,
     handleChangePassword,
     handleQuickClear,
     handleImageConfigSave,
+    handleImageProcessingSave,
   };
 }

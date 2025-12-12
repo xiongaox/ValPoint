@@ -6,6 +6,7 @@ import DeleteConfirmModal from '../../components/DeleteConfirmModal';
 import ClearLineupsModal from '../../components/ClearLineupsModal';
 import SharedFilterModal from '../../components/SharedFilterModal';
 import ImageBedConfigModal from '../../components/ImageBedConfigModal';
+import ImageProcessingSettingsModal from '../../components/ImageProcessingSettingsModal';
 import EditorModal from '../../components/EditorModal';
 import ViewerModal from '../../components/ViewerModal';
 import Lightbox from '../../components/Lightbox';
@@ -14,6 +15,7 @@ import ChangelogModal from '../../components/ChangelogModal';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
 import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm } from '../../types/lineup';
 import { ImageBedConfig } from '../../types/imageBed';
+import { ImageProcessingSettings } from '../../types/imageProcessing';
 import { LightboxImage } from '../../types/ui';
 
 type Props = {
@@ -74,6 +76,10 @@ type Props = {
   imageBedConfig: ImageBedConfig;
   onImageConfigClose: () => void;
   onImageConfigSave: (cfg: ImageBedConfig) => void;
+  isImageProcessingOpen: boolean;
+  imageProcessingSettings: ImageProcessingSettings;
+  onImageProcessingClose: () => void;
+  onImageProcessingSave: (cfg: ImageProcessingSettings) => void;
   // editor/viewer
   isEditorOpen: boolean;
   editingLineupId: string | null;
@@ -151,6 +157,10 @@ const AppModals: React.FC<Props> = ({
   imageBedConfig,
   onImageConfigClose,
   onImageConfigSave,
+  isImageProcessingOpen,
+  imageProcessingSettings,
+  onImageProcessingClose,
+  onImageProcessingSave,
   isEditorOpen,
   editingLineupId,
   newLineupData,
@@ -241,6 +251,7 @@ const AppModals: React.FC<Props> = ({
       />
 
       <ImageBedConfigModal isOpen={isImageConfigOpen} config={imageBedConfig} onClose={onImageConfigClose} onSave={onImageConfigSave} />
+      <ImageProcessingSettingsModal isOpen={isImageProcessingOpen} settings={imageProcessingSettings} onClose={onImageProcessingClose} onSave={onImageProcessingSave} />
 
       <EditorModal
         isEditorOpen={isEditorOpen}
@@ -253,6 +264,7 @@ const AppModals: React.FC<Props> = ({
         setSelectedSide={setSelectedSide}
         imageBedConfig={imageBedConfig}
         setAlertMessage={setAlertMessage}
+        imageProcessingSettings={imageProcessingSettings}
       />
 
       <ViewerModal

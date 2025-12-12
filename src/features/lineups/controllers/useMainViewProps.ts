@@ -33,6 +33,7 @@ type Params = {
   isActionMenuOpen: boolean;
   onToggleActions: () => void;
   onImageBedConfig: () => void;
+  onAdvancedSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
   pendingTransfers: number;
@@ -110,6 +111,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       isOpen: params.isActionMenuOpen,
       onToggle: params.onToggleActions,
       onImageBedConfig: params.onImageBedConfig,
+      onAdvancedSettings: params.onAdvancedSettings,
       onChangePassword: params.onChangePassword,
       onClearLineups: params.onClearLineups,
       pendingTransfers: params.pendingTransfers,

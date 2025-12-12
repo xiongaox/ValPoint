@@ -46,6 +46,7 @@ type QuickActionsProps = {
   isOpen: boolean;
   onToggle: () => void;
   onImageBedConfig: () => void;
+  onAdvancedSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
   pendingTransfers: number;
@@ -137,6 +138,7 @@ const MainView: React.FC<Props> = ({ activeTab, libraryMode, setLibraryMode, cle
           isOpen={quickActions.isOpen}
           onToggle={quickActions.onToggle}
           onImageBedConfig={quickActions.onImageBedConfig}
+          onAdvancedSettings={quickActions.onAdvancedSettings}
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
           pendingTransfers={quickActions.pendingTransfers}

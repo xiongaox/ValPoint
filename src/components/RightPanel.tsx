@@ -307,7 +307,7 @@ const RightPanel: React.FC<Props> = ({
                     <div
                       key={l.id}
                       onClick={() => handleViewLineup(l.id)}
-                      className={`group p-4 rounded-lg border cursor-pointer transition-all flex items-center gap-4 h-20 ${
+                      className={`group relative p-4 rounded-lg border cursor-pointer transition-all flex items-center gap-4 h-20 ${
                         selectedLineupId === l.id ? 'bg-[#ff4655]/10 border-[#ff4655] shadow-md' : 'bg-[#0f1923] border-white/5 hover:border-white/20'
                       }`}
                     >
@@ -328,7 +328,7 @@ const RightPanel: React.FC<Props> = ({
                             <span>{l.agentName}</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
                           <span
                             className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${
                               l.side === 'attack'
@@ -338,7 +338,8 @@ const RightPanel: React.FC<Props> = ({
                           >
                             {l.side === 'attack' ? '进攻' : '防守'}
                           </span>
-                          <div className="flex gap-1">
+                          <div className="ml-auto flex items-center gap-1">
+                            {isSharedMode && l.userId && <span className="text-[12px] text-gray-500">{l.userId}</span>}
                             {!isSharedMode && (
                               <button
                                 onClick={(e) => {

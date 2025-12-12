@@ -54,10 +54,11 @@ const ClearLineupsModal: React.FC<Props> = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-8 justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-5
+         justify-items-center">
           <button
             onClick={onClearAll}
-            className="group w-[210px] h-full rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors p-4 flex flex-col items-center gap-3 text-white"
+            className="group w-[220px] h-full rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors p-4 flex flex-col items-center gap-3 text-white"
           >
             <div className="w-20 h-20 rounded-full bg-[#ff4655]/15 border border-[#ff4655]/30 flex items-center justify-center">
               <img src="/logo.svg" alt="清空所有点位" className="w-14 h-14 object-contain" />
@@ -70,7 +71,7 @@ const ClearLineupsModal: React.FC<Props> = ({
 
           <button
             onClick={onClearSelectedAgent}
-            className="group w-[210px] h-full rounded-2xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/15 transition-colors p-4 flex flex-col items-center gap-3 text-amber-50"
+            className="group w-[220px] h-full rounded-2xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/15 transition-colors p-4 flex flex-col items-center gap-3 text-amber-50"
           >
             <div className="w-20 h-20 rounded-full bg-black/20 border border-amber-400/50 flex items-center justify-center overflow-hidden">
               {renderAvatar()}

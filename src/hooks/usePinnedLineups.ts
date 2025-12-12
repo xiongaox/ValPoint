@@ -4,14 +4,13 @@ import { BaseLineup } from '../types/lineup';
 type Params = {
   userId: string | null;
   lineups: BaseLineup[];
-  defaultPinnedCount?: number;
 };
 
 type PinnedStore = Record<string, string[]>;
 
 const STORAGE_KEY = 'valpoint_pinned_lineups';
 
-export function usePinnedLineups({ userId, lineups, defaultPinnedCount = 8 }: Params) {
+export function usePinnedLineups({ userId, lineups }: Params) {
   const [pinnedLineupIds, setPinnedLineupIds] = useState<string[]>([]);
 
   const readStore = useCallback((): PinnedStore => {
@@ -41,26 +40,18 @@ export function usePinnedLineups({ userId, lineups, defaultPinnedCount = 8 }: Pa
     const store = readStore();
     const saved = store[userId] || [];
     const availableIds = lineups.map((l) => l.id);
-
     if (availableIds.length === 0) {
       setPinnedLineupIds(saved);
       return;
     }
 
     const sanitized = saved.filter((id) => availableIds.includes(id));
-
-    if (sanitized.length === 0 && availableIds.length > 0) {
-      const defaults = availableIds.slice(0, defaultPinnedCount);
-      setPinnedLineupIds(defaults);
-      writeStore(defaults);
-      return;
-    }
-
     if (sanitized.length !== saved.length) {
       writeStore(sanitized);
     }
+
     setPinnedLineupIds(sanitized);
-  }, [defaultPinnedCount, lineups, readStore, userId, writeStore]);
+  }, [lineups, readStore, userId, writeStore]);
 
   const togglePinnedLineup = useCallback(
     (id: string) => {

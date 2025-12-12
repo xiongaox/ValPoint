@@ -81,7 +81,6 @@ export function useAppController() {
   const { pinnedLineupIds, togglePinnedLineup, orderedLineups } = usePinnedLineups({
     userId,
     lineups,
-    defaultPinnedCount: DEFAULT_PINNED_COUNT,
   });
   const { sharedLineups, setSharedLineups, fetchSharedLineups, fetchSharedById } = useSharedLineups(mapNameZhToEn);
   const { saveNewLineup, updateLineup, deleteLineup, clearLineups } = useLineupActions();

@@ -609,6 +609,8 @@ curl -X POST https://[PROJECT_ID].supabase.co/functions/v1/get-video-author \
 2. 实现解析逻辑
 3. 更新 Edge Function
 
+
+<!--
 ## 未来优化
 
 - [ ] 添加缓存层（Redis）
@@ -616,3 +618,4 @@ curl -X POST https://[PROJECT_ID].supabase.co/functions/v1/get-video-author \
 - [ ] 批量获取作者信息
 - [ ] 实时更新作者信息
 - [ ] AI 识别视频内容
+-->

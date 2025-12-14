@@ -142,6 +142,7 @@ scp -r dist/* user@server:/var/www/valpoint/dist/
 ssh user@server "sudo systemctl restart nginx"
 ```
 
+<!--
 ### 使用 Docker
 
 #### 1. 创建 Dockerfile
@@ -182,6 +183,7 @@ server {
 }
 ```
 
+
 #### 3. 构建和运行
 
 ```bash
@@ -194,6 +196,7 @@ docker run -d -p 80:80 \
   -e VITE_SUPABASE_ANON_KEY=[YOUR_ANON_KEY] \
   valpoint
 ```
+-->
 
 ## 环境变量管理
 

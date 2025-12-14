@@ -5,6 +5,10 @@ export default defineConfig({
   description: 'Valorant 点位管理与分享平台',
   lang: 'zh-CN',
   
+  head: [
+    // 默认头部配置
+  ],
+  
   themeConfig: {
     logo: '/logo.svg',
     
@@ -12,7 +16,7 @@ export default defineConfig({
       { text: '首页', link: '/' },
       { text: '用户指南', link: '/guide/getting-started' },
       { text: '开发文档', link: '/dev/overview' },
-      { text: '返回应用', link: 'https://valpoint.app' }
+      { text: '返回应用', link: 'https://valpoint.cn' }
     ],
 
     sidebar: {
@@ -60,7 +64,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-username/valpoint' }
+      { icon: 'github', link: 'https://github.com/xiongaox/valpoint' }
     ],
 
     footer: {

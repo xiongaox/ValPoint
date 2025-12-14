@@ -8,7 +8,8 @@ node_modules
 notes
 dist
 coverage
-.obsidian
+docs/.obsidian/workspace.json
+.vscode
 
 # VitePress
 docs/.vitepress/cache

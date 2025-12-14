@@ -1,0 +1,5 @@
+/* .vitepress/theme/var.css */
+:root {
+  --lm-Notice-bg: var(--vp-button-alt-bg);
+  --lm-Notice-bg-hover: var(--vp-c-brand-soft);
+}

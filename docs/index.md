@@ -4,21 +4,25 @@ layout: home
 hero:
   name: ValPoint
   text: Valorant 点位管理平台
-  tagline: 专为 Valorant 玩家打造的点位管理与分享平台
+  tagline: 专为无畏契约PC端（Valorant）设计的智能点位规划工具，数据完全掌控，支持本地与云端灵活部署
   image:
-    src: /logo.svg
+    src: /Frame5.png
     alt: ValPoint
+    width: 640
   actions:
     - theme: brand
       text: 快速开始
       link: /guide/getting-started
     - theme: alt
+      text: 项目起源
+      link: /guide/project-origin
+    - theme: alt
       text: 查看 GitHub
-      link: https://github.com/your-username/valpoint
+      link: https://github.com/xiongaox/valpoint
 
 features:
   - icon: 🎮
-    title: 多地图支持
+    title: 全地图支持
     details: 覆盖 Valorant 所有竞技地图，支持按地图、特工、侧翼、技能筛选点位
   
   - icon: 🤖
@@ -42,9 +46,7 @@ features:
     details: 基于 Supabase 的安全认证系统，支持游客模式和登录模式
 ---
 
-## 技术栈
-
-<div class="tech-stack">
+<div align="center" class="tech-stack">
   <img src="https://img.shields.io/badge/Vite-5.x-646CFF?logo=vite" alt="Vite">
   <img src="https://img.shields.io/badge/React-18.x-61DAFB?logo=react" alt="React">
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript" alt="TypeScript">
@@ -57,6 +59,8 @@ features:
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 16px;
+  margin-top: 24px;
+  justify-content: center;
+  text-align: center;
 }
 </style>

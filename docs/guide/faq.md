@@ -109,10 +109,7 @@
 
 ### Q: 移动端可以使用吗？
 
-可以，但体验不如桌面端。建议：
-- 使用平板或大屏手机
-- 横屏使用
-- 使用最新版浏览器
+- 暂未适配（会有计划）
 
 ## 性能相关
 
@@ -143,8 +140,8 @@
 
 ### Q: 如何联系开发者？
 
-- GitHub Issues：[提交问题](https://github.com/your-username/valpoint/issues)
-- Email：your-email@example.com
+- GitHub Issues：[提交问题](https://github.com/xiongaox/valpoint/issues)
+- Email：2638130023@qq.com
 
 ### Q: 可以贡献代码吗？
 
@@ -154,6 +151,3 @@
 
 是的，项目采用 MIT 许可证开源。
 
-### Q: 有计划支持其他游戏吗？
-
-目前专注于 Valorant。如果有需求，可以提交 Issue 讨论。

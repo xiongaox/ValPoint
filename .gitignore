@@ -9,6 +9,7 @@ dist
 coverage
 docs/.obsidian/workspace.json
 .vscode
+notes/用户信息解析方案.md
 
 # VitePress
 docs/.vitepress/cache

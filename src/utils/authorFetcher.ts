@@ -8,6 +8,8 @@ export type AuthorInfo = {
   source?: 'bilibili' | 'douyin'; // 平台来源
 };
 
+import { supabase } from '../supabaseClient';
+
 // Edge Function 响应类型
 interface EdgeFunctionResponse {
   status: 'success' | 'error';
@@ -21,6 +23,25 @@ interface EdgeFunctionResponse {
   };
   message?: string;
   error?: string;
+}
+
+function looksLikeJwt(token: string): boolean {
+  const parts = token.split('.');
+  return parts.length === 3 && parts.every(Boolean);
+}
+
+async function getEdgeFunctionBearerToken(projectKey: string): Promise<string | null> {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    console.warn('获取 Supabase Session 失败，将回退到项目 Key:', error.message);
+  }
+
+  const accessToken = data.session?.access_token;
+  if (accessToken) return accessToken;
+
+  if (looksLikeJwt(projectKey)) return projectKey;
+
+  return null;
 }
 
 export async function fetchAuthorInfo(sourceLink: string): Promise<AuthorInfo | null> {
@@ -49,13 +70,16 @@ async function fetchAuthorViaEdgeFunction(url: string): Promise<AuthorInfo | nul
       console.error('Supabase 配置缺失');
       return null;
     }
+
+    const bearerToken = await getEdgeFunctionBearerToken(SUPABASE_ANON_KEY);
     
     // 调用统一的 get-video-author 接口（同时支持抖音和 B 站）
     const response = await fetch(`${SUPABASE_URL}/functions/v1/get-video-author`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
       },
       body: JSON.stringify({ url }),
     });
@@ -63,6 +87,11 @@ async function fetchAuthorViaEdgeFunction(url: string): Promise<AuthorInfo | nul
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Edge Function 错误 ${response.status}:`, errorText);
+      if (response.status === 401 && !bearerToken) {
+        console.error(
+          '当前未能生成有效的 Bearer Token（未登录且 VITE_SUPABASE_ANON_KEY 非 JWT）。请改用 Supabase anon JWT key（形如 xxx.yyy.zzz），或将 Edge Function 配置为 verify_jwt=false。',
+        );
+      }
       return null;
     }
 

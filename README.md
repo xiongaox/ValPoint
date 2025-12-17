@@ -105,6 +105,12 @@
 
 [详情跳转 WIKI - 快速开始](快速开始.md)
 
+### Fork 自动同步（可选）
+
+- GitHub 的 fork 不会被上游仓库“强制自动推送更新”；fork 属于独立仓库，是否同步由 fork 仓库所有者决定。
+- 本仓库提供了一个可选的 GitHub Actions 工作流：`.github/workflows/sync-upstream.yml`。它会在 fork 仓库内按计划（或手动）尝试把默认分支 fast-forward 同步到上游。
+- 如果 fork 仓库对默认分支有本地提交导致无法 fast-forward，工作流会失败，需要你手动解决冲突后再同步。
+
 ---
 
 ## 🎯 核心功能 {#core-features}

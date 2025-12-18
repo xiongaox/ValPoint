@@ -8,10 +8,29 @@ const clampQuality = (quality: number) => {
   return Math.min(1, Math.max(0.1, quality));
 };
 
-const normalizeSettings = (settings: Partial<ImageProcessingSettings>): ImageProcessingSettings => ({
-  enablePngToJpg: settings.enablePngToJpg ?? defaultImageProcessingSettings.enablePngToJpg,
-  jpegQuality: clampQuality(settings.jpegQuality ?? defaultImageProcessingSettings.jpegQuality),
-});
+type StoredImageProcessingSettings = Partial<ImageProcessingSettings> & {
+  enablePngToJpg?: boolean;
+  pngConvertFormat?: string;
+};
+
+const normalizeSettings = (settings: StoredImageProcessingSettings): ImageProcessingSettings => {
+  const enablePngConversion =
+    settings.enablePngConversion ?? settings.enablePngToJpg ?? defaultImageProcessingSettings.enablePngConversion;
+
+  const rawFormat = settings.pngConvertFormat;
+  const pngConvertFormat =
+    rawFormat === 'jpeg' || rawFormat === 'webp'
+      ? rawFormat
+      : settings.enablePngToJpg
+        ? 'jpeg'
+        : defaultImageProcessingSettings.pngConvertFormat;
+
+  return {
+    enablePngConversion,
+    pngConvertFormat,
+    jpegQuality: clampQuality(settings.jpegQuality ?? defaultImageProcessingSettings.jpegQuality),
+  };
+};
 
 export function useImageProcessingSettings() {
   const [settings, setSettings] = useState<ImageProcessingSettings>(defaultImageProcessingSettings);
@@ -20,7 +39,7 @@ export function useImageProcessingSettings() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as Partial<ImageProcessingSettings>;
+        const parsed = JSON.parse(saved) as StoredImageProcessingSettings;
         setSettings(normalizeSettings(parsed));
       }
     } catch (e) {

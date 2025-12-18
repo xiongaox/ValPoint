@@ -1,9 +1,11 @@
 export type ImageProcessingSettings = {
-  enablePngToJpg: boolean;
+  enablePngConversion: boolean;
+  pngConvertFormat: 'jpeg' | 'webp';
   jpegQuality: number;
 };
 
 export const defaultImageProcessingSettings: ImageProcessingSettings = {
-  enablePngToJpg: true,
+  enablePngConversion: true,
+  pngConvertFormat: 'webp',
   jpegQuality: 0.82,
 };

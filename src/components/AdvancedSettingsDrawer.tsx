@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Icon from './Icon';
 import { ImageProcessingSettings } from '../types/imageProcessing';
 
@@ -73,28 +73,56 @@ const AdvancedSettingsDrawer: React.FC<Props> = ({ isOpen, settings, onClose, on
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <Icon name="Image" size={18} className="text-[#ff4655]" />
-                  <div className="text-sm font-bold text-white">PNG 转 JPG</div>
+                  <div className="text-sm font-bold text-white">PNG 转换</div>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed">剪贴板图片转成 JPG 并压缩，便于上传。</p>
+                <p className="text-xs text-gray-400 leading-relaxed">剪贴板图片可转成 JPG 或 WebP，并进行压缩以便上传。</p>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <button
-                  onClick={() => setLocalSettings((prev) => ({ ...prev, enablePngToJpg: !prev.enablePngToJpg }))}
+                  onClick={() => setLocalSettings((prev) => ({ ...prev, enablePngConversion: !prev.enablePngConversion }))}
                   className={`relative w-14 h-8 rounded-full border transition-colors flex items-center px-1 flex-shrink-0 ${
-                    localSettings.enablePngToJpg ? 'bg-[#ff4655] border-[#ff7884]' : 'bg-[#1c2430] border-white/10'
+                    localSettings.enablePngConversion ? 'bg-[#ff4655] border-[#ff7884]' : 'bg-[#1c2430] border-white/10'
                   }`}
                 >
                   <div
                     className={`w-6 h-6 bg-white rounded-full shadow transform transition-transform duration-150 ${
-                      localSettings.enablePngToJpg ? 'translate-x-6' : 'translate-x-0'
+                      localSettings.enablePngConversion ? 'translate-x-6' : 'translate-x-0'
                     }`}
                   />
                 </button>
               </div>
             </div>
 
-            {localSettings.enablePngToJpg && (
+            {localSettings.enablePngConversion && (
               <div className="pt-4 border-t border-white/10 space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-white">输出格式</div>
+                    <p className="text-xs text-gray-400 mt-1">选择转换后的格式。</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setLocalSettings((prev) => ({ ...prev, pngConvertFormat: 'jpeg' }))}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                        localSettings.pngConvertFormat === 'jpeg'
+                          ? 'bg-[#ff4655]/20 border-[#ff7884] text-white'
+                          : 'border-white/10 text-gray-400 hover:text-white hover:border-[#ff4655]/50'
+                      }`}
+                    >
+                      JPG
+                    </button>
+                    <button
+                      onClick={() => setLocalSettings((prev) => ({ ...prev, pngConvertFormat: 'webp' }))}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                        localSettings.pngConvertFormat === 'webp'
+                          ? 'bg-[#ff4655]/20 border-[#ff7884] text-white'
+                          : 'border-white/10 text-gray-400 hover:text-white hover:border-[#ff4655]/50'
+                      }`}
+                    >
+                      WebP
+                    </button>
+                  </div>
+                </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-semibold text-white">压缩系数</div>

@@ -30,12 +30,52 @@ const getTargetSize = (width: number, height: number, maxWidth: number, maxHeigh
 
 const clampQuality = (quality: number) => Math.min(1, Math.max(0.1, quality));
 
-const normalizeProcessingSettings = (settings?: Partial<ImageProcessingSettings>): ImageProcessingSettings => ({
-  enablePngToJpg: settings?.enablePngToJpg ?? defaultImageProcessingSettings.enablePngToJpg,
-  jpegQuality: clampQuality(settings?.jpegQuality ?? defaultImageProcessingSettings.jpegQuality),
-});
+type StoredImageProcessingSettings = Partial<ImageProcessingSettings> & {
+  enablePngToJpg?: boolean;
+  pngConvertFormat?: string;
+};
 
-export const convertBlobToJpegFile = async (blob: Blob, options: ImageCompressOptions = {}) => {
+const normalizeProcessingSettings = (settings?: StoredImageProcessingSettings): ImageProcessingSettings => {
+  const enablePngConversion =
+    settings?.enablePngConversion ?? settings?.enablePngToJpg ?? defaultImageProcessingSettings.enablePngConversion;
+
+  const rawFormat = settings?.pngConvertFormat;
+  const pngConvertFormat =
+    rawFormat === 'jpeg' || rawFormat === 'webp'
+      ? rawFormat
+      : settings?.enablePngToJpg
+        ? 'jpeg'
+        : defaultImageProcessingSettings.pngConvertFormat;
+
+  return {
+    enablePngConversion,
+    pngConvertFormat,
+    jpegQuality: clampQuality(settings?.jpegQuality ?? defaultImageProcessingSettings.jpegQuality),
+  };
+};
+
+type OutputFormat = 'jpeg' | 'webp';
+
+const formatMimeMap: Record<OutputFormat, string> = {
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+};
+
+const formatExtensionMap: Record<OutputFormat, string> = {
+  jpeg: 'jpg',
+  webp: 'webp',
+};
+
+const ensureExtension = (fileName: string, format: OutputFormat) => {
+  const lower = fileName.toLowerCase();
+  if (format === 'jpeg' && (lower.endsWith('.jpg') || lower.endsWith('.jpeg'))) {
+    return fileName;
+  }
+  const ext = formatExtensionMap[format];
+  return lower.endsWith(`.${ext}`) ? fileName : `${fileName}.${ext}`;
+};
+
+const convertBlobToImageFile = async (blob: Blob, format: OutputFormat, options: ImageCompressOptions = {}) => {
   const { quality = 1, maxWidth = 1920, maxHeight = 1920, fileName = 'image' } = options;
   const image = await loadImageFromBlob(blob);
   const { width, height } = getTargetSize(image.naturalWidth || image.width, image.naturalHeight || image.height, maxWidth, maxHeight);
@@ -47,35 +87,47 @@ export const convertBlobToJpegFile = async (blob: Blob, options: ImageCompressOp
   if (!ctx) throw new Error('CANVAS_CONTEXT_UNAVAILABLE');
   ctx.drawImage(image, 0, 0, width, height);
 
-  const jpegBlob = await new Promise<Blob>((resolve, reject) => {
+  const outputBlob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (result) => {
         if (result) {
           resolve(result);
         } else {
-          reject(new Error('JPEG_CONVERSION_FAILED'));
+          reject(new Error('IMAGE_CONVERSION_FAILED'));
         }
       },
-      'image/jpeg',
+      formatMimeMap[format],
       quality,
     );
   });
 
-  const normalizedName = fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg') ? fileName : `${fileName}.jpg`;
-  return new File([jpegBlob], normalizedName, { type: 'image/jpeg' });
+  const normalizedName = ensureExtension(fileName, format);
+  return new File([outputBlob], normalizedName, { type: formatMimeMap[format] });
+};
+
+export const convertBlobToJpegFile = async (blob: Blob, options: ImageCompressOptions = {}) => {
+  return convertBlobToImageFile(blob, 'jpeg', options);
+};
+
+export const convertBlobToWebpFile = async (blob: Blob, options: ImageCompressOptions = {}) => {
+  return convertBlobToImageFile(blob, 'webp', options);
 };
 
 export const compressClipboardImage = async (blob: Blob, nameHint: string) => {
-  return convertBlobToJpegFile(blob, { fileName: nameHint, quality: defaultImageProcessingSettings.jpegQuality, maxWidth: 1920, maxHeight: 1920 });
+  const format = defaultImageProcessingSettings.pngConvertFormat;
+  const convert = format === 'webp' ? convertBlobToWebpFile : convertBlobToJpegFile;
+  return convert(blob, { fileName: nameHint, quality: defaultImageProcessingSettings.jpegQuality, maxWidth: 1920, maxHeight: 1920 });
 };
 
 export const prepareClipboardImage = async (blob: Blob, nameHint: string, settings?: Partial<ImageProcessingSettings>) => {
   const normalized = normalizeProcessingSettings(settings);
-  if (!normalized.enablePngToJpg && blob.type && blob.type.includes('png')) {
-    const ext = blob.type.split('/')[1] || 'png';
-    return new File([blob], `${nameHint}.${ext}`, { type: blob.type });
+  if (!normalized.enablePngConversion) {
+    const detectedType = blob.type || 'image/png';
+    const ext = detectedType.split('/')[1] || 'png';
+    return new File([blob], `${nameHint}.${ext}`, { type: detectedType });
   }
-  return convertBlobToJpegFile(blob, {
+  const convert = normalized.pngConvertFormat === 'webp' ? convertBlobToWebpFile : convertBlobToJpegFile;
+  return convert(blob, {
     fileName: nameHint,
     quality: normalized.jpegQuality,
     maxWidth: 1920,

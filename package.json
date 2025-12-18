@@ -17,6 +17,7 @@
     "ali-oss": "^6.23.0",
     "cos-js-sdk-v5": "^1.10.1",
     "crypto-js": "^4.2.0",
+    "fflate": "^0.8.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.474.0",
     "medium-zoom": "^1.1.0",

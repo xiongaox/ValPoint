@@ -16,7 +16,7 @@ type Props = {
   filteredLineups: any[];
   selectedLineupId: string | null;
   handleViewLineup: (id: string) => void;
-  handleShare: (id: string, e: any) => void;
+  handleDownload: (id: string, e: any) => void;
   handleRequestDelete: (id: string, e: any) => void;
   handleClearAll: () => void;
   getMapDisplayName: (name: string) => string;
@@ -49,7 +49,7 @@ const RightPanel: React.FC<Props> = ({
   filteredLineups,
   selectedLineupId,
   handleViewLineup,
-  handleShare,
+  handleDownload,
   handleRequestDelete,
   handleClearAll,
   getMapDisplayName,
@@ -365,11 +365,11 @@ const RightPanel: React.FC<Props> = ({
                             )}
                             {!isSharedMode && (
                               <button
-                                onClick={(e) => handleShare(l.id, e)}
-                                className="text-gray-600 hover:text-blue-400 p-1 rounded hover:bg-white/5 transition-colors"
-                                title="分享"
+                                onClick={(e) => handleDownload(l.id, e)}
+                                className="text-gray-600 hover:text-emerald-400 p-1 rounded hover:bg-white/5 transition-colors"
+                                title="下载"
                               >
-                                <Icon name="Share2" size={14} />
+                                <Icon name="Download" size={14} />
                               </button>
                             )}
                             {userMode === 'login' && !isSharedMode && (

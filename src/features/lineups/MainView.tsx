@@ -66,7 +66,7 @@ type RightProps = {
   filteredLineups: BaseLineup[];
   selectedLineupId: string | null;
   handleViewLineup: (id: string) => void;
-  handleShare: (id: string, e?: React.MouseEvent) => void;
+  handleDownload: (id: string, e?: React.MouseEvent) => void;
   handleRequestDelete: (id: string, e?: React.MouseEvent) => void;
   handleClearAll: () => void;
   getMapDisplayName: (name: string) => string;
@@ -170,7 +170,7 @@ const MainView: React.FC<Props> = ({ activeTab, libraryMode, setLibraryMode, cle
         filteredLineups={right.filteredLineups}
         selectedLineupId={right.selectedLineupId}
         handleViewLineup={right.handleViewLineup}
-        handleShare={right.handleShare}
+        handleDownload={right.handleDownload}
         handleRequestDelete={right.handleRequestDelete}
         handleClearAll={right.handleClearAll}
         getMapDisplayName={right.getMapDisplayName}

@@ -7,6 +7,7 @@ import { useValorantData } from '../../hooks/useValorantData';
 import { useLineupFiltering } from '../../hooks/useLineupFiltering';
 import { useModalState } from '../../hooks/useModalState';
 import { usePinnedLineups } from '../../hooks/usePinnedLineups';
+import { useLineupDownload } from '../../hooks/useLineupDownload';
 import { AgentOption, BaseLineup, LibraryMode, SharedLineup } from '../../types/lineup';
 import { useMapInfo } from './controllers/useMapInfo';
 import { useActionMenu } from './controllers/useActionMenu';
@@ -84,6 +85,10 @@ export function useAppController() {
   const { pinnedLineupIds, togglePinnedLineup, orderedLineups } = usePinnedLineups({
     userId,
     lineups,
+  });
+  const { handleDownload } = useLineupDownload({
+    lineups: orderedLineups,
+    setAlertMessage: modal.setAlertMessage,
   });
   const { sharedLineups, setSharedLineups, fetchSharedLineups, fetchSharedById } = useSharedLineups(mapNameZhToEn);
   const { saveNewLineup, updateLineup, deleteLineup, clearLineups, clearLineupsByAgent } = useLineupActions();
@@ -223,7 +228,7 @@ export function useAppController() {
     setIsChangePasswordOpen: modal.setIsChangePasswordOpen,
   });
 
-  const { onShare, onSaveShared, isSavingShared, pendingTransfers } = useShareController({
+  const { onSaveShared, isSavingShared, pendingTransfers } = useShareController({
     lineups,
     userId,
     isGuest,
@@ -365,7 +370,7 @@ export function useAppController() {
     filteredLineups: libraryMode === 'shared' ? sharedFilteredLineups : filteredLineups,
     selectedLineupIdRight: selectedLineupId,
     handleViewLineup,
-    handleShare: onShare,
+    handleDownload,
     handleRequestDelete,
     handleClearAll,
     setSelectedLineupId,

@@ -47,7 +47,7 @@ type Params = {
   filteredLineups: BaseLineup[];
   selectedLineupIdRight: string | null;
   handleViewLineup: (id: string) => void;
-  handleShare: (id: string, e?: React.MouseEvent) => void;
+  handleDownload: (id: string, e?: React.MouseEvent) => void;
   handleRequestDelete: (id: string, e?: React.MouseEvent) => void;
   handleClearAll: () => void;
   setSelectedLineupId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -130,7 +130,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       filteredLineups: params.filteredLineups,
       selectedLineupId: params.selectedLineupIdRight,
       handleViewLineup: params.handleViewLineup,
-      handleShare: params.handleShare,
+      handleDownload: params.handleDownload,
       handleRequestDelete: params.handleRequestDelete,
       handleClearAll: params.handleClearAll,
       getMapDisplayName: params.getMapDisplayName,

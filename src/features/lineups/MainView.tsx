@@ -69,7 +69,7 @@ type RightProps = {
   handleRequestDelete: (id: string, e?: React.MouseEvent) => void;
   handleClearAll: () => void;
   getMapDisplayName: (name: string) => string;
-  setIsPreviewModalOpen: (v: boolean) => void;
+  onOpenImportModal: () => void;
   userId: string | null;
   userMode: 'login' | 'guest';
   customUserIdInput: string;
@@ -156,7 +156,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
         handleRequestDelete={right.handleRequestDelete}
         handleClearAll={right.handleClearAll}
         getMapDisplayName={right.getMapDisplayName}
-        setIsPreviewModalOpen={right.setIsPreviewModalOpen}
+        onOpenImportModal={right.onOpenImportModal}
         userId={right.userId}
         userMode={right.userMode}
         customUserIdInput={right.customUserIdInput}

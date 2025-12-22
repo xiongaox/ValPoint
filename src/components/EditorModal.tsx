@@ -107,7 +107,7 @@ const EditorModal = ({
       try {
         const url = new URL(candidate);
         updateSourceLink(url.toString());
-        setAlertMessage?.('已从剪贴板提取来源链接，将自动尝试获取作者信息');
+        // 静默更新，不再弹窗提示
       } catch {
         setAlertMessage?.('剪贴板内容不是有效的链接');
       }
@@ -132,18 +132,18 @@ const EditorModal = ({
       setAlertMessage?.('Clipboard API not supported in this browser');
       return;
     }
-    
+
     // 验证图床配置（根据不同平台验证不同字段）
     if (!imageBedConfig?.provider) {
       setAlertMessage?.('Image hosting not configured. Please configure it first.');
       return;
     }
-    
+
     const provider = imageBedConfig.provider;
     let missingFields: string[] = [];
-    
+
     console.log('[EditorModal] validating config', { provider, config: imageBedConfig });
-    
+
     if (provider === 'aliyun') {
       missingFields = ['accessKeyId', 'accessKeySecret', 'bucket', 'area'].filter((k) => !imageBedConfig?.[k]);
     } else if (provider === 'tencent') {
@@ -151,19 +151,19 @@ const EditorModal = ({
     } else if (provider === 'qiniu') {
       missingFields = ['accessKey', 'secretKey', 'bucket', 'url', 'area'].filter((k) => !imageBedConfig?.[k]);
     }
-    
+
     if (missingFields.length > 0) {
       console.error('[EditorModal] missing required fields:', missingFields);
       setAlertMessage?.(`Missing required config fields: ${missingFields.join(', ')}`);
       return;
     }
-    
+
     console.log('[EditorModal] config validation passed');
-    
+
     try {
       setUploadingField(fieldKey);
       console.log('[EditorModal] starting clipboard upload');
-      
+
       const items = await navigator.clipboard.read();
       const imgItem = items.find((item) => item.types.some((t) => t.startsWith('image/')));
       if (!imgItem) {
@@ -171,17 +171,17 @@ const EditorModal = ({
         setAlertMessage?.('No image found in clipboard');
         return;
       }
-      
+
       const imgType = imgItem.types.find((t) => t.startsWith('image/')) || 'image/png';
       const blob = await imgItem.getType(imgType);
       console.log('[EditorModal] image from clipboard', { type: imgType, size: blob.size });
-      
+
       const fileForUpload = await prepareClipboardImage(blob, 'clipboard_' + Date.now(), imageProcessingSettings);
       console.log('[EditorModal] image processed', { size: fileForUpload.size });
-      
+
       const result = await uploadToOss(fileForUpload, imageBedConfig);
       console.log('[EditorModal] upload success', { url: result.url });
-      
+
       setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
     } catch (e) {
       console.error('[EditorModal] upload error:', e);
@@ -255,22 +255,20 @@ const EditorModal = ({
                 <button
                   type="button"
                   onClick={() => setSelectedSide('attack')}
-                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                    selectedSide === 'attack'
+                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedSide === 'attack'
                       ? 'bg-gradient-to-r from-[#ff5b6b] to-[#ff3c4d] text-white shadow-lg shadow-red-900/30'
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
-                  }`}
+                    }`}
                 >
                   <Icon name="Sword" size={16} /> 进攻 (ATK)
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedSide('defense')}
-                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                    selectedSide === 'defense'
+                  className={`flex-1 justify-center flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedSide === 'defense'
                       ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-900/30'
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
-                  }`}
+                    }`}
                 >
                   <Icon name="Shield" size={16} /> 防守 (DEF)
                 </button>
@@ -312,7 +310,7 @@ const EditorModal = ({
                     disabled={isFetchingAuthor || !newLineupData.sourceLink?.trim()}
                     className="text-[11px] text-gray-400 hover:text-[#ff4655] flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Icon name="RefreshCw" size={12} className={isFetchingAuthor ? 'animate-spin' : ''} /> 
+                    <Icon name="RefreshCw" size={12} className={isFetchingAuthor ? 'animate-spin' : ''} />
                     {isFetchingAuthor ? '获取中...' : '手动刷新'}
                   </button>
                 </div>

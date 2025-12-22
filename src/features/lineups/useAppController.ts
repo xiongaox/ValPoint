@@ -294,6 +294,7 @@ export function useAppController() {
     selectedAbilityIndex,
     setSelectedAbilityIndex,
     setIsPreviewModalOpen: modal.setIsPreviewModalOpen,
+    setIsImportModalOpen: modal.setIsImportModalOpen,
     getMapDisplayName,
     openChangelog: () => modal.setIsChangelogOpen(true),
     mapIcon: getMapUrl(),
@@ -419,6 +420,10 @@ export function useAppController() {
     viewingImage: modal.viewingImage,
     isChangelogOpen: modal.isChangelogOpen,
     setIsChangelogOpen: modal.setIsChangelogOpen,
+    isImportModalOpen: modal.isImportModalOpen,
+    setIsImportModalOpen: modal.setIsImportModalOpen,
+    saveNewLineup,
+    fetchLineups,
   });
 
   const { alertProps, lightboxProps } = buildUiProps({

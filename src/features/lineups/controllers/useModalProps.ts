@@ -1,6 +1,6 @@
 import React from 'react';
 import AppModals from '../AppModals';
-import { MapOption, NewLineupForm, SharedLineup, BaseLineup, LibraryMode } from '../../../types/lineup';
+import { MapOption, NewLineupForm, SharedLineup, BaseLineup, LibraryMode, LineupDbPayload } from '../../../types/lineup';
 import { ImageBedConfig } from '../../../types/imageBed';
 import { ImageProcessingSettings } from '../../../types/imageProcessing';
 import { LightboxImage } from '../../../types/ui';
@@ -86,6 +86,11 @@ type Params = {
   viewingImage: LightboxImage | null;
   isChangelogOpen: boolean;
   setIsChangelogOpen: (v: boolean) => void;
+  // import
+  isImportModalOpen: boolean;
+  setIsImportModalOpen: (v: boolean) => void;
+  saveNewLineup: (payload: LineupDbPayload) => Promise<BaseLineup>;
+  fetchLineups: (userId: string) => void;
 };
 
 export function buildModalProps(params: Params): React.ComponentProps<typeof AppModals> {
@@ -178,5 +183,10 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     viewingImage: params.viewingImage,
     isChangelogOpen: params.isChangelogOpen,
     onChangelogClose: () => params.setIsChangelogOpen(false),
+    isImportModalOpen: params.isImportModalOpen,
+    onImportClose: () => params.setIsImportModalOpen(false),
+    onImportSuccess: params.saveNewLineup,
+    onOpenImageConfig: () => params.setIsImageConfigOpen(true),
+    fetchLineups: params.fetchLineups,
   };
 }

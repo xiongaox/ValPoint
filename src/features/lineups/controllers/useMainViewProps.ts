@@ -16,6 +16,7 @@ type Params = {
   selectedAbilityIndex: number | null;
   setSelectedAbilityIndex: (v: number | null) => void;
   setIsPreviewModalOpen: (v: boolean) => void;
+  setIsImportModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
   openChangelog: () => void;
   mapIcon: string | null;
@@ -128,7 +129,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       handleRequestDelete: params.handleRequestDelete,
       handleClearAll: params.handleClearAll,
       getMapDisplayName: params.getMapDisplayName,
-      setIsPreviewModalOpen: params.setIsPreviewModalOpen,
+      onOpenImportModal: () => params.setIsImportModalOpen(true),
       userId: params.userId,
       userMode: params.userMode,
       customUserIdInput: params.customUserIdInput,

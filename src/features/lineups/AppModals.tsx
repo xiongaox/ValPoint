@@ -12,7 +12,8 @@ import ViewerModal from '../../components/ViewerModal';
 import Lightbox from '../../components/Lightbox';
 import AuthModal from '../../components/AuthModal';
 import ChangelogModal from '../../components/ChangelogModal';
-import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm } from '../../types/lineup';
+import ImportLineupModal from '../../components/ImportLineupModal';
+import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm, LineupDbPayload } from '../../types/lineup';
 import { ImageBedConfig } from '../../types/imageBed';
 import { ImageProcessingSettings } from '../../types/imageProcessing';
 import { LightboxImage } from '../../types/ui';
@@ -94,6 +95,12 @@ type Props = {
   // changelog
   isChangelogOpen: boolean;
   onChangelogClose: () => void;
+  // import
+  isImportModalOpen: boolean;
+  onImportClose: () => void;
+  onImportSuccess: (payload: LineupDbPayload) => Promise<BaseLineup>;
+  onOpenImageConfig: () => void;
+  fetchLineups: (userId: string) => void;
 };
 
 const AppModals: React.FC<Props> = ({
@@ -164,6 +171,11 @@ const AppModals: React.FC<Props> = ({
   viewingImage,
   isChangelogOpen,
   onChangelogClose,
+  isImportModalOpen,
+  onImportClose,
+  onImportSuccess,
+  onOpenImageConfig,
+  fetchLineups,
 }) => {
   return (
     <>
@@ -255,6 +267,17 @@ const AppModals: React.FC<Props> = ({
       <Lightbox viewingImage={viewingImage} setViewingImage={setViewingImage} />
 
       <ChangelogModal isOpen={isChangelogOpen} onClose={onChangelogClose} />
+
+      <ImportLineupModal
+        isOpen={isImportModalOpen}
+        onClose={onImportClose}
+        imageBedConfig={imageBedConfig}
+        userId={userId}
+        onImportSuccess={onImportSuccess}
+        onOpenImageConfig={onOpenImageConfig}
+        setAlertMessage={(msg) => setAlertMessage(msg)}
+        fetchLineups={fetchLineups}
+      />
     </>
   );
 };

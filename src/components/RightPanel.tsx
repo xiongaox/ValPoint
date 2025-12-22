@@ -20,7 +20,7 @@ type Props = {
   handleRequestDelete: (id: string, e: any) => void;
   handleClearAll: () => void;
   getMapDisplayName: (name: string) => string;
-  setIsPreviewModalOpen: (v: boolean) => void;
+  onOpenImportModal: () => void;
   userId: string | null;
   userMode: 'login' | 'guest';
   customUserIdInput: string;
@@ -50,7 +50,7 @@ const RightPanel: React.FC<Props> = ({
   handleRequestDelete,
   handleClearAll,
   getMapDisplayName,
-  setIsPreviewModalOpen,
+  onOpenImportModal,
   userId,
   userMode,
   customUserIdInput,
@@ -100,13 +100,15 @@ const RightPanel: React.FC<Props> = ({
             <Icon name="Plus" size={18} /> 新增点位
           </button>
         )}
-        <button
-          onClick={() => setIsPreviewModalOpen(true)}
-          className="py-4 px-4 flex items-center justify-center border-l border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-          title="加载分享链接"
-        >
-          <Icon name="Link" size={18} />
-        </button>
+        {userMode === 'login' && (
+          <button
+            onClick={onOpenImportModal}
+            className="py-4 px-4 flex items-center justify-center border-l border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            title="导入点位"
+          >
+            <Icon name="Download" size={18} />
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">

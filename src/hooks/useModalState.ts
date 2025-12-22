@@ -18,6 +18,7 @@ export function useModalState() {
   const [isChangelogOpen, setIsChangelogOpen] = useState<boolean>(false);
   const [isSharedFilterOpen, setIsSharedFilterOpen] = useState<boolean>(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState<boolean>(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
 
   return {
     isMapModalOpen,
@@ -50,5 +51,7 @@ export function useModalState() {
     setIsSharedFilterOpen,
     isChangePasswordOpen,
     setIsChangePasswordOpen,
+    isImportModalOpen,
+    setIsImportModalOpen,
   };
 }

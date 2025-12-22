@@ -93,12 +93,16 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
         }
     }, [maps, selectedMap]);
 
-    // 初始化默认英雄（使用列表第一个）
+    // 标记是否已完成首次英雄初始化
+    const [hasInitializedAgent, setHasInitializedAgent] = useState(false);
+
+    // 首次加载时默认选择第一个英雄，但用户点击"显示全部"后不再自动选择
     useEffect(() => {
-        if (agents.length > 0 && !selectedAgent) {
+        if (agents.length > 0 && !selectedAgent && !hasInitializedAgent) {
             setSelectedAgent(agents[0]);
+            setHasInitializedAgent(true);
         }
-    }, [agents, selectedAgent, setSelectedAgent]);
+    }, [agents, selectedAgent, hasInitializedAgent]);
 
     // 加载共享库点位
     const loadLineups = useCallback(async () => {

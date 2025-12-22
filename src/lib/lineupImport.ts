@@ -50,6 +50,40 @@ export type ImportResult = {
     failedImages: LineupImageField[];
 };
 
+// Metadata type for preview before import
+export type ZipMetadata = {
+    title: string;
+    mapName: string;
+    agentName: string;
+    side: string;
+};
+
+/**
+ * 解析 ZIP 文件元数据（用于预览，不上传图片）
+ */
+export const parseZipMetadata = async (zipFile: File): Promise<ZipMetadata> => {
+    const arrayBuffer = await zipFile.arrayBuffer();
+    const zipData = new Uint8Array(arrayBuffer);
+    const unzipped = unzipSync(zipData);
+
+    // Find JSON file
+    const jsonFileName = Object.keys(unzipped).find((name) => name.endsWith('.json'));
+    if (!jsonFileName) {
+        throw new Error('ZIP 文件中未找到 JSON 元数据');
+    }
+
+    // Parse JSON
+    const jsonContent = strFromU8(unzipped[jsonFileName]);
+    const jsonPayload: LineupJsonPayload = JSON.parse(jsonContent);
+
+    return {
+        title: jsonPayload.title,
+        mapName: jsonPayload.map_name,
+        agentName: jsonPayload.agent_name,
+        side: jsonPayload.side,
+    };
+};
+
 const imageSlots: { field: LineupImageField; fileName: string }[] = [
     { field: 'stand_img', fileName: '站位图.webp' },
     { field: 'stand2_img', fileName: '站位图2.webp' },

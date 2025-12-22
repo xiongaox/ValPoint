@@ -61,9 +61,8 @@ const ViewerModal = ({
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <span
-                  className={`text-[12px] font-bold px-2 py-0.5 rounded ${
-                    viewingLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
-                  }`}
+                  className={`text-[12px] font-bold px-2 py-0.5 rounded ${viewingLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
+                    }`}
                 >
                   {viewingLineup.side === 'attack' ? '进攻 (ATK)' : '防守 (DEF)'}
                 </span>
@@ -82,8 +81,8 @@ const ViewerModal = ({
                 authorInfo.uid ? (
                   <a
                     href={
-                      authorInfo.uid.startsWith('MS4') 
-                        ? `https://www.douyin.com/user/${authorInfo.uid}` 
+                      authorInfo.uid.startsWith('MS4')
+                        ? `https://www.douyin.com/user/${authorInfo.uid}`
                         : `https://space.bilibili.com/${authorInfo.uid}`
                     }
                     target="_blank"
@@ -131,9 +130,9 @@ const ViewerModal = ({
                   onClick={() => handleCopyShared(viewingLineup)}
                   disabled={isSavingShared}
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 text-sm text-emerald-300 hover:border-emerald-400 hover:text-emerald-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  title="保存到我的点位"
+                  title="下载点位"
                 >
-                  <Icon name="Save" size={14} /> {isSavingShared ? '保存中...' : '保存到我的点位'}
+                  <Icon name="Download" size={14} /> {isSavingShared ? '下载中...' : '下载点位'}
                 </button>
               )}
               <button
@@ -188,8 +187,8 @@ const ViewerModal = ({
             !viewingLineup.aimImg &&
             !viewingLineup.aim2Img &&
             !viewingLineup.landImg && (
-            <div className="h-full flex items-center justify-center text-gray-500 text-sm">暂无图片资料</div>
-          )}
+              <div className="h-full flex items-center justify-center text-gray-500 text-sm">暂无图片资料</div>
+            )}
         </div>
       </div>
     </div>

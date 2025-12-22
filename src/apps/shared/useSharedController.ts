@@ -92,6 +92,13 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
         }
     }, [maps, selectedMap]);
 
+    // 初始化默认英雄（使用列表第一个）
+    useEffect(() => {
+        if (agents.length > 0 && !selectedAgent) {
+            setSelectedAgent(agents[0]);
+        }
+    }, [agents, selectedAgent, setSelectedAgent]);
+
     // 加载共享库点位
     const loadLineups = useCallback(async () => {
         setIsLoading(true);

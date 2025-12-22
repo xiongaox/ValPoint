@@ -100,11 +100,13 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 </div>
             </div>
 
-            {/* 右侧面板 - 精简版 */}
+            {/* 右侧面板 - 与个人库共享模式一致 */}
             <SharedRightPanel
                 isLoading={controller.isLoading}
                 searchQuery={controller.searchQuery}
                 setSearchQuery={controller.setSearchQuery}
+                selectedSide={controller.selectedSide}
+                setSelectedSide={controller.setSelectedSide}
                 filteredLineups={controller.filteredLineups}
                 selectedLineupId={controller.selectedLineupId}
                 handleViewLineup={controller.handleViewLineup}

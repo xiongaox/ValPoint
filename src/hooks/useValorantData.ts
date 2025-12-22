@@ -14,11 +14,11 @@ export function useValorantData() {
     setAgents(sortedAgents);
     if (sortedAgents.length > 0) setSelectedAgent(sortedAgents[0]);
 
-    const sortedMaps = [...localMaps].sort((a, b) => a.displayName.localeCompare(b.displayName));
-    setMaps(sortedMaps);
-    if (sortedMaps.length > 0) {
-      const ascent = sortedMaps.find((m) => m.displayName === 'Ascent');
-      setSelectedMap(ascent || sortedMaps[0]);
+    // 地图保持 localMaps 定义的顺序，不排序
+    setMaps(localMaps);
+    if (localMaps.length > 0) {
+      // 默认选择第一个地图（Abyss）
+      setSelectedMap(localMaps[0]);
     }
   }, []);
 

@@ -1,9 +1,14 @@
 import { MapOption } from '../types/lineup';
 
+// 地图列表 - Ascent（亚海悬城）排第一
 export const localMaps: MapOption[] = [
   {
     "displayName": "Ascent",
     "displayIcon": "/maps/covers/亚海悬城.webp"
+  },
+  {
+    "displayName": "Abyss",
+    "displayIcon": "/maps/covers/幽邃地窟.webp"
   },
   {
     "displayName": "Split",
@@ -20,10 +25,6 @@ export const localMaps: MapOption[] = [
   {
     "displayName": "Breeze",
     "displayIcon": "/maps/covers/微风岛屿.webp"
-  },
-  {
-    "displayName": "Abyss",
-    "displayIcon": "/maps/covers/幽邃地窟.webp"
   },
   {
     "displayName": "Lotus",

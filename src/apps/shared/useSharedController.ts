@@ -6,8 +6,7 @@ import { fetchSharedList } from '../../services/shared';
 import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm } from '../../types/lineup';
 import { MAP_TRANSLATIONS } from '../../constants/maps';
 
-// 默认地图
-const DEFAULT_MAP = 'Abyss';
+
 
 interface UseSharedControllerParams {
     user: User | null; // 可选，支持游客模式
@@ -82,11 +81,10 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
         sharedLineup: selectedLineup,
     });
 
-    // 初始化默认地图
+    // 初始化默认地图（使用列表第一个）
     useEffect(() => {
         if (maps.length > 0 && !selectedMap) {
-            const defaultMap = maps.find((m) => m.displayName === DEFAULT_MAP) || maps[0];
-            setSelectedMapState(defaultMap);
+            setSelectedMapState(maps[0]);
         }
     }, [maps, selectedMap]);
 

@@ -122,12 +122,14 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
                         {/* 站位点标记 */}
                         {submission.agent_pos && (
                             <div
-                                className="absolute rounded-full border-[3px] border-white shadow-lg overflow-hidden"
+                                className="absolute rounded-full border-white shadow-lg overflow-hidden"
                                 style={{
                                     width: `${32 / scale}px`,
                                     height: `${32 / scale}px`,
+                                    borderWidth: `${3 / scale}px`,
+                                    borderStyle: 'solid',
                                     left: `${(submission.agent_pos.lng / 1000) * 100}%`,
-                                    top: `${(submission.agent_pos.lat / 1000) * 100}%`,
+                                    top: `${((1000 - submission.agent_pos.lat) / 1000) * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
                                 title="站位点"
@@ -144,12 +146,14 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
                         {/* 落点标记 */}
                         {submission.skill_pos && (
                             <div
-                                className="absolute rounded-full border-2 border-white shadow-lg overflow-hidden"
+                                className="absolute rounded-full border-white shadow-lg overflow-hidden"
                                 style={{
                                     width: `${28 / scale}px`,
                                     height: `${28 / scale}px`,
+                                    borderWidth: `${2 / scale}px`,
+                                    borderStyle: 'solid',
                                     left: `${(submission.skill_pos.lng / 1000) * 100}%`,
-                                    top: `${(submission.skill_pos.lat / 1000) * 100}%`,
+                                    top: `${((1000 - submission.skill_pos.lat) / 1000) * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
                                 title="落点"

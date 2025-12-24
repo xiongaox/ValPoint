@@ -2,7 +2,7 @@
  * 共享库管理页面
  * 允许管理员查看和删除共享库中的点位
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Icon from '../../../components/Icon';
 import { getSharedLineups, deleteSharedLineup, SharedLineup } from '../../../lib/reviewService';
 
@@ -13,6 +13,11 @@ const SharedManagePage: React.FC = () => {
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // 筛选条件
+    const [filterAgent, setFilterAgent] = useState('');
+    const [filterMap, setFilterMap] = useState('');
+    const [filterSide, setFilterSide] = useState<'' | 'attack' | 'defense'>('');
 
     // 加载数据
     const loadData = async () => {
@@ -26,16 +31,36 @@ const SharedManagePage: React.FC = () => {
         loadData();
     }, []);
 
+    // 动态获取特工列表和地图列表
+    const agentList = useMemo(() => {
+        const agents = [...new Set(lineups.map((l) => l.agent_name))].filter(Boolean).sort();
+        return agents;
+    }, [lineups]);
+
+    const mapList = useMemo(() => {
+        const maps = [...new Set(lineups.map((l) => l.map_name))].filter(Boolean).sort();
+        return maps;
+    }, [lineups]);
+
     // 筛选
     const filteredLineups = lineups.filter((item) => {
-        if (!searchQuery) return true;
-        const query = searchQuery.toLowerCase();
-        return (
-            item.title.toLowerCase().includes(query) ||
-            item.map_name.toLowerCase().includes(query) ||
-            item.agent_name.toLowerCase().includes(query) ||
-            (item.user_id?.toLowerCase().includes(query) ?? false)
-        );
+        // 搜索关键词筛选
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const matchQuery =
+                item.title.toLowerCase().includes(query) ||
+                item.map_name.toLowerCase().includes(query) ||
+                item.agent_name.toLowerCase().includes(query) ||
+                (item.user_id?.toLowerCase().includes(query) ?? false);
+            if (!matchQuery) return false;
+        }
+        // 特工筛选
+        if (filterAgent && item.agent_name !== filterAgent) return false;
+        // 地图筛选
+        if (filterMap && item.map_name !== filterMap) return false;
+        // 攻防筛选
+        if (filterSide && item.side !== filterSide) return false;
+        return true;
     });
 
     // 删除点位
@@ -54,6 +79,16 @@ const SharedManagePage: React.FC = () => {
 
         setTimeout(() => setMessage(null), 3000);
     };
+
+    // 重置筛选
+    const resetFilters = () => {
+        setSearchQuery('');
+        setFilterAgent('');
+        setFilterMap('');
+        setFilterSide('');
+    };
+
+    const hasFilters = searchQuery || filterAgent || filterMap || filterSide;
 
     return (
         <div className="space-y-6">
@@ -89,24 +124,122 @@ const SharedManagePage: React.FC = () => {
                 </div>
             </div>
 
-            {/* 搜索栏 */}
-            <div className="flex items-center gap-4">
-                <div className="relative flex-1">
-                    <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <input
-                        type="text"
-                        placeholder="搜索点位标题、地图、特工、用户ID..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-[#1f2326] border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4655]"
-                    />
+            {/* 筛选区 */}
+            <div className="bg-[#1f2326] rounded-xl border border-white/5 overflow-hidden">
+                {/* 顶部搜索和刷新 */}
+                <div className="p-4 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex-1">
+                            <Icon name="Search" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                            <input
+                                type="text"
+                                placeholder="搜索点位标题、用户ID..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-11 pr-4 py-3 bg-[#0f1923] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4655] transition-colors"
+                            />
+                        </div>
+                        <button
+                            onClick={loadData}
+                            className="p-3 bg-[#0f1923] border border-white/10 rounded-xl text-gray-400 hover:text-white hover:border-[#ff4655]/50 transition-all"
+                            title="刷新数据"
+                        >
+                            <Icon name="RefreshCw" size={20} />
+                        </button>
+                    </div>
                 </div>
-                <button
-                    onClick={loadData}
-                    className="px-4 py-3 bg-[#1f2326] border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                    <Icon name="RefreshCw" size={18} />
-                </button>
+
+                {/* 筛选条件区 */}
+                <div className="p-4 flex items-center gap-4">
+                    {/* 特工筛选 */}
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all ${filterAgent
+                        ? 'bg-[#ff4655]/10 border border-[#ff4655]/30'
+                        : 'bg-[#0f1923] border border-white/10 hover:border-white/20'
+                        }`}>
+                        <Icon name="User" size={16} className={filterAgent ? 'text-[#ff4655]' : 'text-gray-500'} />
+                        <select
+                            value={filterAgent}
+                            onChange={(e) => setFilterAgent(e.target.value)}
+                            className="bg-transparent text-sm focus:outline-none cursor-pointer appearance-none pr-6"
+                            style={{ color: filterAgent ? 'white' : '#9ca3af' }}
+                        >
+                            <option value="">全部特工</option>
+                            {agentList.map((agent) => (
+                                <option key={agent} value={agent}>{agent}</option>
+                            ))}
+                        </select>
+                        <Icon name="ChevronDown" size={14} className="text-gray-500 -ml-5" />
+                    </div>
+
+                    {/* 地图筛选 */}
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all ${filterMap
+                        ? 'bg-[#ff4655]/10 border border-[#ff4655]/30'
+                        : 'bg-[#0f1923] border border-white/10 hover:border-white/20'
+                        }`}>
+                        <Icon name="Map" size={16} className={filterMap ? 'text-[#ff4655]' : 'text-gray-500'} />
+                        <select
+                            value={filterMap}
+                            onChange={(e) => setFilterMap(e.target.value)}
+                            className="bg-transparent text-sm focus:outline-none cursor-pointer appearance-none pr-6"
+                            style={{ color: filterMap ? 'white' : '#9ca3af' }}
+                        >
+                            <option value="">全部地图</option>
+                            {mapList.map((map) => (
+                                <option key={map} value={map}>{map}</option>
+                            ))}
+                        </select>
+                        <Icon name="ChevronDown" size={14} className="text-gray-500 -ml-5" />
+                    </div>
+
+                    {/* 分隔线 */}
+                    <div className="w-px h-6 bg-white/10" />
+
+                    {/* 攻防筛选 - 按钮组 */}
+                    <div className="flex items-center gap-1 bg-[#0f1923] rounded-lg p-1">
+                        <button
+                            onClick={() => setFilterSide(filterSide === 'attack' ? '' : 'attack')}
+                            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${filterSide === 'attack'
+                                ? 'bg-red-500/20 text-red-400'
+                                : 'text-gray-500 hover:text-gray-300'
+                                }`}
+                        >
+                            进攻
+                        </button>
+                        <button
+                            onClick={() => setFilterSide(filterSide === 'defense' ? '' : 'defense')}
+                            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${filterSide === 'defense'
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'text-gray-500 hover:text-gray-300'
+                                }`}
+                        >
+                            防守
+                        </button>
+                    </div>
+
+                    {/* 右侧区域 */}
+                    <div className="ml-auto flex items-center gap-4">
+                        {/* 重置按钮 */}
+                        {hasFilters && (
+                            <button
+                                onClick={resetFilters}
+                                className="text-sm text-gray-500 hover:text-[#ff4655] transition-colors flex items-center gap-1.5"
+                            >
+                                <Icon name="RotateCcw" size={14} />
+                                重置
+                            </button>
+                        )}
+
+                        {/* 筛选结果 */}
+                        <div className="text-sm">
+                            {hasFilters ? (
+                                <span className="text-[#ff4655]">{filteredLineups.length}</span>
+                            ) : (
+                                <span className="text-gray-500">{lineups.length}</span>
+                            )}
+                            <span className="text-gray-600 ml-1">条记录</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* 点位列表 */}

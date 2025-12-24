@@ -7,7 +7,6 @@ import MapPickerModal from '../../components/MapPickerModal';
 import ViewerModal from '../../components/ViewerModal';
 import SharedFilterModal from '../../components/SharedFilterModal';
 import Icon from '../../components/Icon';
-import LibrarySwitchButton from '../../components/LibrarySwitchButton';
 import SubmitLineupModal from './SubmitLineupModal';
 import { useSharedController } from './useSharedController';
 import { getSystemSettings } from '../../lib/systemSettings';
@@ -120,12 +119,10 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
                 {/* 用户状态显示 */}
                 <div className="absolute top-3 left-3 z-10 flex items-center gap-3">
-                    {/* 库切换按钮 */}
-                    <LibrarySwitchButton currentLibrary="shared" />
 
                     {/* 用户信息卡片 (Compact Player Card) */}
                     <div className="group relative">
-                        {/* 容器高度设为 54px 以匹配左侧 LibrarySwitchButton */}
+                        {/* 容器高度设为 54px */}
                         <div className="relative h-[54px] flex items-center gap-3 bg-gradient-to-r from-[#ff4655]/20 via-[#1f2326]/90 to-[#1f2326] backdrop-blur-md px-3 rounded-[12px] border border-white/10 min-w-[200px] overflow-hidden">
                             {/* 装饰纹理 */}
                             <div className="absolute top-0 right-0 w-16 h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,#ffffff05_2px,#ffffff05_4px)] opacity-50 pointer-events-none" />

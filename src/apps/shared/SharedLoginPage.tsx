@@ -258,74 +258,128 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
         }
 
         if (mode === 'magic-sent') {
-            // 显示验证码输入界面
+            // 显示验证码输入界面 - 现代化布局
             return (
-                <div className="space-y-4">
-                    <div className="text-center">
-                        <div className="w-16 h-16 bg-[#ff4655]/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Icon name="Mail" size={32} className="text-[#ff4655]" />
+                <div className="space-y-6">
+                    {/* 顶部信息区 - 左右布局 */}
+                    <div className="flex items-start gap-4">
+                        {/* 左侧图标 */}
+                        <div className="w-14 h-14 bg-gradient-to-br from-[#ff4655] to-[#ff4655]/60 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-[#ff4655]/20">
+                            <Icon name="Mail" size={26} className="text-white" />
                         </div>
-                        <p className="text-gray-400 text-sm mb-4">
-                            验证码已发送至 <span className="text-white font-medium">{email}</span>
-                        </p>
+                        {/* 右侧文字 */}
+                        <div className="flex-1 pt-1">
+                            <h3 className="text-lg font-bold text-white leading-tight">验证码已发送</h3>
+                            <p className="text-sm text-gray-400 mt-1">
+                                已发送至 <span className="text-[#ff4655] font-medium">{email}</span>
+                            </p>
+                        </div>
                     </div>
 
-                    <form onSubmit={handleVerifyOtp}>
-                        <div className="mb-4">
-                            <label className="block text-sm text-gray-400 mb-2 text-center">请输入6位验证码</label>
-                            <input
-                                type="text"
-                                value={otpCode}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                    setOtpCode(val);
-                                    setValidationError(null);
-                                }}
-                                placeholder="000000"
-                                className="w-full px-4 py-4 bg-[#0f1923] border border-white/10 rounded-lg text-white text-center text-2xl tracking-[0.5em] font-mono placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
-                                disabled={isSubmitting}
-                                autoFocus
-                                maxLength={6}
-                            />
+                    {/* 分隔线 */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+                    <form onSubmit={handleVerifyOtp} className="space-y-5">
+                        {/* 验证码输入区域 - 6格子 */}
+                        <div>
+                            <label className="block text-sm text-gray-400 mb-3">请输入6位验证码</label>
+                            <div className="flex gap-2 w-[294px]">
+                                {[0, 1, 2, 3, 4, 5].map((index) => (
+                                    <input
+                                        key={index}
+                                        id={`otp-${index}`}
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={1}
+                                        value={otpCode[index] || ''}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            if (val.length <= 1) {
+                                                const newCode = otpCode.split('');
+                                                newCode[index] = val;
+                                                const result = newCode.join('').slice(0, 6);
+                                                setOtpCode(result);
+                                                setValidationError(null);
+                                                // 自动跳到下一格
+                                                if (val && index < 5) {
+                                                    document.getElementById(`otp-${index + 1}`)?.focus();
+                                                }
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            // 退格键跳到上一格
+                                            if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
+                                                document.getElementById(`otp-${index - 1}`)?.focus();
+                                            }
+                                        }}
+                                        onPaste={(e) => {
+                                            e.preventDefault();
+                                            const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                                            setOtpCode(pasteData);
+                                            // 聚焦到对应位置
+                                            const focusIndex = Math.min(pasteData.length, 5);
+                                            document.getElementById(`otp-${focusIndex}`)?.focus();
+                                        }}
+                                        className={`w-[42px] h-12 bg-[#0f1923] border rounded-lg text-white text-xl font-mono text-center focus:outline-none focus:ring-2 transition-all ${validationError
+                                            ? 'border-red-500 focus:ring-red-500/50'
+                                            : otpCode[index]
+                                                ? 'border-[#ff4655]/50 focus:ring-[#ff4655]/50'
+                                                : 'border-white/10 focus:ring-[#ff4655]/50 focus:border-[#ff4655]'
+                                            }`}
+                                        disabled={isSubmitting}
+                                        autoFocus={index === 0}
+                                    />
+                                ))}
+                            </div>
                         </div>
 
+                        {/* 错误提示 */}
                         {validationError && (
-                            <p className="mb-4 text-sm text-red-400 text-center">{validationError}</p>
+                            <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 px-3 py-2 rounded-lg border border-red-500/20">
+                                <Icon name="AlertCircle" size={16} />
+                                <span>{validationError}</span>
+                            </div>
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={isSubmitting || otpCode.length !== 6}
-                            className="w-full py-3 bg-[#ff4655] hover:bg-[#ff5a67] text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    验证中...
-                                </>
-                            ) : (
-                                <>
-                                    <Icon name="LogIn" size={18} />
-                                    验证并登录
-                                </>
-                            )}
-                        </button>
+                        {/* 按钮组 - 左右布局 */}
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => handleModeChange('login')}
+                                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-medium rounded-xl transition-all border border-white/10 flex items-center justify-center gap-2"
+                            >
+                                <Icon name="ArrowLeft" size={16} />
+                                返回
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || otpCode.length !== 6}
+                                className="flex-[2] py-3 bg-[#ff4655] hover:bg-[#ff5a67] text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-[#ff4655]/20"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        验证中
+                                    </>
+                                ) : (
+                                    <>
+                                        <Icon name="LogIn" size={18} />
+                                        验证登录
+                                    </>
+                                )}
+                            </button>
+                        </div>
 
-                        <div className="mt-4 text-center space-y-2">
+                        {/* 重新发送链接 */}
+                        <div className="text-center pt-2">
                             <button
                                 type="button"
                                 onClick={() => handleMagicLink({ preventDefault: () => { } } as React.FormEvent)}
                                 disabled={isSubmitting}
-                                className="text-sm text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50"
+                                className="text-sm text-gray-500 hover:text-[#ff4655] transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                             >
-                                重新发送验证码
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => handleModeChange('login')}
-                                className="block w-full text-sm text-gray-400 hover:text-white transition-colors"
-                            >
-                                ← 返回密码登录
+                                <Icon name="RefreshCw" size={14} />
+                                没收到？重新发送
                             </button>
                         </div>
                     </form>
@@ -656,8 +710,14 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                     )}
                 </div>
 
-                {/* 底部版权 */}
-                <div className="absolute bottom-6 left-0 right-0 text-center">
+                {/* 底部版权 - 双击可进入验证码调试模式 */}
+                <div
+                    className="absolute bottom-6 left-0 right-0 text-center"
+                    onDoubleClick={() => {
+                        setEmail('debug@example.com');
+                        setMode('magic-sent');
+                    }}
+                >
                     <p className="text-gray-600 text-xs">
                         © 2024 VALPOINT · 社区驱动的战术平台
                     </p>

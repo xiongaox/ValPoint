@@ -50,6 +50,7 @@ type QuickActionsProps = {
   onChangePassword: () => void;
   onClearLineups: () => void;
   onSyncToShared?: () => void;
+  onBatchDownload?: () => void;
   isAdmin?: boolean;
   pendingTransfers: number;
 };
@@ -139,6 +140,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
           onSyncToShared={quickActions.onSyncToShared}
+          onBatchDownload={quickActions.onBatchDownload}
           isAdmin={quickActions.isAdmin}
           pendingTransfers={quickActions.pendingTransfers}
         />

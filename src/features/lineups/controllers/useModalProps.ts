@@ -91,6 +91,12 @@ type Params = {
   setIsImportModalOpen: (v: boolean) => void;
   saveNewLineup: (payload: LineupDbPayload) => Promise<BaseLineup>;
   fetchLineups: (userId: string) => void;
+  // batch download
+  isBatchDownloadModalOpen: boolean;
+  onBatchDownloadClose: () => void;
+  handleBatchDownload: (scope: 'agent' | 'map') => Promise<void>;
+  totalAgentLineups: number;
+  totalMapLineups: number;
 };
 
 export function buildModalProps(params: Params): React.ComponentProps<typeof AppModals> {
@@ -188,5 +194,10 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     onImportSuccess: params.saveNewLineup,
     onOpenImageConfig: () => params.setIsImageConfigOpen(true),
     fetchLineups: params.fetchLineups,
+    isBatchDownloadModalOpen: params.isBatchDownloadModalOpen,
+    onBatchDownloadClose: params.onBatchDownloadClose,
+    handleBatchDownload: params.handleBatchDownload,
+    totalAgentLineups: params.totalAgentLineups,
+    totalMapLineups: params.totalMapLineups,
   };
 }

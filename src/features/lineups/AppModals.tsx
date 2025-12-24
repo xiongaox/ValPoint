@@ -13,6 +13,7 @@ import Lightbox from '../../components/Lightbox';
 import AuthModal from '../../components/AuthModal';
 import ChangelogModal from '../../components/ChangelogModal';
 import ImportLineupModal from '../../components/ImportLineupModal';
+import BatchDownloadModal from './components/BatchDownloadModal';
 import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm, LineupDbPayload } from '../../types/lineup';
 import { ImageBedConfig } from '../../types/imageBed';
 import { ImageProcessingSettings } from '../../types/imageProcessing';
@@ -101,6 +102,12 @@ type Props = {
   onImportSuccess: (payload: LineupDbPayload) => Promise<BaseLineup>;
   onOpenImageConfig: () => void;
   fetchLineups: (userId: string) => void;
+  // batch download
+  isBatchDownloadModalOpen: boolean;
+  onBatchDownloadClose: () => void;
+  handleBatchDownload: (scope: 'agent' | 'map') => Promise<void>;
+  totalAgentLineups: number;
+  totalMapLineups: number;
 };
 
 const AppModals: React.FC<Props> = ({
@@ -176,9 +183,26 @@ const AppModals: React.FC<Props> = ({
   onImportSuccess,
   onOpenImageConfig,
   fetchLineups,
+  isBatchDownloadModalOpen,
+  onBatchDownloadClose,
+  handleBatchDownload,
+  totalAgentLineups,
+  totalMapLineups,
 }) => {
   return (
     <>
+      <BatchDownloadModal
+        isOpen={isBatchDownloadModalOpen}
+        onClose={onBatchDownloadClose}
+        currentMapName={selectedMap?.displayName ?? undefined}
+        currentMapIcon={selectedMap?.displayIcon}
+        currentAgentName={selectedAgentName ?? undefined}
+        currentAgentIcon={selectedAgentIcon}
+        totalAgentLineups={totalAgentLineups}
+        totalMapLineups={totalMapLineups}
+        onDownload={handleBatchDownload}
+      />
+
       <AuthModal
         isOpen={isAuthModalOpen}
         userId={userId}

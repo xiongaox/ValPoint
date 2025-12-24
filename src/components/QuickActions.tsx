@@ -10,6 +10,7 @@ type Props = {
   onClearLineups: () => void;
   onAdvancedSettings: () => void;
   onSyncToShared?: () => void;  // 同步到共享库
+  onBatchDownload?: () => void; // 批量下载
   isAdmin?: boolean;             // 是否管理员
   pendingTransfers?: number;
 };
@@ -22,6 +23,7 @@ const QuickActions: React.FC<Props> = ({
   onClearLineups,
   onAdvancedSettings,
   onSyncToShared,
+  onBatchDownload,
   isAdmin = false,
   pendingTransfers = 0,
 }) => {
@@ -45,6 +47,17 @@ const QuickActions: React.FC<Props> = ({
           </div>
         )}
         <div className="relative pointer-events-auto flex flex-col items-center gap-4">
+          {/* 批量下载按钮 - 显示在同步按钮上方 */}
+          {onBatchDownload && (
+            <button
+              onClick={onBatchDownload}
+              className="w-12 h-12 rounded-full bg-[#2a2f38] hover:bg-[#3a4048] text-white flex items-center justify-center shadow-lg border border-white/10 transition-colors"
+              title="批量下载当前点位"
+            >
+              <Icon name="Download" size={20} />
+            </button>
+          )}
+
           {/* 同步到共享库按钮 - 直接显示在快捷功能上方 */}
           {isAdmin && onSyncToShared && (
             <button

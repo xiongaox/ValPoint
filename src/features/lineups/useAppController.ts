@@ -84,7 +84,7 @@ export function useAppController() {
   const { saveNewLineup, updateLineup, deleteLineup, clearLineups, clearLineupsByAgent } = useLineupActions();
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const { agentCounts, filteredLineups, isFlipped, mapLineups } = useLineupFiltering({
+  const { agentCounts, filteredLineups, isFlipped, mapLineups, allMapLineups } = useLineupFiltering({
     lineups: orderedLineups,
     selectedMap,
     selectedAgent,
@@ -230,6 +230,32 @@ export function useAppController() {
     updateLineup,
   });
 
+  const handleBatchDownload = useCallback(async (scope: 'agent' | 'map') => {
+    if (!selectedMap) return;
+
+    let targets: BaseLineup[] = [];
+    if (scope === 'map') {
+      targets = allMapLineups;
+    } else {
+      if (!selectedAgent) {
+        modal.setAlertMessage('请先选择一个特工');
+        return;
+      }
+      targets = allMapLineups.filter(l => l.agentName === selectedAgent.displayName);
+    }
+
+    if (targets.length === 0) {
+      modal.setAlertMessage('当前范围内没有可下载的点位');
+      return;
+    }
+
+    for (const lineup of targets) {
+      await handleDownload(lineup.id);
+      // Rate limiting
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+  }, [selectedMap, selectedAgent, allMapLineups, handleDownload, modal]);
+
   const handleChangePasswordSubmit = useCallback(
     async (oldPassword: string, newPassword: string, confirmPassword: string) => {
       if (!userId) {
@@ -356,6 +382,7 @@ export function useAppController() {
     onTogglePinLineup: togglePinnedLineup,
     pinnedLimit: DEFAULT_PINNED_COUNT,
     hideSharedButton: imageProcessingSettings.hideSharedButton,
+    onBatchDownload: () => modal.setIsBatchDownloadModalOpen(true),
   });
 
   const modalProps = buildModalProps({
@@ -435,6 +462,11 @@ export function useAppController() {
     setIsImportModalOpen: modal.setIsImportModalOpen,
     saveNewLineup,
     fetchLineups,
+    isBatchDownloadModalOpen: modal.isBatchDownloadModalOpen,
+    onBatchDownloadClose: () => modal.setIsBatchDownloadModalOpen(false),
+    handleBatchDownload,
+    totalMapLineups: allMapLineups.length,
+    totalAgentLineups: selectedAgent ? allMapLineups.filter(l => l.agentName === selectedAgent.displayName).length : 0,
   });
 
   const { alertProps, lightboxProps } = buildUiProps({

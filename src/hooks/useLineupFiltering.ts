@@ -60,5 +60,12 @@ export function useLineupFiltering({
     return filteredLineups;
   }, [filteredLineups]);
 
-  return { agentCounts, filteredLineups, isFlipped, mapLineups };
+  const allMapLineups = useMemo(() => {
+    if (!selectedMap) return [];
+    const mapKey = selectedMap.displayName;
+    const mapKeyEn = mapZhToEn[mapKey] || mapKey;
+    return lineups.filter(l => l.mapName === mapKey || l.mapName === mapKeyEn);
+  }, [lineups, selectedMap, mapZhToEn]);
+
+  return { agentCounts, filteredLineups, isFlipped, mapLineups, allMapLineups };
 }

@@ -62,6 +62,7 @@ type Params = {
   onTogglePinLineup: (id: string) => void;
   pinnedLimit: number;
   hideSharedButton?: boolean;
+  onBatchDownload: () => void;
 };
 
 export function buildMainViewProps(params: Params): React.ComponentProps<typeof MainView> {
@@ -113,6 +114,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       onChangePassword: params.onChangePassword,
       onClearLineups: params.onClearLineups,
       onSyncToShared: params.onSyncToShared,
+      onBatchDownload: params.onBatchDownload,
       isAdmin: params.isAdmin,
       pendingTransfers: params.pendingTransfers,
     },

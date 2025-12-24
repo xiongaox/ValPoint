@@ -15,7 +15,7 @@ interface UseEmailAuthResult {
     signUpWithEmail: (email: string, password: string, data?: object) => Promise<{ success: boolean; error?: string }>;
     resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
     verifyOtp: (email: string, token: string) => Promise<{ success: boolean; error?: string }>;
-    updateProfile: (data: { nickname?: string; avatar?: string }) => Promise<{ success: boolean; error?: string }>;
+    updateProfile: (data: { nickname?: string; avatar?: string; custom_id?: string }) => Promise<{ success: boolean; error?: string }>;
     signOut: () => Promise<void>;
 }
 
@@ -245,17 +245,37 @@ export function useEmailAuth(): UseEmailAuthResult {
     }, []);
 
     // 更新用户资料
-    const updateProfile = useCallback(async (data: { nickname?: string; avatar?: string }): Promise<{ success: boolean; error?: string }> => {
+    const updateProfile = useCallback(async (data: { nickname?: string; avatar?: string; custom_id?: string }): Promise<{ success: boolean; error?: string }> => {
         try {
-            const { error } = await supabase.auth.updateUser({
+            // 1. 更新 auth.users 的 metadata
+            const { error: authError } = await supabase.auth.updateUser({
                 data: data
             });
 
-            if (error) {
-                return { success: false, error: error.message };
+            if (authError) {
+                return { success: false, error: authError.message };
             }
 
-            // 更新本地 user 状态
+            // 2. 同时更新 user_profiles 表，确保数据一致性
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (currentUser) {
+                const updateData: Record<string, string | null> = {};
+                if (data.nickname !== undefined) updateData.nickname = data.nickname;
+                if (data.avatar !== undefined) updateData.avatar = data.avatar;
+                if (data.custom_id !== undefined) updateData.custom_id = data.custom_id;
+
+                const { error: profileError } = await supabase
+                    .from('user_profiles')
+                    .update(updateData)
+                    .eq('id', currentUser.id);
+
+                if (profileError) {
+                    console.error('更新 user_profiles 失败:', profileError);
+                    // 不返回错误，因为 auth 已经更新成功
+                }
+            }
+
+            // 3. 更新本地 user 状态
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user ?? null);
 

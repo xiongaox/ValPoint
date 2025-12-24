@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import Icon, { IconName } from '../../../components/Icon';
+import UserAvatar from '../../../components/UserAvatar';
 import { AdminPage } from '../AdminApp';
 import { supabase } from '../../../supabaseClient';
 import UserProfileModal from '../../shared/components/UserProfileModal';
@@ -135,8 +136,8 @@ function AdminLayout({ currentPage, onPageChange, children }: AdminLayoutProps) 
                                 <div className="text-sm font-medium text-white">{getUserDisplayName()}</div>
                                 <div className="text-xs text-gray-500">{user?.email || '未登录'}</div>
                             </div>
-                            <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/10">
-                                <img src={`/agents/${getUserAvatar()}`} alt="" className="w-full h-full object-cover" />
+                            <div className="w-9 h-9">
+                                <UserAvatar email={user?.email || ''} size={36} borderColor="default" />
                             </div>
                             <Icon name="ChevronDown" size={16} className={`text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                         </button>
@@ -152,33 +153,21 @@ function AdminLayout({ currentPage, onPageChange, children }: AdminLayoutProps) 
                                 {/* 菜单 */}
                                 <div className="absolute right-0 top-full mt-2 w-64 bg-[#1f2326] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
                                     {/* 用户信息头部 */}
-                                    <div className="p-4 border-b border-white/10 bg-[#0f1923]/50">
+                                    <div className="p-4 border-b border-white/10">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/10">
-                                                <img src={`/agents/${getUserAvatar()}`} alt="" className="w-full h-full object-cover" />
-                                            </div>
+                                            <UserAvatar email={user?.email || ''} size={56} borderColor="red" />
                                             <div className="flex-1 min-w-0">
-                                                <div className="font-medium text-white truncate">{getUserDisplayName()}</div>
-                                                <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+                                                <div className="font-bold text-white text-lg truncate">{getUserDisplayName()}</div>
+                                                <div className="text-xs text-gray-400 truncate">{user?.email}</div>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    注册于 {user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '-'}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* 菜单项 */}
                                     <div className="p-2">
-                                        {/* 账户信息 */}
-                                        <div className="px-3 py-2 text-xs text-gray-500 border-b border-white/5 mb-2">
-                                            <div className="flex justify-between mb-1">
-                                                <span>用户 ID</span>
-                                                <span className="text-gray-400 font-mono">{user?.id?.slice(0, 8)}...</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>注册时间</span>
-                                                <span className="text-gray-400">
-                                                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '-'}
-                                                </span>
-                                            </div>
-                                        </div>
 
                                         {/* 编辑个人信息 */}
                                         <button

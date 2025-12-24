@@ -22,6 +22,10 @@ export default defineConfig({
         host: '127.0.0.1',
         port: 3210,
         strictPort: true,
+        hmr: {
+            // 禁用 HMR 超时导致的页面刷新
+            timeout: 60000,
+        },
     },
     build: {
         outDir: 'dist/admin',

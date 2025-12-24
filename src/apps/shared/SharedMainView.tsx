@@ -7,6 +7,7 @@ import MapPickerModal from '../../components/MapPickerModal';
 import ViewerModal from '../../components/ViewerModal';
 import SharedFilterModal from '../../components/SharedFilterModal';
 import Icon from '../../components/Icon';
+import UserAvatar from '../../components/UserAvatar';
 import SubmitLineupModal from './SubmitLineupModal';
 import { useSharedController } from './useSharedController';
 import { getSystemSettings } from '../../lib/systemSettings';
@@ -15,6 +16,7 @@ import { getSystemSettings } from '../../lib/systemSettings';
 import SharedQuickActions from './components/SharedQuickActions';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
 import UserProfileModal from './components/UserProfileModal';
+import ChangelogModal from '../../components/ChangelogModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 
 interface SharedMainViewProps {
@@ -41,6 +43,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
+    const [isChangelogOpen, setIsChangelogOpen] = useState(false);
 
     // 加载投稿开关状态
     useEffect(() => {
@@ -53,28 +56,19 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
         loadSubmissionStatus();
     }, []);
 
-    // 记录打开投稿弹窗前的Tab
+    // 记录打开投稿弹窗前的Tab（用于关闭时恢复）
     const [previousTab, setPreviousTab] = useState<'view' | 'pending'>('view');
-
-    // 当切换到投稿Tab时，打开投稿弹窗
-    useEffect(() => {
-        if (activeTab === 'submit') {
-            setIsSubmitModalOpen(true);
-        }
-    }, [activeTab]);
 
     // 关闭投稿弹窗时，恢复到之前的Tab
     const handleSubmitModalClose = () => {
         setIsSubmitModalOpen(false);
-        setActiveTab(previousTab);
+        // 保持当前 tab，不需要恢复
     };
 
-    // 打开投稿弹窗时记录当前Tab
+    // 打开投稿弹窗（不改变 activeTab，避免界面闪烁）
     const handleOpenSubmit = () => {
-        if (activeTab !== 'submit') {
-            setPreviousTab(activeTab as 'view' | 'pending');
-        }
-        setActiveTab('submit');
+        setPreviousTab(activeTab as 'view' | 'pending');
+        setIsSubmitModalOpen(true);
     };
 
     return (
@@ -94,7 +88,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 setSelectedAbilityIndex={controller.setSelectedAbilityIndex}
                 setIsPreviewModalOpen={() => { }}
                 getMapDisplayName={controller.getMapDisplayName}
-                openChangelog={() => { }}
+                openChangelog={() => setIsChangelogOpen(true)}
             />
 
             {/* 中间地图区域 */}
@@ -131,14 +125,8 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                 <>
                                     {/* 头像 (Compact) */}
                                     <div className="relative shrink-0">
-                                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-white/20 shadow-inner group-hover:border-[#ff4655]/50 transition-colors duration-300">
-                                            {user.user_metadata?.avatar ? (
-                                                <img src={`/agents/${user.user_metadata.avatar}`} alt="Avatar" className="w-full h-full object-cover scale-110" />
-                                            ) : (
-                                                <div className="w-full h-full bg-[#ff4655]/20 flex items-center justify-center">
-                                                    <Icon name="User" size={16} className="text-[#ff4655]" />
-                                                </div>
-                                            )}
+                                        <div className="rounded-lg overflow-hidden border border-white/20 shadow-inner group-hover:border-[#ff4655]/50 transition-colors duration-300">
+                                            <UserAvatar email={user.email || ''} size={36} bordered={false} />
                                         </div>
                                         {/* 在线指示灯 */}
                                         <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#0f1923] rounded-full flex items-center justify-center">
@@ -330,6 +318,12 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 setAlertMessage={setAlertMessage}
+            />
+
+            {/* 更新日志弹窗 */}
+            <ChangelogModal
+                isOpen={isChangelogOpen}
+                onClose={() => setIsChangelogOpen(false)}
             />
         </div>
     );

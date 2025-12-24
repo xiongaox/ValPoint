@@ -93,6 +93,7 @@ function SharedRightPanel({
             </div>
 
             {/* 根据 activeTab 显示不同内容 */}
+            {/* submit 时保持之前的界面，因为投稿是弹窗形式 */}
             {activeTab === 'pending' ? (
                 <PendingSubmissionsTab userId={userId || null} />
             ) : (

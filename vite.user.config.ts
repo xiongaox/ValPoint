@@ -22,6 +22,9 @@ export default defineConfig({
         host: '127.0.0.1',
         port: 3208,
         strictPort: true,
+        hmr: {
+            timeout: 60000,
+        },
     },
     build: {
         outDir: 'dist/user',

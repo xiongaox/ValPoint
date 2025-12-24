@@ -320,11 +320,11 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                                             const focusIndex = Math.min(pasteData.length, 5);
                                             document.getElementById(`otp-${focusIndex}`)?.focus();
                                         }}
-                                        className={`w-[42px] h-12 bg-[#0f1923] border rounded-lg text-white text-xl font-mono text-center focus:outline-none focus:ring-2 transition-all ${validationError
-                                            ? 'border-red-500 focus:ring-red-500/50'
+                                        className={`w-[42px] h-12 bg-[#0f1923] border rounded-lg text-white text-xl font-mono text-center focus:outline-none transition-all ${validationError
+                                            ? 'border-red-500'
                                             : otpCode[index]
-                                                ? 'border-[#ff4655]/50 focus:ring-[#ff4655]/50'
-                                                : 'border-white/10 focus:ring-[#ff4655]/50 focus:border-[#ff4655]'
+                                                ? 'border-[#ff4655]/50'
+                                                : 'border-white/10 focus:border-[#ff4655]'
                                             }`}
                                         disabled={isSubmitting}
                                         autoFocus={index === 0}
@@ -409,7 +409,7 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setValidationError(null); }}
                         placeholder="your@email.com"
-                        className={`w-full px-4 py-3 bg-[#0f1923] border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-colors ${validationError ? 'border-red-500 focus:ring-red-500/50' : 'border-white/[0.08] focus:ring-[#ff4655]/50 focus:border-[#ff4655]'
+                        className={`w-full px-4 py-3 bg-[#0f1923] border rounded-lg text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 transition-colors ${validationError ? 'border-red-500 focus:ring-red-500/50' : 'border-white/[0.08] focus:ring-[#ff4655]/50 focus:border-[#ff4655]'
                             }`}
                         disabled={isSubmitting}
                         autoFocus
@@ -426,7 +426,7 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                                 value={password}
                                 onChange={(e) => { setPassword(e.target.value); setValidationError(null); }}
                                 placeholder={isRegister ? '至少6位' : '输入密码'}
-                                className="w-full px-4 py-3 pr-12 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
+                                className="w-full px-4 py-3 pr-12 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
                                 disabled={isSubmitting}
                             />
                             <button
@@ -450,7 +450,7 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                                 value={confirmPassword}
                                 onChange={(e) => { setConfirmPassword(e.target.value); setValidationError(null); }}
                                 placeholder="再次输入密码"
-                                className="w-full px-4 py-3 pr-12 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
+                                className="w-full px-4 py-3 pr-12 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
                                 disabled={isSubmitting}
                             />
                             <button

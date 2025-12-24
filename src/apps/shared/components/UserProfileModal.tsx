@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/Icon';
+import { updateAvatarCache } from '../../../components/UserAvatar';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
 
 type Props = {
@@ -76,6 +77,10 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
         setIsSubmitting(false);
 
         if (success) {
+            // 更新头像缓存，确保所有组件立即显示新头像
+            if (user?.email) {
+                updateAvatarCache(user.email, currentAvatar);
+            }
             setAlertMessage('个人信息已更新');
             onClose();
         } else {
@@ -109,21 +114,22 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
                 {/* Body */}
                 <div className="p-5 space-y-6 bg-[#181b1f]">
                     {/* 头像设置 */}
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="relative w-24 h-24 rounded-full border-2 border-white/10 overflow-hidden bg-[#0f131a] group">
+                    <div className="flex flex-col items-center gap-2">
+                        <button
+                            onClick={() => setIsAvatarPickerOpen(true)}
+                            className="relative w-24 h-24 rounded-full border-2 border-white/10 overflow-hidden bg-[#0f131a] group hover:border-[#ff4655] transition-colors cursor-pointer"
+                            title="点击更换头像"
+                        >
                             <img
                                 src={`/agents/${currentAvatar}`}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
                             />
-                        </div>
-                        <button
-                            onClick={() => setIsAvatarPickerOpen(true)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-                        >
-                            <Icon name="Grid" size={12} />
-                            选择特工头像
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Icon name="Camera" size={24} className="text-white" />
+                            </div>
                         </button>
+                        <span className="text-xs text-gray-500">点击头像更换</span>
                     </div>
 
                     {/* 昵称设置 */}

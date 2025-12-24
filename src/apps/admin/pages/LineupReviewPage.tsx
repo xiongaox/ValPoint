@@ -9,6 +9,9 @@ import { getPendingSubmissions, approveSubmission, rejectSubmission } from '../.
 import { getSystemSettings } from '../../../lib/systemSettings';
 import { ImageBedConfig } from '../../../types/imageBed';
 import ReviewMapPreview from '../components/ReviewMapPreview';
+import { MAP_TRANSLATIONS } from '../../../constants/maps';
+import Lightbox from '../../../components/Lightbox';
+import { LightboxImage } from '../../../types/ui';
 
 function LineupReviewPage() {
     const [submissions, setSubmissions] = useState<LineupSubmission[]>([]);
@@ -19,7 +22,7 @@ function LineupReviewPage() {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [ossConfig, setOssConfig] = useState<ImageBedConfig | null>(null);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-    const [viewingImage, setViewingImage] = useState<string | null>(null);
+    const [viewingImage, setViewingImage] = useState<LightboxImage | null>(null);
 
     // 当前选中的投稿
     const selected = submissions.find((s) => s.id === selectedId) || null;
@@ -150,13 +153,17 @@ function LineupReviewPage() {
                                     }`}
                             >
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs">
-                                        {sub.agent_name?.[0] || '?'}
+                                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs overflow-hidden">
+                                        {sub.agent_icon ? (
+                                            <img src={sub.agent_icon} alt={sub.agent_name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            sub.agent_name?.[0] || '?'
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="text-sm font-medium text-white truncate">{sub.title}</h4>
                                         <div className="text-xs text-gray-500">
-                                            {sub.map_name} · {sub.agent_name}
+                                            {MAP_TRANSLATIONS[sub.map_name] || sub.map_name} · {sub.agent_name}
                                         </div>
                                     </div>
                                     <span
@@ -189,7 +196,7 @@ function LineupReviewPage() {
                             <div>
                                 <h4 className="text-white font-semibold mb-2">{selected.title}</h4>
                                 <div className="flex flex-wrap gap-2 text-xs">
-                                    <span className="px-2 py-1 bg-white/5 rounded">{selected.map_name}</span>
+                                    <span className="px-2 py-1 bg-white/5 rounded">{MAP_TRANSLATIONS[selected.map_name] || selected.map_name}</span>
                                     <span className="px-2 py-1 bg-white/5 rounded">{selected.agent_name}</span>
                                     <span className={`px-2 py-1 rounded ${selected.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
                                         {selected.side === 'attack' ? '进攻' : '防守'}
@@ -208,96 +215,46 @@ function LineupReviewPage() {
                             <div>
                                 <label className="text-xs text-gray-400 mb-2 block">点位图片</label>
                                 <div className="space-y-3">
-                                    {selected.stand_img && (
-                                        <div className="space-y-1">
+                                    {[
+                                        { src: selected.stand_img, desc: selected.stand_desc, label: '站位' },
+                                        { src: selected.stand2_img, desc: selected.stand2_desc, label: '站位 2' },
+                                        { src: selected.aim_img, desc: selected.aim_desc, label: '瞄点' },
+                                        { src: selected.aim2_img, desc: selected.aim2_desc, label: '瞄点 2' },
+                                        { src: selected.land_img, desc: selected.land_desc, label: '落点' },
+                                    ].filter(item => item.src).map((item, index) => (
+                                        <div key={index} className="space-y-1">
                                             <div
-                                                className="cursor-pointer group"
-                                                onClick={() => setViewingImage(selected.stand_img!)}
+                                                className="cursor-pointer group relative"
+                                                onClick={() => {
+                                                    const allImages = [
+                                                        selected.stand_img,
+                                                        selected.stand2_img,
+                                                        selected.aim_img,
+                                                        selected.aim2_img,
+                                                        selected.land_img,
+                                                    ].filter(Boolean) as string[];
+
+                                                    setViewingImage({
+                                                        src: item.src!,
+                                                        list: allImages,
+                                                        index: allImages.indexOf(item.src!)
+                                                    });
+                                                }}
                                             >
                                                 <img
-                                                    src={selected.stand_img}
-                                                    alt="站位"
+                                                    src={item.src}
+                                                    alt={item.label}
                                                     className="w-full h-28 object-cover rounded border border-white/10 group-hover:border-[#ff4655] transition-colors"
                                                 />
+                                                <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white backdrop-blur-sm">
+                                                    {item.label}
+                                                </div>
                                             </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-xs text-gray-500 shrink-0">站位图:</span>
-                                                <span className="text-xs text-gray-300">{selected.stand_desc || '无描述'}</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {selected.stand2_img && (
-                                        <div className="space-y-1">
-                                            <div
-                                                className="cursor-pointer group"
-                                                onClick={() => setViewingImage(selected.stand2_img!)}
-                                            >
-                                                <img
-                                                    src={selected.stand2_img}
-                                                    alt="站位2"
-                                                    className="w-full h-28 object-cover rounded border border-white/10 group-hover:border-[#ff4655] transition-colors"
-                                                />
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-xs text-gray-500 shrink-0">站位图2:</span>
-                                                <span className="text-xs text-gray-300">{selected.stand2_desc || '无描述'}</span>
+                                            <div className="text-xs text-gray-400 leading-snug">
+                                                {item.desc || '无描述'}
                                             </div>
                                         </div>
-                                    )}
-                                    {selected.aim_img && (
-                                        <div className="space-y-1">
-                                            <div
-                                                className="cursor-pointer group"
-                                                onClick={() => setViewingImage(selected.aim_img!)}
-                                            >
-                                                <img
-                                                    src={selected.aim_img}
-                                                    alt="瞄准"
-                                                    className="w-full h-28 object-cover rounded border border-white/10 group-hover:border-[#ff4655] transition-colors"
-                                                />
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-xs text-gray-500 shrink-0">瞄准图:</span>
-                                                <span className="text-xs text-gray-300">{selected.aim_desc || '无描述'}</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {selected.aim2_img && (
-                                        <div className="space-y-1">
-                                            <div
-                                                className="cursor-pointer group"
-                                                onClick={() => setViewingImage(selected.aim2_img!)}
-                                            >
-                                                <img
-                                                    src={selected.aim2_img}
-                                                    alt="瞄准2"
-                                                    className="w-full h-28 object-cover rounded border border-white/10 group-hover:border-[#ff4655] transition-colors"
-                                                />
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-xs text-gray-500 shrink-0">瞄准图2:</span>
-                                                <span className="text-xs text-gray-300">{selected.aim2_desc || '无描述'}</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {selected.land_img && (
-                                        <div className="space-y-1">
-                                            <div
-                                                className="cursor-pointer group"
-                                                onClick={() => setViewingImage(selected.land_img!)}
-                                            >
-                                                <img
-                                                    src={selected.land_img}
-                                                    alt="落点"
-                                                    className="w-full h-28 object-cover rounded border border-white/10 group-hover:border-[#ff4655] transition-colors"
-                                                />
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-xs text-gray-500 shrink-0">落点图:</span>
-                                                <span className="text-xs text-gray-300">{selected.land_desc || '无描述'}</span>
-                                            </div>
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
                             </div>
 
@@ -356,24 +313,7 @@ function LineupReviewPage() {
             </div>
 
             {/* 图片查看弹窗 */}
-            {viewingImage && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-8"
-                    onClick={() => setViewingImage(null)}
-                >
-                    <img
-                        src={viewingImage}
-                        alt="查看图片"
-                        className="max-w-full max-h-full object-contain rounded-lg"
-                    />
-                    <button
-                        className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-                        onClick={() => setViewingImage(null)}
-                    >
-                        <Icon name="X" size={20} />
-                    </button>
-                </div>
-            )}
+            <Lightbox viewingImage={viewingImage} setViewingImage={setViewingImage} />
 
             {/* 拒绝理由弹窗 */}
             {showRejectModal && (

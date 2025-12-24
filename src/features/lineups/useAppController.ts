@@ -7,7 +7,7 @@ import { useLineupFiltering } from '../../hooks/useLineupFiltering';
 import { useModalState } from '../../hooks/useModalState';
 import { usePinnedLineups } from '../../hooks/usePinnedLineups';
 import { useLineupDownload } from '../../hooks/useLineupDownload';
-import { AgentOption, BaseLineup, LibraryMode, SharedLineup } from '../../types/lineup';
+import { AgentOption, BaseLineup, LibraryMode, SharedLineup, MapOption } from '../../types/lineup';
 import { useMapInfo } from './controllers/useMapInfo';
 import { useActionMenu } from './controllers/useActionMenu';
 import { useAppLifecycle } from './controllers/useAppLifecycle';
@@ -92,6 +92,16 @@ export function useAppController() {
     selectedAbilityIndex,
     searchQuery,
   });
+
+  // 切换地图时自动选择默认特工（第一个）
+  const handleSelectMap = useCallback((map: MapOption | null) => {
+    setSelectedMap(map);
+    if (map && agents.length > 0) {
+      setSelectedAgent(agents[0]);
+    } else {
+      setSelectedAgent(null);
+    }
+  }, [agents, setSelectedMap, setSelectedAgent]);
 
   useAppLifecycle({
     userId,
@@ -364,7 +374,7 @@ export function useAppController() {
     isMapModalOpen: modal.isMapModalOpen,
     maps,
     selectedMap,
-    setSelectedMap,
+    setSelectedMap: handleSelectMap,
     setIsMapModalOpen: modal.setIsMapModalOpen,
     getMapDisplayName,
     isPreviewModalOpen: modal.isPreviewModalOpen,

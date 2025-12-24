@@ -49,12 +49,24 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
         setPosition({ x: 0, y: 0 });
     }, [submission?.id]);
 
-    // 滚轮缩放
-    const handleWheel = useCallback((e: React.WheelEvent) => {
+    // 滚轮缩放 - moved to useEffect to handle passive event listener issue
+    const handleWheel = useCallback((e: WheelEvent) => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -0.1 : 0.1;
         setScale((prev) => Math.min(Math.max(prev + delta, 0.5), 3));
     }, []);
+
+    // Add non-passive event listener for wheel
+    React.useEffect(() => {
+        const element = containerRef.current;
+        if (!element) return;
+
+        element.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => {
+            element.removeEventListener('wheel', handleWheel);
+        };
+    }, [handleWheel]);
 
     // 开始拖拽
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -100,7 +112,6 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
             <div
                 ref={containerRef}
                 className="flex-1 relative overflow-hidden bg-[#0f1923] cursor-grab active:cursor-grabbing"
-                onWheel={handleWheel}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -118,7 +129,7 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
                     <h3 className="font-semibold">地图预览</h3>
                     <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">
-                            {submission.map_name} · {submission.side === 'attack' ? '进攻方' : '防守方'}
+                            {MAP_TRANSLATIONS[submission.map_name] || submission.map_name} · {submission.side === 'attack' ? '进攻方' : '防守方'}
                         </span>
                         <button
                             onClick={handleReset}
@@ -127,7 +138,6 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
                         >
                             重置
                         </button>
-                        <span className="text-xs text-gray-500">{Math.round(scale * 100)}%</span>
                     </div>
                 </div>
                 <div

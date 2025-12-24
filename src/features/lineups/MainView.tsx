@@ -49,6 +49,8 @@ type QuickActionsProps = {
   onAdvancedSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
+  onSyncToShared?: () => void;
+  isAdmin?: boolean;
   pendingTransfers: number;
 };
 
@@ -136,6 +138,8 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           onAdvancedSettings={quickActions.onAdvancedSettings}
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
+          onSyncToShared={quickActions.onSyncToShared}
+          isAdmin={quickActions.isAdmin}
           pendingTransfers={quickActions.pendingTransfers}
         />
         {/* 库切换按钮 */}

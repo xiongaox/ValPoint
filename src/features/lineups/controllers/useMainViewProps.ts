@@ -36,6 +36,8 @@ type Params = {
   onAdvancedSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
+  onSyncToShared?: () => void;
+  isAdmin?: boolean;
   pendingTransfers: number;
   handleTabSwitch: (tab: ActiveTab) => void;
   togglePlacingType: (type: 'agent' | 'skill') => void;
@@ -110,6 +112,8 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       onAdvancedSettings: params.onAdvancedSettings,
       onChangePassword: params.onChangePassword,
       onClearLineups: params.onClearLineups,
+      onSyncToShared: params.onSyncToShared,
+      isAdmin: params.isAdmin,
       pendingTransfers: params.pendingTransfers,
     },
     right: {

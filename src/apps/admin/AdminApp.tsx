@@ -97,7 +97,7 @@ function AdminApp() {
             case 'logs':
                 return <DownloadLogsPage />;
             case 'upload':
-                return <LineupUploadPage />;
+                return <LineupUploadPage setAlertMessage={setAlertMessage} />;
             case 'review':
                 return <LineupReviewPage />;
             case 'shared':

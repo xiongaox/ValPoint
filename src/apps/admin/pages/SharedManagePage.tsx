@@ -5,6 +5,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Icon from '../../../components/Icon';
 import { getSharedLineups, deleteSharedLineup, SharedLineup } from '../../../lib/reviewService';
+import { MAP_TRANSLATIONS } from '../../../constants/maps';
 
 const SharedManagePage: React.FC = () => {
     const [lineups, setLineups] = useState<SharedLineup[]>([]);
@@ -185,7 +186,7 @@ const SharedManagePage: React.FC = () => {
                         >
                             <option value="">全部地图</option>
                             {mapList.map((map) => (
-                                <option key={map} value={map}>{map}</option>
+                                <option key={map} value={map}>{MAP_TRANSLATIONS[map] || map}</option>
                             ))}
                         </select>
                         <Icon name="ChevronDown" size={14} className="text-gray-500 -ml-5" />
@@ -273,7 +274,7 @@ const SharedManagePage: React.FC = () => {
                                         <div className="font-medium text-white truncate max-w-[200px]">{item.title}</div>
                                         <div className="text-xs text-gray-500 font-mono">{item.share_id}</div>
                                     </td>
-                                    <td className="p-4 text-gray-300">{item.map_name}</td>
+                                    <td className="p-4 text-gray-300">{MAP_TRANSLATIONS[item.map_name] || item.map_name}</td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-2">
                                             {item.agent_icon && (

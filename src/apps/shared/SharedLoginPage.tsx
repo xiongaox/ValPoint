@@ -549,6 +549,11 @@ function SharedLoginPage({ setAlertMessage, onBack }: SharedLoginPageProps) {
                 input:not(:focus):not(:placeholder-shown) {
                     border-color: rgba(255, 255, 255, 0.15) !important;
                 }
+                /* 隐藏 Edge/Chrome 浏览器默认的密码显示/隐藏图标 */
+                input::-ms-reveal,
+                input::-ms-clear {
+                    display: none;
+                }
             `}</style>
 
             {/* 左侧 - 海报区域 */}

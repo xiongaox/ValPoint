@@ -9,6 +9,8 @@ type Props = {
   onChangePassword: () => void;
   onClearLineups: () => void;
   onAdvancedSettings: () => void;
+  onSyncToShared?: () => void;  // 同步到共享库
+  isAdmin?: boolean;             // 是否管理员
   pendingTransfers?: number;
 };
 
@@ -19,6 +21,8 @@ const QuickActions: React.FC<Props> = ({
   onChangePassword,
   onClearLineups,
   onAdvancedSettings,
+  onSyncToShared,
+  isAdmin = false,
   pendingTransfers = 0,
 }) => {
   const showProgress = pendingTransfers > 0;
@@ -40,9 +44,20 @@ const QuickActions: React.FC<Props> = ({
             </div>
           </div>
         )}
-        <div className="relative pointer-events-auto">
+        <div className="relative pointer-events-auto flex flex-col items-center gap-4">
+          {/* 同步到共享库按钮 - 直接显示在快捷功能上方 */}
+          {isAdmin && onSyncToShared && (
+            <button
+              onClick={onSyncToShared}
+              className="w-12 h-12 rounded-full bg-[#2a2f38] hover:bg-[#3a4048] text-white flex items-center justify-center shadow-lg border border-white/10 transition-colors"
+              title="同步到共享库"
+            >
+              <Icon name="Share2" size={20} />
+            </button>
+          )}
+
           {isOpen && (
-            <div className="absolute bottom-14 right-0 bg-[#11161c] border border-white/15 rounded-2xl shadow-2xl p-3 w-44 space-y-2 backdrop-blur">
+            <div className="absolute bottom-14 right-0 bg-[#11161c] border border-white/15 rounded-2xl shadow-2xl p-3 w-44 space-y-2 backdrop-blur" style={{ bottom: isAdmin && onSyncToShared ? '6.5rem' : '3.5rem' }}>
               <div className="text-[11px] text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
                 <Icon name="Settings" size={12} /> 快捷功能
               </div>

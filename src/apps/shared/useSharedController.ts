@@ -174,9 +174,14 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
     const handleSelectMap = useCallback((map: MapOption) => {
         setSelectedMapState(map);
         setSelectedLineupId(null);
-        setSelectedAgent(null);
+        // 切换地图时自动选择默认特工（第一个）
+        if (agents.length > 0) {
+            setSelectedAgent(agents[0]);
+        } else {
+            setSelectedAgent(null);
+        }
         setIsMapModalOpen(false);
-    }, []);
+    }, [agents]);
 
     // 查看点位详情（打开弹窗）
     const handleViewLineup = useCallback((id: string) => {

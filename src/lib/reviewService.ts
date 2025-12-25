@@ -135,6 +135,9 @@ export async function approveSubmission(
             return { success: false, error: `更新投稿状态失败: ${updateError.message}` };
         }
 
+        // 4. 清理 Supabase Storage 中的临时图片
+        await deleteSubmissionImages(submission);
+
         return { success: true };
     } catch (error) {
         const message = error instanceof Error ? error.message : '审核失败';
@@ -152,6 +155,18 @@ export async function rejectSubmission(
     reason: string,
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        // 1. 获取投稿信息用于后续清理
+        const { data: submission, error: fetchError } = await supabase
+            .from('lineup_submissions')
+            .select('*')
+            .eq('id', submissionId)
+            .single();
+
+        if (fetchError || !submission) {
+            return { success: false, error: '找不到该投稿记录' };
+        }
+
+        // 2. 更新投稿状态
         const { error } = await supabase
             .from('lineup_submissions')
             .update({
@@ -165,6 +180,9 @@ export async function rejectSubmission(
         if (error) {
             return { success: false, error: error.message };
         }
+
+        // 3. 清理临时图片
+        await deleteSubmissionImages(submission as LineupSubmission);
 
         return { success: true };
     } catch (error) {

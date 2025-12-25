@@ -1,4 +1,4 @@
-import { shareSupabase, supabase } from '../supabaseClient';
+import { shareSupabase } from '../supabaseClient';
 import { TABLE } from './tables';
 import { normalizeLineup } from './normalize';
 import { BaseLineup, SharedLineup } from '../types/lineup';
@@ -9,17 +9,13 @@ export async function fetchSharedById(id: string, mapNameZhToEn: Record<string, 
     .select('*')
     .eq('id', id)
     .single();
-  if (!sharedError && sharedData) {
-    const normalized = normalizeLineup(sharedData, mapNameZhToEn);
-    return { ...normalized, id: sharedData.id, sourceId: sharedData.source_id };
+
+  if (sharedError || !sharedData) {
+    return null;
   }
-  // 兼容旧逻辑：如果 id 查不到，尝试查旧表 (migration phase fallback)
-  const { data: legacyData, error: legacyError } = await supabase.from(TABLE.lineups).select('*').eq('id', id).single();
-  if (!legacyError && legacyData) {
-    const normalized = normalizeLineup(legacyData, mapNameZhToEn);
-    return { ...normalized, id: legacyData.id };
-  }
-  return null;
+
+  const normalized = normalizeLineup(sharedData, mapNameZhToEn);
+  return { ...normalized, id: sharedData.id, sourceId: sharedData.source_id };
 }
 
 export async function fetchSharedList(mapNameZhToEn: Record<string, string>): Promise<BaseLineup[]> {

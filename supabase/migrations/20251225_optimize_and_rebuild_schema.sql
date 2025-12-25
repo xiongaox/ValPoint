@@ -217,6 +217,8 @@ CREATE POLICY "仅管理员或提交者可操作共享点位" ON public.valorant
 -- (4) 投稿审核策略
 CREATE POLICY "提交者可查看自己的投稿" ON public.lineup_submissions FOR SELECT USING (auth.uid() = submitter_id);
 CREATE POLICY "提交者可创建投稿" ON public.lineup_submissions FOR INSERT WITH CHECK (auth.uid() = submitter_id);
+CREATE POLICY "提交者可删除自己的投稿" ON public.lineup_submissions FOR DELETE USING (auth.uid() = submitter_id);
+CREATE POLICY "提交者可撤回待审投稿" ON public.lineup_submissions FOR UPDATE USING (auth.uid() = submitter_id AND status = 'pending') WITH CHECK (auth.uid() = submitter_id);
 CREATE POLICY "审核员可查看和更新投稿" ON public.lineup_submissions
     FOR ALL USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin')));
 
@@ -260,11 +262,14 @@ ON storage.objects FOR SELECT
 TO public
 USING (bucket_id = 'submissions');
 
--- 允许用户删除自己上传的文件
+-- 允许用户删除自己上传的文件 或 管理员删除任何文件
 CREATE POLICY "Users can delete own submissions"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (
     bucket_id = 'submissions' AND 
-    (storage.foldername(name))[1] = auth.uid()::text
+    (
+        (storage.foldername(name))[1] = auth.uid()::text
+        OR EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
+    )
 );

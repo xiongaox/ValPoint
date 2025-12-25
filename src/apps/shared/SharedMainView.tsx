@@ -6,8 +6,6 @@ import SharedRightPanel from './SharedRightPanel';
 import MapPickerModal from '../../components/MapPickerModal';
 import ViewerModal from '../../components/ViewerModal';
 import SharedFilterModal from '../../components/SharedFilterModal';
-import Icon from '../../components/Icon';
-import UserAvatar from '../../components/UserAvatar';
 import SubmitLineupModal from './SubmitLineupModal';
 import { useSharedController } from './useSharedController';
 import { getSystemSettings } from '../../lib/systemSettings';
@@ -19,6 +17,7 @@ import ChangePasswordModal from '../../components/ChangePasswordModal';
 import UserProfileModal from './components/UserProfileModal';
 import ChangelogModal from '../../components/ChangelogModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 interface SharedMainViewProps {
     user: User | null; // 可选，未登录也可以浏览
@@ -34,7 +33,8 @@ interface SharedMainViewProps {
  */
 function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onRequestLogin }: SharedMainViewProps) {
     const controller = useSharedController({ user, setAlertMessage, setViewingImage, onRequestLogin });
-    const { updateProfile, resetPassword } = useEmailAuth(); // 获取 profile 更新方法
+    const { updateProfile, resetPassword } = useEmailAuth();
+    const { profile } = useUserProfile(); // 获取用户 custom_id
     const [activeTab, setActiveTab] = useState<'view' | 'submit' | 'pending'>('view');
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [submissionEnabled, setSubmissionEnabled] = useState(false);
@@ -202,7 +202,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 isOpen={isSubmitModalOpen}
                 onClose={handleSubmitModalClose}
                 userId={user?.id || null}
-                userEmail={user?.email}
+                userEmail={profile?.custom_id || profile?.nickname || user?.email}
                 setAlertMessage={setAlertMessage}
                 onSuccess={() => {
                     // 投稿成功后可刷新列表或跳转到待审Tab

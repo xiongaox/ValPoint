@@ -2,6 +2,14 @@
  * 点位审核页面
  * 三栏布局：左侧待审列表 / 中间地图预览（带标记点）/ 右侧详情+图片+操作
  */
+/**
+ * LineupReviewPage - 点位审核管理页
+ * 
+ * 职责：
+ * - 管理用户通过共享库提交的投稿点位 (Submissions)
+ * - 提供点位内容预览（图片、描述、点位坐标、链接）
+ * - 执行点位通过 (Approve) 或 驳回 (Reject) 操作，并通过推送通知用户
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/Icon';
 import { LineupSubmission } from '../../../types/submission';

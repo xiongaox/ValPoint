@@ -1,3 +1,11 @@
+/**
+ * useLineupActions.ts - 点位操作逻辑 Hook
+ * 
+ * 职责：
+ * - 封装点位的删除、归档及克隆（复制到个人库）等行为
+ * - 处理操作后的 UI 反馈与列表刷新同步
+ */
+import { useCallback } from 'react';
 import { saveLineupApi, updateLineupApi, deleteLineupApi, clearLineupsApi, clearLineupsByAgentApi } from '../services/lineups';
 import { LineupDbPayload, BaseLineup } from '../types/lineup';
 

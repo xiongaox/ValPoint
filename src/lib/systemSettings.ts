@@ -1,3 +1,10 @@
+/**
+ * systemSettings - 系统全局配置服务
+ * 
+ * 职责：
+ * - 管理应用级的全局开关（投稿功能开关、每日限额、官方图床配置等）
+ * - 为频繁读取的配置提供带 TTL 的内存缓存，降低数据库负载
+ */
 import { supabase } from '../supabaseClient';
 import { ImageBedConfig } from '../types/imageBed';
 

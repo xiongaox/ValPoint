@@ -1,4 +1,31 @@
-import React, { useCallback, useMemo, useState } from 'react';
+/**
+ * useAppController - 个人库应用主控制器
+ * 
+ * 整合所有子控制器和 hooks，作为个人库功能的中枢：
+ * - 用户认证状态管理（Supabase Auth）
+ * - 点位数据的 CRUD 操作
+ * - 地图、特工、技能的选择和筛选
+ * - 编辑器、弹窗、快捷操作的状态协调
+ * - 置顶点位、批量下载等高级功能
+ * 
+ * 子控制器职责：
+ * - useAppState: UI 状态（标签页、选中项、表单数据）
+ * - useMapInfo: 地图信息和翻译
+ * - useActionMenu: 快捷菜单和配置
+ * - useEditorController: 点位编辑逻辑
+ * - useDeletionController: 删除和清空逻辑
+ * - useShareController: 共享库同步
+ * - useViewController: 视图切换和预览
+ */
+/**
+ * useAppController.ts - 全局应用状态主控制器
+ * 
+ * 职责：
+ * - 协调地图选取、特工选取及点位过滤的顶级状态
+ * - 管理全局弹窗（批下载、个人中心等）的开启与关闭
+ * - 集成多个子 Hook 提供聚合的业务逻辑对象
+ */
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 import { useLineups } from '../../hooks/useLineups';
 import { useLineupActions } from '../../hooks/useLineupActions';
@@ -20,6 +47,7 @@ import { buildModalProps } from './controllers/useModalProps';
 import { buildUiProps } from './controllers/useUiProps';
 import { useAppState } from './controllers/useAppState';
 
+/** 置顶点位数量上限 */
 const DEFAULT_PINNED_COUNT = 8;
 
 export function useAppController() {

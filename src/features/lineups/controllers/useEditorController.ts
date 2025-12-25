@@ -1,3 +1,12 @@
+/**
+ * useEditorController - 点位编辑控制器
+ * 
+ * 处理点位新增和编辑的完整流程：
+ * - handleOpenEditor: 打开编辑器（验证前置条件）
+ * - handleEditorClose: 关闭编辑器并重置状态
+ * - handleEditStart: 从现有点位开始编辑
+ * - handleEditorSave: 保存点位（新增或更新）
+ */
 import { useCallback } from 'react';
 import { getAbilityIcon } from '../../../utils/abilityIcons';
 import { ActiveTab } from '../../../types/app';

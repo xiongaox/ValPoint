@@ -1,3 +1,11 @@
+/**
+ * UserProfileModal - 共享库个人信息编辑弹窗
+ * 
+ * 职责：
+ * - 允许登录用户修改昵称、头像
+ * - 展示用户绑定的邮箱、UUID 及注册日期
+ * - 处理用户个人资料的异步更新
+ */
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/Icon';
 import { updateAvatarCache } from '../../../components/UserAvatar';

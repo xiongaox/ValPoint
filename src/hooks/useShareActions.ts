@@ -1,4 +1,22 @@
-import { useCallback } from 'react';
+/**
+ * useShareActions - 共享功能操作 Hook
+ * 
+ * 处理与共享库相关的复杂业务逻辑：
+ * - handleShare: 分享点位到共享库（生成分享ID）
+ * - handleSaveShared: 从共享库保存点位到个人库
+ * - 图片转存：将共享点位的图片转移到用户自己的图床
+ * - 重复检测：防止重复保存同一共享点位
+ */
+/**
+ * useShareActions.ts - 共享库同步操作 Hook
+ * 
+ * 职责：
+ * - 处理个人库点位同步到共享库的业务流程
+ * - 管理同步进度的展示（通过弹窗状态控制）
+ * - 验证管理员权限并调用同步服务
+ */
+import { useState, useCallback } from 'react';
+import { supabase } from '../supabaseClient';
 import { upsertShared } from '../services/shared';
 import { findLineupByClone } from '../services/lineups';
 import { transferImage } from '../lib/imageBed';

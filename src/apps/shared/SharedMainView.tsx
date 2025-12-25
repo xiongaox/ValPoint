@@ -1,3 +1,11 @@
+/**
+ * SharedMainView - 共享库主页面视图
+ * 
+ * 职责：
+ * - 组装左侧侧边栏、中心地图和右侧面板
+ * - 集成投稿弹窗、用户卡片、快捷操作等功能
+ * - 管理应用中的顶级交互弹窗状态
+ */
 import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import LeafletMap from '../../components/LeafletMap';
@@ -27,10 +35,6 @@ interface SharedMainViewProps {
     onRequestLogin: () => void; // 下载时请求登录
 }
 
-/**
- * 共享库主视图
- * 开放浏览模式 - 未登录可以浏览，下载需要登录
- */
 function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onRequestLogin }: SharedMainViewProps) {
     const controller = useSharedController({ user, setAlertMessage, setViewingImage, onRequestLogin });
     const { updateProfile, resetPassword } = useEmailAuth();
@@ -63,7 +67,6 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     // 关闭投稿弹窗时，恢复到之前的Tab
     const handleSubmitModalClose = () => {
         setIsSubmitModalOpen(false);
-        // 保持当前 tab，不需要恢复
     };
 
     // 打开投稿弹窗（不改变 activeTab，避免界面闪烁）
@@ -205,7 +208,6 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 userEmail={profile?.custom_id || profile?.nickname || user?.email}
                 setAlertMessage={setAlertMessage}
                 onSuccess={() => {
-                    // 投稿成功后可刷新列表或跳转到待审Tab
                     setActiveTab('pending');
                 }}
             />
@@ -227,21 +229,6 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     }
                     setIsPasswordSubmitting(true);
 
-                    // Supabase 改密需要先验证原密码（通常就是登录）
-                    // 这里的 updateProfile 不支持直接改密码，必须用 updateUser
-                    // 简化处理：重置流程或再次登录验证
-                    // 由于 Auth API 限制，修改密码建议走重置流程或 verify 流程
-                    // 这里我们尝试直接 update
-                    const { success, error } = await updateProfile({
-                        // @ts-ignore: updateProfile defined in hook handles data object which passed to supabase updateUser.
-                        // However, interface currently only has nickname/avatar. To support password change via same hook, usage of direct supabase client or specific method is needed.
-                        // Let's use supabase client directly here or extend hook further. 
-                        // Actually, useEmailAuth hook doesn't have changePassword method.
-                        // Let's implement a quick password update here directly using supabase client for now to match User Requirement quickly
-                    });
-
-                    // Re-evaluating: The ChangePasswordModal expects a specific flow.
-                    // Let's use `updateUser` from supabase directly here for simplicity as it's a "Quick Action".
                     const { error: updateError } = await import('../../supabaseClient').then(m => m.supabase.auth.updateUser({
                         password: newPwd
                     }));

@@ -1,3 +1,10 @@
+/**
+ * usePinnedLineups.ts - 点位收藏/置顶管理 Hook
+ * 
+ * 职责：
+ * - 维护用户收藏的点位 ID 列表
+ * - 实现点位的置顶切换逻辑，并将状态持久化到本地或云端
+ */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BaseLineup } from '../types/lineup';
 

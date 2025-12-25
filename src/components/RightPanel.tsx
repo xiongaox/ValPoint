@@ -1,4 +1,12 @@
 // @ts-nocheck
+/**
+ * RightPanel - 右侧操作面板组件
+ * 
+ * 根据当前标签页显示不同内容：
+ * - 查看模式：点位列表（搜索、筛选、分页）、置顶、下载、删除操作
+ * - 创建模式：攻防选择、地图标注工具、图文详情入口
+ * - 导入按钮入口
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import Icon from './Icon';
 

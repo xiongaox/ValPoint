@@ -45,6 +45,9 @@ export type AgentOption = { displayName: string; displayIcon?: string | null; uu
 export type MapOption = { displayName: string; displayIcon?: string | null };
 
 export type Ability = { slot?: string; displayIcon?: string; name?: string; displayName?: string; keypad?: string };
+/**
+ * lineup.ts - 点位核心数据类型定义
+ */
 export type AgentData = AgentOption & { abilities?: Ability[] };
 
 export type NewLineupForm = {

@@ -1,3 +1,12 @@
+/**
+ * SettingsPage - 全局系统设置页
+ * 
+ * 职责：
+ * - 配置官方图床 (OSS) 参数
+ * - 维护投稿功能开关及每日限额
+ * - 管理员名单维护 (仅超级管理员可见)
+ * - 域名及下载限制等基础参数配置
+ */
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../../../components/Icon';
 import { getSystemSettings, updateSystemSettings } from '../../../lib/systemSettings';

@@ -1,3 +1,11 @@
+/**
+ * Lightbox - 图片全屏预览组件
+ * 
+ * 支持：
+ * - 多图切换和预览（带缩略图栏）
+ * - 键盘快捷键（A: 上一张, D: 下一张, ESC/Q: 关闭）
+ * - 点击遮罩层关闭
+ */
 import React, { useMemo, useEffect, useCallback } from 'react';
 import Icon from './Icon';
 import { LightboxImage } from '../types/ui';

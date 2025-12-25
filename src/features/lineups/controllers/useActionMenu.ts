@@ -1,9 +1,17 @@
+/**
+ * useActionMenu - 快捷操作菜单控制器
+ * 
+ * 管理主界面快捷操作菜单的状态和行为：
+ * - 图床配置的读取、保存和多平台切换
+ * - 图片处理设置（压缩、格式转换）
+ * - 密码修改、清空点位等操作入口
+ */
 import { useEffect, useState } from 'react';
 import { defaultImageBedConfig } from '../../../components/ImageBedConfigModal';
 import { ImageBedConfig } from '../../../types/imageBed';
 import { useImageProcessingSettings } from '../../../hooks/useImageProcessingSettings';
 import { ImageProcessingSettings } from '../../../types/imageProcessing';
-import { imageBedProviderMap } from '../../../constants/imageBedProviders';
+import { imageBedProviderMap } from '../../../lib/imageBed';
 
 type Params = {
   userId: string | null;
@@ -68,13 +76,13 @@ export function useActionMenu({
           return;
         }
       }
-      
+
       // 兼容旧版单一配置
       const saved = localStorage.getItem('valpoint_imagebed_config');
       if (saved) {
         const oldConfig = JSON.parse(saved);
         setImageBedConfig(normalizeImageBedConfig(oldConfig));
-        
+
         // 迁移到新格式
         const multiConfigs = { [oldConfig.provider]: oldConfig };
         localStorage.setItem('valpoint_imagebed_configs', JSON.stringify(multiConfigs));
@@ -115,13 +123,13 @@ export function useActionMenu({
       // 读取现有的多平台配置
       const multiConfigStr = localStorage.getItem('valpoint_imagebed_configs');
       const multiConfigs = multiConfigStr ? JSON.parse(multiConfigStr) : {};
-      
+
       // 更新当前平台的配置
       multiConfigs[normalized.provider] = normalized;
-      
+
       // 保存回 localStorage
       localStorage.setItem('valpoint_imagebed_configs', JSON.stringify(multiConfigs));
-      
+
       console.log('[useActionMenu] saved config for provider:', normalized.provider);
     } catch (e) {
       console.error(e);

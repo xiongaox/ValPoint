@@ -1,4 +1,9 @@
 // @ts-nocheck
+/**
+ * MapPickerModal - 地图选择模态框
+ * 
+ * 以大图网格形式展示所有可选地图，用户点击后切换当前选中的地图。
+ */
 import React from 'react';
 import Icon from './Icon';
 

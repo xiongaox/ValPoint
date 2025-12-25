@@ -1,3 +1,11 @@
+/**
+ * AppModals.tsx - 全局弹窗聚合宿主
+ * 
+ * 职责：
+ * - 集中管理应用内所有的顶级弹窗 (Modals)
+ * - 包括：下载弹窗、个人中心、登录/注册、设置、同步及重置密码等
+ * - 根据 useAppController 的状态决定弹窗的可见性
+ */
 import React from 'react';
 import MapPickerModal from '../../components/MapPickerModal';
 import PreviewModal from '../../components/PreviewModal';

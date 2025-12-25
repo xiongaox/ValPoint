@@ -1,3 +1,19 @@
+/**
+ * useLineupFiltering - 点位筛选 Hook
+ * 
+ * 根据当前选中的地图、特工、阵营、技能和搜索关键词筛选点位列表：
+ * - agentCounts: 各特工在当前地图的点位数量（用于角标显示）
+ * - filteredLineups: 符合所有筛选条件的点位
+ * - allMapLineups: 当前地图的所有点位（不含特工/阵营筛选）
+ * - isFlipped: 是否翻转地图（防守视角）
+ */
+/**
+ * useLineupFiltering.ts - 点位多维过滤 Hook
+ * 
+ * 职责：
+ * - 实现基于地图、特工、攻防方向及搜索关键词的复杂过滤逻辑
+ * - 维护过滤后的点位列表及计数信息
+ */
 import { useMemo } from 'react';
 import { MAP_TRANSLATIONS } from '../constants/maps';
 import { BaseLineup, SharedLineup, LineupSide } from '../types/lineup';

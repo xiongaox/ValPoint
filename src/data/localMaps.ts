@@ -1,7 +1,14 @@
 import { MapOption } from '../types/lineup';
 
 // 地图列表 - Ascent（亚海悬城）排第一
-export const localMaps: MapOption[] = [
+/**
+ * localMaps.ts - 本地地图数据配置
+ * 
+ * 职责：
+ * - 定义地图的基本元数据（ID、英文名、列表等）
+ * - 用于应用冷启动时的基础地图列表展示
+ */
+export const LOCAL_MAPS: MapOption[] = [
   {
     "displayName": "Ascent",
     "displayIcon": "/maps/covers/亚海悬城.webp"

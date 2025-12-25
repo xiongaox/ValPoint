@@ -1,6 +1,13 @@
 import { AgentData } from '../types/lineup';
 
-export const localAgents: AgentData[] = [
+/**
+ * localAgents.ts - 本地特工数据配置
+ * 
+ * 职责：
+ * - 定义所有特工的静态元数据（ID、名称、角色、图标等）
+ * - 如果无法连接到线上 API，作为回退数据使用
+ */
+export const LOCAL_AGENTS: AgentData[] = [
   {
     "displayName": "盖可",
     "displayIcon": "/agents/盖可.png",

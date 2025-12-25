@@ -1,3 +1,9 @@
+/**
+ * AlertModal - 通用提示/警告模态框
+ * 
+ * 用于展示错误信息、操作反馈或需要用户注意的简短提示。
+ * 支持主操作按钮和次要操作按钮（默认为“关闭”）。
+ */
 import React from 'react';
 import Icon from './Icon';
 

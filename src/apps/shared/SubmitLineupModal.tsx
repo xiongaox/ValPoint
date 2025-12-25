@@ -1,6 +1,10 @@
 /**
- * 投稿点位弹窗
- * 用户选择 ZIP 文件后解析、预览，上传到 Supabase Storage 并创建投稿记录
+ * SubmitLineupModal - 在线投稿弹窗
+ * 
+ * 职责：
+ * - 提供点位投稿表单，指引用户上传 ZIP 包或补充元数据
+ * - 查询当前用户的日投稿限额
+ * - 调用 submissionUpload 服务完成数据上传
  */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Icon from '../../components/Icon';
@@ -273,8 +277,8 @@ const SubmitLineupModal: React.FC<Props> = ({
                                             </div>
                                             <span
                                                 className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border ${item.metadata?.side === 'attack'
-                                                        ? 'text-red-400 border-red-500/30 bg-red-500/10'
-                                                        : 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+                                                    ? 'text-red-400 border-red-500/30 bg-red-500/10'
+                                                    : 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
                                                     }`}
                                             >
                                                 {item.metadata?.side === 'attack' ? '进攻' : '防守'}

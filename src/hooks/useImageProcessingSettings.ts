@@ -1,4 +1,11 @@
-import { useEffect, useState } from 'react';
+/**
+ * useImageProcessingSettings.ts - 图片处理（水印/压缩）设置 Hook
+ * 
+ * 职责：
+ * - 维护用户或系统定义的图片处理规则（如水印文字、透明度、比例等）
+ * - 提供水印参数的可视化调整状态
+ */
+import { useState, useCallback, useEffect } from 'react';
 import { ImageProcessingSettings, defaultImageProcessingSettings } from '../types/imageProcessing';
 
 const STORAGE_KEY = 'valpoint_image_processing';

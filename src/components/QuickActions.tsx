@@ -1,4 +1,13 @@
 // @ts-nocheck
+/**
+ * QuickActions - 悬浮快捷功能菜单
+ * 
+ * 位于界面右下角，提供：
+ * - 核心功能入口（跳转个人信息、图床配置、高级设置、修改密码等）
+ * - 批量下载功能
+ * - 后台同步状态展示（针对管理员）
+ * - 待审点位提醒（针对用户）
+ */
 import React from 'react';
 import Icon from './Icon';
 

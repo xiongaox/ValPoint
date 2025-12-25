@@ -1,6 +1,9 @@
 /**
- * 管理员权限服务
- * 从 user_profiles.role 字段检查管理员权限
+ * adminService - 管理员权限与账户服务
+ * 
+ * 职责：
+ * - 检查用户的管理员/超级管理员权限（基于 user_profiles.role）
+ * - 管理管理员列表（添加、移除管理员）
  */
 import { supabase } from '../supabaseClient';
 
@@ -76,6 +79,7 @@ export async function checkAdminAccessByEmail(email: string): Promise<AdminAcces
         adminInfo: data as AdminUser,
     };
 }
+
 
 /**
  * 获取所有管理员列表
@@ -176,17 +180,5 @@ export async function removeAdmin(
         return { success: false, error: error.message };
     }
 
-    return { success: true };
-}
-
-/**
- * 更新管理员的 user_id（已废弃，保留接口兼容性）
- * @deprecated 新架构不再需要此函数
- */
-export async function updateAdminUserId(
-    _email: string,
-    _userId: string
-): Promise<{ success: boolean }> {
-    // 在新架构中，user_profiles.id 直接关联 auth.users.id，无需单独更新
     return { success: true };
 }

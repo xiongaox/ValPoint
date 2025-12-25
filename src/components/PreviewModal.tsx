@@ -1,4 +1,9 @@
 // @ts-nocheck
+/**
+ * PreviewModal - 预览加载模块
+ * 
+ * 用于处理用户粘贴分享 ID 或链接，从而加载和预览特定点位的详细信息。
+ */
 import React from 'react';
 
 const PreviewModal = ({ isOpen, previewInput, setPreviewInput, onClose, onSubmit }) => {

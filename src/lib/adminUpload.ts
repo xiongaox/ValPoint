@@ -1,6 +1,9 @@
 /**
- * 管理员点位上传服务
- * 跳过审核流程，直接上传到 OSS 并写入 valorant_shared 表
+ * adminUpload - 管理员快速上传服务
+ * 
+ * 职责：
+ * - 支持管理员跳过审核流程，直接从 ZIP 文件批量导入点位到共享库
+ * - 处理图片上传至官方 OSS，并同步写入 `valorant_shared` 数据表
  */
 
 import { unzipSync, strFromU8 } from 'fflate';

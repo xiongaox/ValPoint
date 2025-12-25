@@ -1,10 +1,20 @@
 // @ts-nocheck
+/**
+ * EditorModal - 点位编辑抽屉组件
+ * 
+ * 用于新增或编辑图文攻略点位，支持以下功能：
+ * - 图片上传（剪贴板粘贴 / 本地文件选择）
+ * - 自动获取来源链接的作者信息
+ * - 阵营选择（进攻/防守）
+ * - 多张图片槽位（站位图、瞄点图、技能落点图）
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import Icon from './Icon';
-import { uploadToOss } from '../utils/ossUpload';
+import { uploadImage } from '../lib/imageBed';
 import { prepareClipboardImage } from '../lib/imageCompression';
 import { fetchAuthorInfo } from '../utils/authorFetcher';
 
+/** 图片字段配置：定义编辑器支持的图片槽位 */
 const fields = [
   { k: 'stand', l: '站位图' },
   { k: 'stand2', l: '站位图2', toggleKey: 'enableStand2' },
@@ -180,7 +190,7 @@ const EditorModal = ({
       const fileForUpload = await prepareClipboardImage(blob, 'clipboard_' + Date.now(), imageProcessingSettings);
       console.log('[EditorModal] image processed', { size: fileForUpload.size });
 
-      const result = await uploadToOss(fileForUpload, imageBedConfig);
+      const result = await uploadImage(fileForUpload, imageBedConfig);
       console.log('[EditorModal] upload success', { url: result.url });
 
       setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
@@ -221,7 +231,7 @@ const EditorModal = ({
     try {
       setUploadingField(fieldKey);
       const fileForUpload = await prepareClipboardImage(file, file.name, imageProcessingSettings);
-      const result = await uploadToOss(fileForUpload, imageBedConfig);
+      const result = await uploadImage(fileForUpload, imageBedConfig);
       setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
     } catch (e) {
       console.error('[EditorModal] local upload error:', e);

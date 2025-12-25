@@ -1,3 +1,12 @@
+/**
+ * LeftPanel - 左侧导航面板组件
+ * 
+ * 显示当前选中的地图和特工列表：
+ * - 地图预览卡片（点击可切换地图）
+ * - 特工网格（带点位数量角标）
+ * - 技能筛选按钮（选中特工后显示）
+ * - 更新日志入口
+ */
 import React from 'react';
 import Icon from './Icon';
 import { getAbilityIcon, getAbilityTitle } from '../utils/abilityIcons';
@@ -77,8 +86,8 @@ const LeftPanel: React.FC<Props> = ({
                   typeof selectedMap.listViewIcon === 'string'
                     ? selectedMap.listViewIcon
                     : typeof selectedMap.displayIcon === 'string'
-                    ? selectedMap.displayIcon
-                    : undefined;
+                      ? selectedMap.displayIcon
+                      : undefined;
                 return (
                   <img
                     src={mapImageSrc}
@@ -112,9 +121,8 @@ const LeftPanel: React.FC<Props> = ({
                 <div
                   key={agent.uuid || agent.displayName}
                   onClick={() => handleAgentClick(agent)}
-                  className={`agent-item aspect-square rounded cursor-pointer overflow-hidden relative border-2 ${
-                    selectedAgent?.uuid === agent.uuid ? 'selected border-[#ff4655]' : 'border-transparent bg-[#0f1923]'
-                  }`}
+                  className={`agent-item aspect-square rounded cursor-pointer overflow-hidden relative border-2 ${selectedAgent?.uuid === agent.uuid ? 'selected border-[#ff4655]' : 'border-transparent bg-[#0f1923]'
+                    }`}
                   title={agent.displayName}
                 >
                   <img src={agent.displayIcon || undefined} alt={agent.displayName} className="w-full h-full object-cover" />
@@ -139,9 +147,8 @@ const LeftPanel: React.FC<Props> = ({
                     <button
                       key={idx}
                       onClick={() => setSelectedAbilityIndex(selectedAbilityIndex === idx ? null : idx)}
-                      className={`ability-icon flex flex-col items-center gap-1 flex-1 p-1 rounded ${
-                        selectedAbilityIndex === idx ? 'selected bg-white/5' : ''
-                      }`}
+                      className={`ability-icon flex flex-col items-center gap-1 flex-1 p-1 rounded ${selectedAbilityIndex === idx ? 'selected bg-white/5' : ''
+                        }`}
                       title={getAbilityTitle(selectedAgent, slotKey || '', ability.displayName || ability.name)}
                     >
                       <img src={getAbilityIcon(selectedAgent, idx)} className="w-8 h-8 object-contain" />

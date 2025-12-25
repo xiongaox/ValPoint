@@ -1,3 +1,11 @@
+/**
+ * UsersPage - 用户账号管理页
+ * 
+ * 职责：
+ * - 列表展示所有已注册的用户信息
+ * - 实现用户搜索、排序（按注册时间或下载量）
+ * - 提供用户禁用 (Ban)、资料编辑及账户完全删除功能
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/Icon';
 import UserAvatar from '../../../components/UserAvatar';

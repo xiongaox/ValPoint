@@ -1,3 +1,11 @@
+/**
+ * DashboardPage - 管理后台概览页
+ * 
+ * 职责：
+ * - 展示应用核心指标统计（点位总数、共享总数、用户总数、今日下载等）
+ * - 渲染多维度的趋势图表 (Lineups, Users, Downloads)
+ * - 提供快速审核入口指示
+ */
 import React, { useState, useEffect } from 'react';
 import Icon, { IconName } from '../../../components/Icon';
 

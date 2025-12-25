@@ -1,9 +1,9 @@
 /**
- * 随机短 ID 生成器
- * 用于生成用户对外展示的 custom_id，替代邮箱或 UUID
+ * shortId - 唯一短 ID 生成服务
  * 
- * 字符集：ABCDEFGHJKLMNPQRSTUVWXYZ23456789 (32字符)
- * 排除易混淆字符：I, 1, O, 0
+ * 职责：
+ * - 生成用户可读的、排除混淆字符的短 ID（如 ABC-8位）
+ * - 确保 ID 在 `user_profiles` 表中的全局唯一性
  */
 
 import { supabase } from '../supabaseClient';
@@ -25,6 +25,7 @@ export function generateShortId(length = DEFAULT_LENGTH): string {
     }
     return result;
 }
+
 
 /**
  * 生成全局唯一的短 ID

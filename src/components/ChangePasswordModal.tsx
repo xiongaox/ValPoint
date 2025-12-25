@@ -1,3 +1,9 @@
+/**
+ * ChangePasswordModal - 修改密码模态框
+ * 
+ * 提供修改当前用户密码的功能。
+ * 需要用户提供原密码、新密码，并进行确认。
+ */
 import React, { useState } from 'react';
 import Icon from './Icon';
 

@@ -1,4 +1,13 @@
 // @ts-nocheck
+/**
+ * ViewerModal - 点位详情查看模态框
+ * 
+ * 用于展示单个点位的完整信息，包括：
+ * - 多张相关图片（站位、瞄点、落点）的网格展示
+ * - 本地作者或 B 站/抖音作者信息展示及跳转
+ * - 视频来源精准空降（跳转到对应视频）
+ * - 编辑、投稿或转存点位操作
+ */
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
 import { fetchAuthorInfo } from '../utils/authorFetcher';

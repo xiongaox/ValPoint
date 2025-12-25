@@ -1,7 +1,11 @@
 /**
- * 图床配置表单组件
- * 可复用于个人库弹窗和管理后台设置页面
- * 支持：阿里云 OSS、腾讯云 COS、七牛云
+ * ImageBedConfigForm - 图床配置表单组件
+ * 
+ * 用于配置和保存图床信息，支持：
+ * - 阿里云 OSS、腾讯云 COS、七牛云等多个平台
+ * - 配置的导入、导出（复制）和重置
+ * - 多布局模式支持（紧凑/完整）
+ * - 个人库设置弹窗和管理后台通用
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from './Icon';
@@ -230,8 +234,8 @@ const ImageBedConfigForm: React.FC<ImageBedConfigFormProps> = ({
                         <button
                             onClick={handleCopy}
                             className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${isCopied
-                                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                                    : 'bg-white/5 border-white/10 text-white hover:border-white/30'
+                                ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                                : 'bg-white/5 border-white/10 text-white hover:border-white/30'
                                 }`}
                         >
                             <Icon name={isCopied ? 'Check' : 'Copy'} size={16} /> {isCopied ? '已复制' : '复制'}

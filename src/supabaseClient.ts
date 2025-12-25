@@ -1,3 +1,10 @@
+/**
+ * supabaseClient.ts - Supabase 客户端配置
+ * 
+ * 职责：
+ * - 初始化主库 (Main DB) 和同步库 (Share DB) 的客户端实例
+ * - 管理环境变量 (VITE_SUPABASE_*) 的读取与验证
+ */
 import { createClient } from '@supabase/supabase-js';
 
 const url = import.meta.env.VITE_SUPABASE_URL;

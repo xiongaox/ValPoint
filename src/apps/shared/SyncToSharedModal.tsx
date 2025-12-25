@@ -2,6 +2,14 @@
  * 同步到共享库弹窗
  * 自动检测当前登录用户是否为管理员，无需手动验证
  */
+/**
+ * SyncToSharedModal - 管理员同步点位弹窗
+ * 
+ * 职责：
+ * - 验证当前用户的管理员权限
+ * - 允许管理员将个人库中的点位批量同步到公共共享库
+ * - 处理同步过程中的重复项检测与进度展示
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '../../components/Icon';

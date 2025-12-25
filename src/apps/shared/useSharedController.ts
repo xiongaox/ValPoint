@@ -1,3 +1,11 @@
+/**
+ * useSharedController - 共享库控制器
+ * 
+ * 职责：
+ * - 管理共享库的全部交互状态（地图、特工、筛选、点位列表）
+ * - 处理点位打包下载逻辑 (需登录)
+ * - 与 Supabase 服务层交互获取公共点位数据 (SharedLineups)
+ */
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { useValorantData } from '../../hooks/useValorantData';
@@ -7,8 +15,6 @@ import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm } from 
 import { downloadLineupBundle } from '../../lib/lineupDownload';
 import { MAP_TRANSLATIONS } from '../../constants/maps';
 
-
-
 interface UseSharedControllerParams {
     user: User | null; // 可选，支持游客模式
     setAlertMessage: (msg: string | null) => void;
@@ -16,10 +22,6 @@ interface UseSharedControllerParams {
     onRequestLogin: () => void; // 下载时请求登录
 }
 
-/**
- * 共享库控制器 Hook
- * 开放浏览模式，下载需要登录
- */
 export function useSharedController({ user, setAlertMessage, setViewingImage, onRequestLogin }: UseSharedControllerParams) {
     // 地图数据
     const { maps, agents } = useValorantData();
@@ -234,7 +236,6 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
     }, [lineups, setAlertMessage, user, onRequestLogin, isDownloading]);
 
     return {
-        // ...
         // 状态
         isLoading,
         isDownloading,

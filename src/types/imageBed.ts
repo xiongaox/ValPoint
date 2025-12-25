@@ -1,3 +1,6 @@
+/**
+ * imageBed.ts - 图床配置相关类型定义
+ */
 export type ImageBedProvider = 'aliyun' | 'tencent' | 'qiniu';
 
 export type ImageBedConfig = {

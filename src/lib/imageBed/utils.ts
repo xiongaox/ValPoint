@@ -1,5 +1,10 @@
 /**
- * 通用工具函数：文件名生成、扩展名推断、URL 处理等
+ * imageBed/utils - 图床通用工具函数
+ * 
+ * 职责：
+ * - 文件名与路径处理 (trimSlashes, buildTimestampName)
+ * - 扩展名推断与 URL 增强 (inferExtension, appendTimestamp)
+ * - 基础图片下载 Blob 处理
  */
 
 export const trimSlashes = (value = '') => value.replace(/^\/+|\/+$/g, '');

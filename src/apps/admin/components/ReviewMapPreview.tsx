@@ -2,11 +2,19 @@
  * 审核用地图预览组件
  * 使用 img 标签显示地图，标记叠加在上面
  */
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+/**
+ * ReviewMapPreview - 审核流程中的地图预览组件
+ * 
+ * 职责：
+ * - 基于 Leaflet 渲染可交互地图
+ * - 显示当前审核点位在地图上的准确位置 (Marker)
+ * - 允许管理员调整位置经纬度
+ */
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Icon from '../../../components/Icon';
 import { LineupSubmission } from '../../../types/submission';
 import { CUSTOM_MAP_URLS, MAP_TRANSLATIONS } from '../../../constants/maps';
-import { localMaps } from '../../../data/localMaps';
+import { LOCAL_MAPS } from '../../../data/localMaps';
 
 interface ReviewMapProps {
     submission: LineupSubmission | null;
@@ -30,14 +38,14 @@ function ReviewMapPreview({ submission }: ReviewMapProps) {
     const mapCoverUrl = useMemo(() => {
         if (!submission) return null;
         // 尝试用英文名匹配
-        const mapData = localMaps.find(m => m.displayName === submission.map_name);
+        const mapData = LOCAL_MAPS.find((m: any) => m.displayName === submission.map_name);
         if (mapData) return mapData.displayIcon;
         // 尝试用中文名匹配（如果 map_name 是中文）
         const englishName = Object.keys(MAP_TRANSLATIONS).find(
             key => MAP_TRANSLATIONS[key] === submission.map_name
         );
         if (englishName) {
-            const map = localMaps.find(m => m.displayName === englishName);
+            const map = LOCAL_MAPS.find((m: any) => m.displayName === englishName);
             return map?.displayIcon || null;
         }
         return null;

@@ -1,3 +1,11 @@
+/**
+ * SharedApp - 共享库应用根组件
+ * 
+ * 职责：
+ * - 协调共享库的整体路由与认证状态
+ * - 处理密码重置 (Recovery Mode) 逻辑
+ * - 提供全局弹窗容器 (Lightbox, AlertModal)
+ */
 import React, { useState, useEffect } from 'react';
 import '../../styles/fonts.css';
 import '../../index.css';
@@ -11,10 +19,6 @@ import ResetPasswordModal from './ResetPasswordModal';
 import { LightboxImage } from '../../types/ui';
 import { supabase } from '../../supabaseClient';
 
-/**
- * 共享库应用根组件
- * 开放浏览，下载时需要登录
- */
 function SharedApp() {
     const { user, isLoading, signOut } = useEmailAuth();
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
@@ -117,5 +121,3 @@ function SharedApp() {
 }
 
 export default SharedApp;
-
-

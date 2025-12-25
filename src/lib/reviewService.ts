@@ -1,6 +1,10 @@
 /**
- * 审核服务
- * 管理待审投稿的获取、审核通过/拒绝逻辑
+ * reviewService - 投稿审核流程服务
+ * 
+ * 职责：
+ * - 管理用户提交的待审点位（获取列表、批准、拒绝）
+ * - 批准时自动将图片从临时存储迁移到官方 OSS
+ * - 联动更新共享库数据并清理临时资源
  */
 import { supabase, shareSupabase } from '../supabaseClient';
 import { LineupSubmission } from '../types/submission';

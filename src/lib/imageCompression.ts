@@ -1,3 +1,17 @@
+/**
+ * imageCompression - 图片压缩与格式转换模块
+ * 
+ * 提供图片处理功能：
+ * - PNG 转 JPEG/WebP 格式转换
+ * - 质量压缩（可配置压缩比）
+ * - 尺寸限制（默认最大 1920x1920）
+ * - 剪贴板图片预处理
+ * 
+ * 核心函数：
+ * - prepareClipboardImage: 处理剪贴板图片，根据配置决定是否转换格式
+ * - convertBlobToJpegFile: 将 Blob 转换为 JPEG 文件
+ * - convertBlobToWebpFile: 将 Blob 转换为 WebP 文件
+ */
 import { ImageProcessingSettings, defaultImageProcessingSettings } from '../types/imageProcessing';
 
 export type ImageCompressOptions = {

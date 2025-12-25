@@ -1,3 +1,14 @@
+/**
+ * lineups 服务 - 个人库点位数据访问层
+ * 
+ * 封装对 Supabase valorant_lineups 表的 CRUD 操作：
+ * - fetchLineupsApi: 查询用户的所有点位
+ * - saveLineupApi: 新增点位
+ * - updateLineupApi: 更新点位
+ * - deleteLineupApi: 删除单个点位
+ * - clearLineupsApi: 清空用户所有点位
+ * - clearLineupsByAgentApi: 清空用户某特工的点位
+ */
 import { supabase } from '../supabaseClient';
 import { TABLE } from './tables';
 import { normalizeLineup } from './normalize';

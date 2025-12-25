@@ -1,4 +1,11 @@
-import { LineupDbPayload, MapOption, AgentOption, NewLineupForm, LineupSide, LineupPosition } from '../../types/lineup';
+/**
+ * lineupHelpers.ts - 点位处理辅助函数
+ * 
+ * 职责：
+ * - 提供点位去重、版本比较、数据清洗等纯逻辑函数
+ * - 处理点位与本地缓存之间的转换关系
+ */
+import { LineupDbPayload, MapOption, AgentOption, NewLineupForm, LineupSide, LineupPosition, AgentData } from '../../types/lineup';
 
 export const createEmptyLineup = (): NewLineupForm => ({
   title: '',
@@ -30,6 +37,7 @@ type WritableLineup = {
   skillIcon?: string | null;
   side: LineupSide;
   abilityIndex: number | null;
+  ability_index?: number | null; // 兼容性字段
   agentPos: LineupPosition | null;
   skillPos: LineupPosition | null;
   standImg?: string | null;
@@ -56,7 +64,7 @@ export const toDbPayload = (data: WritableLineup, userId: string): LineupDbPaylo
   agent_icon: data.agentIcon || null,
   skill_icon: data.skillIcon || null,
   side: data.side,
-  ability_index: data.abilityIndex,
+  ability_index: data.ability_index || null,
   agent_pos: data.agentPos,
   skill_pos: data.skillPos,
   stand_img: data.standImg || '',

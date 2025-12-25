@@ -1,3 +1,11 @@
+/**
+ * SharedLoginPage - 共享库登录与注册页面
+ * 
+ * 职责：
+ * - 提供邮箱/密码登录、注册功能
+ * - 处理密码找回邮件发送
+ * - 响应式设计的 Valorant 风格 UI
+ */
 import React, { useState, useEffect } from 'react';
 import Icon from '../../components/Icon';
 import { useEmailAuth } from '../../hooks/useEmailAuth';

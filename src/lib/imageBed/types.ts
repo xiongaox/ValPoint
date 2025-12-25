@@ -1,3 +1,10 @@
+/**
+ * imageBed/types - 图床模块类型定义
+ * 
+ * 职责：
+ * - 定义图床配置字段映射 (ImageBedField)
+ * - 定义各平台 Provider 的标准接口 (ImageBedProviderDefinition)
+ */
 import { ImageBedConfig, ImageBedProvider } from '../../types/imageBed';
 
 export type ImageBedFieldType = 'text' | 'select' | 'switch';

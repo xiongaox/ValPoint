@@ -1,3 +1,8 @@
+/**
+ * tencent provider - 腾讯云 COS 图床适配器
+ * 
+ * 实现腾讯云 COS 的直传和 URL 转存功能。
+ */
 import COS from 'cos-js-sdk-v5';
 import { ImageBedProviderDefinition, UploadOptions, TransferOptions, UploadResult } from '../types';
 import { ImageBedConfig } from '../../../types/imageBed';
@@ -29,7 +34,7 @@ const buildObjectKey = (basePath: string | undefined, extension: string) => {
 
 const buildPublicUrl = (config: ImageBedConfig, objectKey: string) => {
   const { bucket, appId, area, customUrl, options, slim } = config;
-  
+
   // 使用自定义域名或默认域名
   let baseUrl: string;
   if (customUrl) {
@@ -38,26 +43,26 @@ const buildPublicUrl = (config: ImageBedConfig, objectKey: string) => {
     // 默认域名格式：https://{bucket}-{appId}.cos.{area}.myqcloud.com
     baseUrl = `https://${bucket}-${appId}.cos.${area}.myqcloud.com`;
   }
-  
+
   const url = `${ensureHttps(baseUrl)}/${objectKey}`;
-  
+
   // 添加图片处理参数
   const params: string[] = [];
-  
+
   // 极智压缩：使用 imageslim 参数
   if (slim) {
     params.push('imageslim');
   }
-  
+
   // 自定义图片处理参数
   if (options) {
     params.push(options);
   }
-  
+
   if (params.length > 0) {
     return `${url}?${params.join('&')}`;
   }
-  
+
   return url;
 };
 
@@ -113,14 +118,14 @@ const uploadBlobToCos = async (
   const cos = createCosClient(config);
   const extension = options.extensionHint || 'png';
   const objectKey = buildObjectKey(config.path, extension);
-  
+
   // 构建完整的 bucket 名称（v5 格式）
   // 如果 bucket 已经包含 appId，则不再拼接
   const fullBucket = bucket.includes(appId) ? bucket : `${bucket}-${appId}`;
-  
+
   await uploadWithRetry(cos, fullBucket, area, objectKey, blob, options.onProgress);
   const url = buildPublicUrl(config, objectKey);
-  
+
   return { url, objectKey };
 };
 

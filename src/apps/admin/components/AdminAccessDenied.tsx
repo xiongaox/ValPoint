@@ -1,3 +1,10 @@
+/**
+ * AdminAccessDenied - 访问拒绝页面
+ * 
+ * 职责：
+ * - 当非法用户尝试进入后台或权限不足时显示
+ * - 提供返回首页或重新登录的引导
+ */
 import React from 'react';
 import Icon from '../../../components/Icon';
 

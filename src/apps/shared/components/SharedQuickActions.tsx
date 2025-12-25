@@ -1,3 +1,10 @@
+/**
+ * SharedQuickActions - 共享库快捷操作组件
+ * 
+ * 职责：
+ * - 提供修改密码、查看个人信息的浮动菜单
+ * - 管理菜单的展开/收起状态
+ */
 import React from 'react';
 import Icon from '../../../components/Icon';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';

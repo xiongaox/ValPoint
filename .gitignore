@@ -1,4 +1,5 @@
 node_modules
+notes/local/
 .env
 .env.local
 .env.*.local

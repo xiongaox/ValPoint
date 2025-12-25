@@ -1,3 +1,12 @@
+/**
+ * ImportLineupModal - 点位导入模态框
+ * 
+ * 支持从 ZIP 文件批量导入点位：
+ * - 解析 ZIP 中的元数据及图片文件
+ * - 验证图床配置是否就绪
+ * - 批量上传图片并保存点位数据到服务端
+ * - 实时展示导入进度
+ */
 import React, { useState, useRef, useCallback } from 'react';
 import Icon from './Icon';
 import { importLineupFromZip, ImportProgress, ImportResult, parseZipMetadata, ZipMetadata } from '../lib/lineupImport';

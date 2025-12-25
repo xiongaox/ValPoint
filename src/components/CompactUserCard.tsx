@@ -1,3 +1,12 @@
+/**
+ * CompactUserCard - 紧凑型用户卡片
+ * 
+ * 用于在顶部导航栏展示当前登录用户信息：
+ * - 展示特工称号和用户昵称/ID
+ * - 展示用户头像和在线状态
+ * - 提供登出按钮
+ * - 未登录状态下显示登录按钮和访客提示
+ */
 import React from 'react';
 import { User } from '@supabase/supabase-js';
 import UserAvatar from './UserAvatar';

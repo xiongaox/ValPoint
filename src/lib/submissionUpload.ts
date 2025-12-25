@@ -1,6 +1,11 @@
 /**
- * 投稿点位上传逻辑
- * 将 ZIP 文件中的图片上传到 Supabase Storage，并保存投稿记录
+ * submissionUpload - 用户投稿上传服务
+ * 
+ * 职责：
+ * - 处理用户提交的点位 ZIP 包解析
+ * - 将图片暂存至 Supabase Storage 的 submissions 桶
+ * - 实施每日投稿限额检查（防止恶意刷屏）
+ * - 记录投稿元数据至待审表
  */
 
 import { unzipSync, strFromU8 } from 'fflate';

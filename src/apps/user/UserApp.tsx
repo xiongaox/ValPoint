@@ -1,3 +1,11 @@
+/**
+ * UserApp - 共享库个人中心根组件
+ * 
+ * 职责：
+ * - 实现用户注册、登录及重置密码流程
+ * - 展示用户个人点位投稿记录及状态 (Pending/Approved/Rejected)
+ * - 与共享库主应用 (SharedApp) 共享某些公共组件
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import '../../styles/fonts.css';
 import '../../index.css';

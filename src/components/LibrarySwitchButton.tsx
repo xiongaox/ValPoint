@@ -1,3 +1,11 @@
+/**
+ * LibrarySwitchButton - 个人库/共享库切换按钮
+ * 
+ * 采用 Tab 选项卡样式：
+ * - 两个按钮并排显示，当前库高亮，另一个库可点击跳转
+ * - 尺寸规格：Tab 容器 166x54px，单个按钮 74x36px
+ * - 支持根据设置完全隐藏共享库按钮
+ */
 import React, { useState, useEffect } from 'react';
 import { getSystemSettings } from '../lib/systemSettings';
 
@@ -7,16 +15,6 @@ interface LibrarySwitchButtonProps {
     /** 是否隐藏共享库按钮 */
     hideSharedButton?: boolean;
 }
-
-/**
- * 库切换按钮组件 - Tab 选项卡样式
- * 两个按钮并排显示，当前库高亮，另一个库可点击跳转
- * 
- * 尺寸规格：
- * - Tab 容器：166×54px，圆角 12px
- * - 单个按钮：74×36px，圆角 8px
- * - 按钮间距：0
- */
 const LibrarySwitchButton: React.FC<LibrarySwitchButtonProps> = ({ currentLibrary, hideSharedButton = false }) => {
     const [personalUrl, setPersonalUrl] = useState<string>('');
     const [sharedUrl, setSharedUrl] = useState<string>('');

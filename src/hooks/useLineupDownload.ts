@@ -1,4 +1,12 @@
-import React, { useCallback } from 'react';
+/**
+ * useLineupDownload - 点位下载 Hook
+ * useLineupDownload.ts - 点位下载逻辑 Hook
+ * 
+ * 职责：
+ * - 实现单个或批量点位的离线包 (.zip) 生成与下载
+ * - 调用 fflate 进行高效的文件压缩处理
+ */
+import { useCallback, useState } from 'react';
 import { BaseLineup } from '../types/lineup';
 import { downloadLineupBundle } from '../lib/lineupDownload';
 

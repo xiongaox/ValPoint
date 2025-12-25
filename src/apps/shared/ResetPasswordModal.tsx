@@ -1,3 +1,10 @@
+/**
+ * ResetPasswordModal - 重置密码弹窗
+ * 
+ * 职责：
+ * - 当用户点击邮件链接进入重置流程后，提供新密码输入界面
+ * - 验证并提交新密码到 Supabase Auth 服务
+ */
 import React, { useState } from 'react';
 import Icon from '../../components/Icon';
 import { supabase } from '../../supabaseClient';

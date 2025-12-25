@@ -1,3 +1,11 @@
+/**
+ * SharedRightPanel - 共享库右侧列表面板
+ * 
+ * 职责：
+ * - 显示搜索框、切换攻防侧和点位列表
+ * - 支持点位搜索与作者筛选状态展示
+ * - 指导用户进行在线投稿
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import Icon from '../../components/Icon';
 import { BaseLineup } from '../../types/lineup';

@@ -1,4 +1,15 @@
 // @ts-nocheck
+/**
+ * LeafletMap - 基于 Leaflet 的地图交互组件
+ * 
+ * 渲染 Valorant 游戏地图并支持：
+ * - 点位标记的显示和交互（hover、click、选中高亮）
+ * - 创建模式下的拖拽定位（站位点、技能落点）
+ * - 攻防视角翻转（180度旋转）
+ * - 站位-落点连线绘制
+ * 
+ * 使用 CRS.Simple 坐标系，地图范围固定为 [0,0] - [1000,1000]
+ */
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { getAbilityIcon } from '../utils/abilityIcons';

@@ -1,3 +1,8 @@
+/**
+ * ChangelogModal - 更新日志展示模态框
+ * 
+ * 从本地数据汇总并展示应用的历史更新记录。
+ */
 import React from 'react';
 import Icon from './Icon';
 import { changelogEntries } from '../changelog';

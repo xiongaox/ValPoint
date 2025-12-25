@@ -1,3 +1,12 @@
+/**
+ * UserAvatar - 统一的用户头像组件
+ * 
+ * 职责：
+ * - 根据邮箱从 `user_profiles` 表动态获取用户头像
+ * - 实现头像数据的全局缓存，避免同一页面内的重复查询
+ * - 支持边框定制（颜色和是否显示）
+ * - 在用户更新资料后通知所有 Avatar 组件实例同步刷新
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 
@@ -24,11 +33,6 @@ const subscribers = new Set<() => void>();
 const notifySubscribers = () => {
     subscribers.forEach(callback => callback());
 };
-
-/**
- * 统一的用户头像组件
- * 根据邮箱从 user_profiles 表获取头像，确保全局一致性
- */
 const UserAvatar: React.FC<UserAvatarProps> = ({
     email,
     size = 40,

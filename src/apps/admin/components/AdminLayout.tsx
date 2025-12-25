@@ -1,3 +1,11 @@
+/**
+ * AdminLayout - 后台管理系统通用布局组件
+ * 
+ * 职责：
+ * - 渲染侧边导航栏 (Sidebar) 及顶部状态栏
+ * - 包含侧边栏折叠/展开逻辑
+ * - 为所有管理页面提供响应式的容器
+ */
 import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import Icon, { IconName } from '../../../components/Icon';

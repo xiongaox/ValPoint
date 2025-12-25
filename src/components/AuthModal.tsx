@@ -1,3 +1,11 @@
+/**
+ * AuthModal - 应用入口身份验证模态框
+ * 
+ * 处理用户 ID 输入和身份验证模式选择：
+ * - 随机 ID 生成
+ * - 登录模式（输入密码）：支持完整编辑操作
+ * - 游客模式（留空密码）：仅支持查看和分享
+ */
 import React, { useState } from 'react';
 import Icon from './Icon';
 
@@ -48,9 +56,8 @@ const AuthModal: React.FC<Props> = ({
               if (!userId) return;
               onClose();
             }}
-            className={`p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/40 transition-colors ${
-              userId ? '' : 'opacity-40 cursor-not-allowed'
-            }`}
+            className={`p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/40 transition-colors ${userId ? '' : 'opacity-40 cursor-not-allowed'
+              }`}
             title={userId ? '关闭' : '请先完成模式选择'}
           >
             <Icon name="X" size={16} />

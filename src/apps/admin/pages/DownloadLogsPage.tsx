@@ -1,4 +1,11 @@
-import React, { useState } from 'react';
+/**
+ * DownloadLogsPage - 下载记录审计页
+ * 
+ * 职责：
+ * - 列表展示所有用户的点位下载行为日志
+ * - 支持按地图、特工、时间及用户名搜索审计记录
+ */
+import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/Icon';
 
 interface DownloadLog {
@@ -54,8 +61,8 @@ function DownloadLogsPage() {
                             key={range}
                             onClick={() => setDateRange(range)}
                             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${dateRange === range
-                                    ? 'bg-[#ff4655] text-white'
-                                    : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                                ? 'bg-[#ff4655] text-white'
+                                : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                                 }`}
                         >
                             {range === 'today' ? '今天' : range === 'week' ? '本周' : '本月'}

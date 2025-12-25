@@ -1,3 +1,8 @@
+/**
+ * aliyun provider - 阿里云 OSS 图床适配器
+ * 
+ * 实现阿里云 OSS 的直传和 URL 转存功能。
+ */
 import OSS from 'ali-oss';
 import { ImageBedProviderDefinition, UploadOptions, TransferOptions, UploadResult } from '../types';
 import { ImageBedConfig } from '../../../types/imageBed';

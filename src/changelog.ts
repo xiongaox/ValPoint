@@ -1,3 +1,10 @@
+/**
+ * changelog.ts - 应用更新日志数据
+ * 
+ * 职责：
+ * - 记录应用各个版本的更新内容、日期及详细条目
+ * - 为“更新日志”弹窗提供静态数据源
+ */
 type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
@@ -7,14 +14,14 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   //     '模板',
   //   ],
   // },
-    {
+  {
     date: '2025-12-10',
     items: [
       '优化图床后台转移判断，可选保持原图',
       '新增图床后台转移功能',
     ],
   },
-    {
+  {
     date: '2025-12-09',
     items: [
       '去掉上传成功的提示，成功时直接回填链接且无弹窗',
@@ -66,11 +73,11 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '修复蚂蚁线',
       '修复游客模式，在分享页面中，提示弹窗被遮挡问题',
       {
-        text: '新增密码登录验证，以及分离用户模式和游客模式', 
+        text: '新增密码登录验证，以及分离用户模式和游客模式',
         children: [
-          '登录模式：可新增、编辑、删除、分享点位', 
+          '登录模式：可新增、编辑、删除、分享点位',
           '游客模式：可查看和分享该 ID 的点位数据，新增/编辑/删除入口隐藏'
-        ] 
+        ]
       },
       '修复关闭编辑视图卡界面问题',
       '修复蚂蚁线BUG',
@@ -112,18 +119,18 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '阵营选择迁移至右侧栏',
       '分享页面新增保存点位按钮，可以保存点位到自己的库中',
       {
-        text: '分享页面定制', 
+        text: '分享页面定制',
         children: [
-          '右侧栏：全屏地图', 
+          '右侧栏：全屏地图',
           '左侧栏：地图、阵营、点位标题、点位图片'
         ]
       },
       '添加点位分享功能',
       {
-        text: '更新UI布局，使用三栏布局', 
+        text: '更新UI布局，使用三栏布局',
         children: [
-          '右侧栏：查看点位、新增点位', 
-          '中间栏：全屏地图', 
+          '右侧栏：查看点位、新增点位',
+          '中间栏：全屏地图',
           '左侧栏：地图、阵营、英雄、技能'
         ]
       },

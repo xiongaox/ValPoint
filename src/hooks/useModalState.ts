@@ -1,4 +1,11 @@
-import { useState } from 'react';
+/**
+ * useModalState.ts - 弹窗状态管理 Hook
+ * 
+ * 职责：
+ * - 提供通用的弹窗开启/关闭/切换状态管理
+ * - 支持弹窗传参及异步关闭后的回调处理
+ */
+import { useState, useCallback } from 'react';
 import { LightboxImage } from '../types/ui';
 
 // 统一管理弹窗与提醒相关的状态

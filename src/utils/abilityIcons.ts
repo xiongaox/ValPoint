@@ -1,6 +1,14 @@
 // @ts-nocheck
 // 使用 ability_overrides.json 提供的技能图标和名称；槽位统一采用 C/Q/E/X（依次对应按钮1/2/3/4）。
 
+/**
+ * abilityIcons.ts - 特工技能图标工具
+ * 
+ * 职责：
+ * - 映射特工技能与其对应的官方图标 URL
+ * - 处理某些技能图标的特殊回退逻辑
+ */
+import { LOCAL_AGENTS } from '../data/localAgents';
 import abilityOverrides from '../data/ability_overrides.json';
 
 type Ability = { slot?: string; displayIcon?: string; name?: string; keypad?: string };

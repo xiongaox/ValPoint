@@ -1,3 +1,11 @@
+/**
+ * useEmailAuth.ts - 邮箱认证逻辑 Hook
+ * 
+ * 职责：
+ * - 处理用户登录、注册、找回密码及登出流程
+ * - 维护当前登录用户的 Session 状态
+ * - 提供身份验证相关的加载状态与错误处理
+ */
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { User } from '@supabase/supabase-js';

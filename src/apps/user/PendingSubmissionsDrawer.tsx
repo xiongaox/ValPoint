@@ -2,7 +2,14 @@
  * 待审点位右侧抽屉
  * 类似 EditorModal 的右侧抽屉，内容复用 PendingSubmissionsTab
  */
-import React from 'react';
+/**
+ * PendingSubmissionsDrawer - 用户投稿列表侧边抽屉
+ * 
+ * 职责：
+ * - 在个人中心侧边栏展示用户的所有投稿记录
+ * - 实时显示投稿审核状态，允许用户查看投稿详情或撤回
+ */
+import React, { useState, useEffect } from 'react';
 import Icon from '../../components/Icon';
 import PendingSubmissionsTab from '../shared/PendingSubmissionsTab';
 

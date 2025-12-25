@@ -1,4 +1,12 @@
-import React from 'react';
+/**
+ * MainView.tsx - 共享库主导航视图
+ * 
+ * 职责：
+ * - 渲染首页顶部的地图切换与特工选取区域
+ * - 集成点位列表展示 (LineupGrid)
+ * - 与 useAppController 通信以同步选取状态
+ */
+import React, { useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import LeafletMap from '../../components/LeafletMap';
 import QuickActions from '../../components/QuickActions';

@@ -1,3 +1,11 @@
+/**
+ * UserEditModal - 用户资料编辑弹窗
+ * 
+ * 职责：
+ * - 展示用户详细信息（邮箱、UUID、图床、注册时间等）
+ * - 允许管理员修改用户昵称、头像
+ * - 处理用户禁用 (Ban) 状态及理由输入
+ */
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '../../../components/Icon';

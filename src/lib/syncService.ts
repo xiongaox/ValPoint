@@ -1,6 +1,10 @@
 /**
- * 同步服务
- * 将个人库点位同步到共享库（数据库层面复制）
+ * syncService - 库同步服务
+ * 
+ * 职责：
+ * - 实现点位从“个人库”到“共享库”的单向同步
+ * - 检查重叠（通过 source_id），避免重复发布
+ * - 支持按英雄、按地图或全量同步
  */
 
 import { supabase, shareSupabase } from '../supabaseClient';

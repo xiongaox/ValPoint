@@ -1,3 +1,11 @@
+/**
+ * shared 服务 - 共享库点位数据访问层
+ * 
+ * 封装对 Supabase valorant_shared 表的操作：
+ * - fetchSharedById: 根据分享ID获取单个共享点位
+ * - fetchSharedList: 获取所有共享点位列表
+ * - upsertShared: 创建或更新共享点位（用于分享功能）
+ */
 import { shareSupabase } from '../supabaseClient';
 import { TABLE } from './tables';
 import { normalizeLineup } from './normalize';

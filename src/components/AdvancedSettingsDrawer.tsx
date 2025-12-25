@@ -1,4 +1,13 @@
-﻿import React, { useState } from 'react';
+﻿/**
+ * AdvancedSettingsDrawer - 高级设置侧边抽屉
+ * 
+ * 提供应用的高级功能配置：
+ * - 图片压缩设置（PNG 转换、JPG/WebP 选择、质量调节）
+ * - UI 交互设置（隐藏库按钮等）
+ * - 修改密码入口（仅登录用户可见）
+ * - 账号信息展示
+ */
+import React, { useState } from 'react';
 import Icon from './Icon';
 import { ImageProcessingSettings } from '../types/imageProcessing';
 

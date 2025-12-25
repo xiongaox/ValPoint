@@ -1,3 +1,11 @@
+/**
+ * AdminApp - 后台管理系统根组件
+ * 
+ * 职责：
+ * - 提供管理员登录检查与侧边栏导航控制
+ * - 实现基于 React Router 的管理页面路由配置
+ * - 提供全局弹窗管理器 (Global Modal Context/Host)
+ */
 import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import '../../styles/fonts.css';
@@ -13,7 +21,7 @@ import SharedManagePage from './pages/SharedManagePage';
 import SharedLoginPage from '../shared/SharedLoginPage';
 import AdminAccessDenied from './components/AdminAccessDenied';
 import { supabase } from '../../supabaseClient';
-import { checkAdminAccess, checkAdminAccessByEmail, updateAdminUserId, AdminAccessResult } from '../../lib/adminService';
+import { checkAdminAccess, checkAdminAccessByEmail, AdminAccessResult } from '../../lib/adminService';
 
 export type AdminPage = 'dashboard' | 'users' | 'logs' | 'upload' | 'review' | 'shared' | 'settings';
 
@@ -69,8 +77,7 @@ function AdminApp() {
             if (!access.isAdmin && user.email) {
                 const emailAccess = await checkAdminAccessByEmail(user.email);
                 if (emailAccess.isAdmin) {
-                    // 首次登录，更新 user_id
-                    await updateAdminUserId(user.email, user.id);
+                    // user_profiles.id 直接关联 auth.users.id，无需额外更新
                     access = emailAccess;
                 }
             }

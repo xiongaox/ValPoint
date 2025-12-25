@@ -1,3 +1,11 @@
+/**
+ * lineupImport - 点位导入服务
+ * 
+ * 职责：
+ * - 解析 ValPoint 导出的 ZIP 压缩包
+ * - 将压缩包内的图片上传到用户配置的图床
+ * - 构建用于持久化的数据库 Payload
+ */
 import { unzipSync, strFromU8 } from 'fflate';
 import { uploadImage } from './imageBed';
 import { ImageBedConfig } from '../types/imageBed';
@@ -57,6 +65,7 @@ export type ZipMetadata = {
     agentName: string;
     side: string;
 };
+
 
 /**
  * 解析 ZIP 文件元数据（用于预览，不上传图片）

@@ -1,4 +1,9 @@
 // @ts-nocheck
+/**
+ * DeleteConfirmModal - 删除确认模态框
+ * 
+ * 用于确认删除单个点位数据。
+ */
 import React from 'react';
 import Icon from './Icon';
 

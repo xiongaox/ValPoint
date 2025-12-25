@@ -1,6 +1,8 @@
 /**
- * 图床配置弹窗
- * 用于个人库的图床配置（数据保存到 localStorage）
+ * ImageBedConfigModal - 图床配置模态框
+ * 
+ * 用于个人库的图床密钥配置。配置数据仅保存在浏览器的 localStorage 中，
+ * 以确保用户敏感信息的私密性。
  */
 import React, { useEffect, useState } from 'react';
 import Icon from './Icon';

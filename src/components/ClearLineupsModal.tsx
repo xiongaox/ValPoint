@@ -1,3 +1,10 @@
+/**
+ * ClearLineupsModal - 清空点位确认模态框
+ * 
+ * 提供两种级别的删除确认：
+ * 1. 清空所有点位（当前登录账号下）
+ * 2. 仅清空当前选中特工的点位
+ */
 import React from 'react';
 import Icon from './Icon';
 

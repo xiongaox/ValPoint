@@ -1,3 +1,11 @@
+/**
+ * useUserProfile.ts - 用户资料管理 Hook
+ * 
+ * 职责：
+ * - 维护当前登录用户的 Profile 信息（昵称、头像、投稿额度等）
+ * - 提供资料更新、头像修改及 ID 后填等功能
+ * - 管理用户图床配置的加载与更新
+ */
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { useEmailAuth } from './useEmailAuth';

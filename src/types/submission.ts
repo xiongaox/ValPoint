@@ -12,6 +12,9 @@ export interface LineupPosition {
 }
 
 /** 投稿点位数据 */
+/**
+ * submission.ts - 投稿审核流数据类型定义
+ */
 export interface LineupSubmission {
     id: string;
     // 投稿者信息

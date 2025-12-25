@@ -29,7 +29,9 @@ export default defineConfig({
     build: {
         outDir: 'dist/user',
         rollupOptions: {
-            input: 'user.html',
+            input: {
+                index: 'user.html',
+            },
         },
     },
 });

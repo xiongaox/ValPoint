@@ -29,7 +29,9 @@ export default defineConfig({
     build: {
         outDir: 'dist/shared',
         rollupOptions: {
-            input: 'shared.html',
+            input: {
+                index: 'shared.html',
+            },
         },
     },
 });

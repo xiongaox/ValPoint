@@ -30,7 +30,9 @@ export default defineConfig({
     build: {
         outDir: 'dist/admin',
         rollupOptions: {
-            input: 'admin.html',
+            input: {
+                index: 'admin.html',
+            },
         },
     },
 });

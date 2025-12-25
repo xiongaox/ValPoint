@@ -38,6 +38,7 @@ type Params = {
   onChangePassword: () => void;
   onClearLineups: () => void;
   onSyncToShared?: () => void;
+  onPendingSubmissions?: () => void;
   isAdmin?: boolean;
   pendingTransfers: number;
   handleTabSwitch: (tab: ActiveTab) => void;
@@ -59,6 +60,7 @@ type Params = {
   pinnedLimit: number;
   hideSharedButton?: boolean;
   onBatchDownload: () => void;
+  onSubmitLineup?: (lineupId: string) => void;
   user: User | null;
   onSignOut: () => void;
   onOpenProfile: () => void;
@@ -113,6 +115,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       onChangePassword: params.onChangePassword,
       onClearLineups: params.onClearLineups,
       onSyncToShared: params.onSyncToShared,
+      onPendingSubmissions: params.onPendingSubmissions,
       onBatchDownload: params.onBatchDownload,
       onProfile: params.onOpenProfile,
       isAdmin: params.isAdmin,
@@ -141,6 +144,8 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       pinnedLineupIds: params.pinnedLineupIds,
       onTogglePinLineup: params.onTogglePinLineup,
       pinnedLimit: params.pinnedLimit,
+      onSubmitLineup: params.onSubmitLineup,
+      isAdmin: params.isAdmin,
     },
     hideSharedButton: params.hideSharedButton,
     user: params.user,

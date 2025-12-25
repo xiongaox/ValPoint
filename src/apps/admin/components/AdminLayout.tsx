@@ -5,6 +5,7 @@ import UserAvatar from '../../../components/UserAvatar';
 import { AdminPage } from '../AdminApp';
 import { supabase } from '../../../supabaseClient';
 import UserProfileModal from '../../shared/components/UserProfileModal';
+import { useUserProfile } from '../../../hooks/useUserProfile';
 
 interface AdminLayoutProps {
     currentPage: AdminPage;
@@ -34,6 +35,9 @@ function AdminLayout({ currentPage, onPageChange, children }: AdminLayoutProps) 
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
+    // 从 user_profiles 表获取用户业务数据
+    const { profile } = useUserProfile();
+
     // 获取用户信息
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => {
@@ -55,15 +59,15 @@ function AdminLayout({ currentPage, onPageChange, children }: AdminLayoutProps) 
         setShowUserMenu(false);
     };
 
-    // 获取用户显示名称
+    // 获取用户显示名称 - 从 user_profiles 表读取
     const getUserDisplayName = () => {
-        if (!user) return '管理员';
-        return user.user_metadata?.nickname || user.user_metadata?.display_name || user.email?.split('@')[0] || '管理员';
+        if (!profile) return '管理员';
+        return profile.custom_id || profile.nickname || user?.email?.split('@')[0] || '管理员';
     };
 
-    // 获取用户头像
+    // 获取用户头像 - 从 user_profiles 表读取
     const getUserAvatar = () => {
-        return user?.user_metadata?.avatar || '捷风.png';
+        return profile?.avatar || '捷风.png';
     };
 
     // 打开个人信息编辑

@@ -52,6 +52,7 @@ type QuickActionsProps = {
   onChangePassword: () => void;
   onClearLineups: () => void;
   onSyncToShared?: () => void;
+  onPendingSubmissions?: () => void;
   onBatchDownload?: () => void;
   onProfile?: () => void;
   isAdmin?: boolean;
@@ -81,6 +82,8 @@ type RightProps = {
   pinnedLineupIds: string[];
   onTogglePinLineup: (id: string) => void;
   pinnedLimit: number;
+  onSubmitLineup?: (lineupId: string) => void;
+  isAdmin?: boolean;
 };
 
 type Props = {
@@ -141,6 +144,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
           onSyncToShared={quickActions.onSyncToShared}
+          onPendingSubmissions={quickActions.onPendingSubmissions}
           onBatchDownload={quickActions.onBatchDownload}
           onProfile={quickActions.onProfile}
           isAdmin={quickActions.isAdmin}
@@ -180,6 +184,8 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
         pinnedLineupIds={right.pinnedLineupIds}
         onTogglePinLineup={right.onTogglePinLineup}
         pinnedLimit={right.pinnedLimit}
+        onSubmitLineup={right.onSubmitLineup}
+        isAdmin={right.isAdmin}
       />
     </div>
   );

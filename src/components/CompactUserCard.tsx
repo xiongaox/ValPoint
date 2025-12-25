@@ -2,6 +2,7 @@ import React from 'react';
 import { User } from '@supabase/supabase-js';
 import UserAvatar from './UserAvatar';
 import Icon from './Icon';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 interface CompactUserCardProps {
     user: User | null;
@@ -20,6 +21,14 @@ const CompactUserCard: React.FC<CompactUserCardProps> = ({
     onRequestLogin,
     className = ''
 }) => {
+    // 从 user_profiles 表获取用户业务数据
+    const { profile, isLoading: isProfileLoading } = useUserProfile();
+
+    // 获取显示名称，在加载中时返回 null
+    const displayName = isProfileLoading
+        ? null
+        : (profile?.nickname || profile?.custom_id || user?.email?.split('@')[0].toUpperCase() || 'AGENT');
+
     return (
         <div className={`group relative ${className}`}>
             {/* 容器高度设为 54px */}
@@ -46,9 +55,13 @@ const CompactUserCard: React.FC<CompactUserCardProps> = ({
                                 <span className="text-[10px] font-bold text-[#ff4655] tracking-widest uppercase opacity-80 leading-none">AGENT</span>
                                 <div className="h-[1px] flex-1 bg-gradient-to-r from-[#ff4655]/50 to-transparent" />
                             </div>
-                            <span className="text-base text-white font-bold truncate tracking-wide font-mono leading-tight">
-                                {user.user_metadata?.custom_id || user.user_metadata?.nickname || (user.email?.split('@')[0].toUpperCase() || 'AGENT')}
-                            </span>
+                            {displayName ? (
+                                <span className="text-base text-white font-bold truncate tracking-wide font-mono leading-tight">
+                                    {displayName}
+                                </span>
+                            ) : (
+                                <div className="w-20 h-4 bg-white/10 rounded animate-pulse" />
+                            )}
                         </div>
 
                         {/* 退出按钮 (Compact) */}

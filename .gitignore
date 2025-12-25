@@ -9,7 +9,7 @@ dist
 coverage
 docs/.obsidian/workspace.json
 .vscode
-notes local
+supabase/cloud
 
 # VitePress
 docs/.vitepress/cache

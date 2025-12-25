@@ -9,7 +9,8 @@ type Props = {
   onChangePassword: () => void;
   onClearLineups: () => void;
   onAdvancedSettings: () => void;
-  onSyncToShared?: () => void;  // 同步到共享库
+  onSyncToShared?: () => void;  // 同步到共享库（管理员）
+  onPendingSubmissions?: () => void;  // 待审点位（普通用户）
   onBatchDownload?: () => void; // 批量下载
   onProfile?: () => void;       // 个人信息
   isAdmin?: boolean;             // 是否管理员
@@ -24,6 +25,7 @@ const QuickActions: React.FC<Props> = ({
   onClearLineups,
   onAdvancedSettings,
   onSyncToShared,
+  onPendingSubmissions,
   onBatchDownload,
   onProfile,
   isAdmin = false,
@@ -60,7 +62,7 @@ const QuickActions: React.FC<Props> = ({
             </button>
           )}
 
-          {/* 同步到共享库按钮 - 直接显示在快捷功能上方 */}
+          {/* 同步到共享库按钮 - 仅管理员显示 */}
           {isAdmin && onSyncToShared && (
             <button
               onClick={onSyncToShared}
@@ -68,6 +70,17 @@ const QuickActions: React.FC<Props> = ({
               title="同步到共享库"
             >
               <Icon name="Share2" size={20} />
+            </button>
+          )}
+
+          {/* 待审点位按钮 - 仅普通用户显示 */}
+          {!isAdmin && onPendingSubmissions && (
+            <button
+              onClick={onPendingSubmissions}
+              className="w-12 h-12 rounded-full bg-[#f59e0b] hover:bg-[#d97706] text-white flex items-center justify-center shadow-lg border border-white/10 transition-colors"
+              title="待审点位"
+            >
+              <Icon name="Clock" size={20} />
             </button>
           )}
 

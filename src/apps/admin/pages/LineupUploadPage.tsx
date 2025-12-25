@@ -8,6 +8,7 @@ import { parseZipMetadata, adminUploadLineup, AdminUploadProgress } from '../../
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
 import { supabase } from '../../../supabaseClient';
 import { ImageBedConfig } from '../../../types/imageBed';
+import { MAP_TRANSLATIONS } from '../../../constants/maps';
 
 // 系统设置表的固定 ID
 const SYSTEM_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
@@ -273,7 +274,7 @@ function LineupUploadPage({ setAlertMessage }: Props) {
                                         <p className="text-xs text-gray-500 truncate">
                                             {item.error ||
                                                 (item.metadata
-                                                    ? `${item.metadata.mapName} · ${item.metadata.agentName} · ${item.metadata.imageCount} 张图片`
+                                                    ? `${MAP_TRANSLATIONS[item.metadata.mapName] || item.metadata.mapName} · ${item.metadata.agentName} · ${item.metadata.imageCount} 张图片`
                                                     : item.file.name)}
                                         </p>
                                     </div>

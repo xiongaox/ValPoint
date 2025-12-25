@@ -446,5 +446,6 @@ export function useAppController() {
     modalProps,
     isProfileModalOpen,
     setIsProfileModalOpen,
+    orderedLineups,  // 暴露点位列表供 UserApp 直接投稿用
   };
 }

@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+/**
+ * 图床配置弹窗
+ * 用于个人库的图床配置（数据保存到 localStorage）
+ */
+import React, { useEffect, useState } from 'react';
 import Icon from './Icon';
-import { ImageBedConfig, ImageBedProvider } from '../types/imageBed';
-import {
-  defaultImageBedConfig,
-  imageBedProviderDefinitions,
-  imageBedProviderMap,
-  ImageBedField,
-} from '../constants/imageBedProviders';
+import { ImageBedConfig } from '../types/imageBed';
+import { defaultImageBedConfig } from '../lib/imageBed';
+import ImageBedConfigForm, { normalizeConfig } from './ImageBedConfigForm';
 
 type Props = {
   isOpen: boolean;
@@ -15,130 +15,20 @@ type Props = {
   onSave: (cfg: ImageBedConfig) => void;
 };
 
-const normalizeConfig = (incoming?: ImageBedConfig): ImageBedConfig => {
-  const providerCandidate = incoming?.provider;
-  const provider = providerCandidate && imageBedProviderMap[providerCandidate] ? providerCandidate : defaultImageBedConfig.provider;
-  const base = imageBedProviderMap[provider]?.defaultConfig || defaultImageBedConfig;
-  const merged: ImageBedConfig = {
-    ...base,
-    ...incoming,
-    _configName: incoming?._configName || (incoming as { name?: string })?.name || base._configName,
-    provider,
-  };
-  if (provider === 'aliyun') {
-    if (!merged.area && merged.region) merged.area = merged.region;
-    if (merged.area && !merged.region) merged.region = merged.area;
-    if (merged.path && !merged.basePath) merged.basePath = merged.path;
-    if (merged.customUrl && !merged.customDomain) merged.customDomain = merged.customUrl;
-  }
-  return merged;
-};
-
 const ImageBedConfigModal: React.FC<Props> = ({ isOpen, config, onClose, onSave }) => {
   const [localConfig, setLocalConfig] = useState<ImageBedConfig>(defaultImageBedConfig);
-  const [isCopied, setIsCopied] = useState(false);
-  const [showProviderMenu, setShowProviderMenu] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setLocalConfig(normalizeConfig(config));
-      setIsCopied(false);
-      setShowProviderMenu(false);
     }
   }, [isOpen, config]);
 
-  const currentDefinition = useMemo(
-    () => imageBedProviderMap[localConfig.provider] || imageBedProviderDefinitions[0],
-    [localConfig.provider],
-  );
-
-  const updateField = (key: keyof ImageBedConfig, value: string | boolean) => {
-    setLocalConfig((prev) => {
-      const next: ImageBedConfig = { ...prev, [key]: value };
-      if (prev.provider === 'aliyun') {
-        if (key === 'area') next.region = typeof value === 'string' ? value : '';
-        if (key === 'path') next.basePath = typeof value === 'string' ? value : '';
-        if (key === 'customUrl') next.customDomain = typeof value === 'string' ? value : '';
-      }
-      return next;
-    });
-  };
-
-  const handleCopy = async () => {
-    try {
-      // 只复制当前平台需要的字段，避免冗余
-      const cleanConfig: Record<string, string | boolean> = {
-        provider: localConfig.provider,
-        _configName: localConfig._configName,
-      };
-      
-      // 根据当前平台添加对应字段
-      currentDefinition.fields.forEach((field) => {
-        const value = localConfig[field.key];
-        if (value !== undefined && value !== '') {
-          cleanConfig[field.key as string] = value;
-        }
-      });
-
-      await navigator.clipboard.writeText(JSON.stringify(cleanConfig, null, 2));
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (e) {
-      console.error(e);
-      alert('复制失败，请手动复制。');
-    }
-  };
-
-  const handleImport = async () => {
-    const text = prompt('粘贴配置 JSON？');
-    if (!text) return;
-    try {
-      const parsed = JSON.parse(text);
-      setLocalConfig(normalizeConfig(parsed));
-    } catch (e) {
-      alert('解析失败，请确认格式正确。');
-    }
-  };
-
-  const handleReset = () => {
-    const base = imageBedProviderMap[localConfig.provider]?.defaultConfig || defaultImageBedConfig;
-    setLocalConfig({ ...base, _configName: localConfig._configName, provider: localConfig.provider });
-  };
-
-  const handleProviderSwitch = (provider: ImageBedProvider) => {
-    if (provider === localConfig.provider) {
-      setShowProviderMenu(false);
-      return;
-    }
-    
-    // 尝试从 localStorage 加载该平台的配置
-    try {
-      const multiConfigStr = localStorage.getItem('valpoint_imagebed_configs');
-      if (multiConfigStr) {
-        const multiConfigs = JSON.parse(multiConfigStr);
-        const savedConfig = multiConfigs[provider];
-        if (savedConfig) {
-          console.log('[ImageBedConfigModal] loaded saved config for provider:', provider);
-          setLocalConfig(normalizeConfig(savedConfig));
-          setShowProviderMenu(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.error('[ImageBedConfigModal] failed to load saved config:', e);
-    }
-    
-    // 如果没有保存的配置，使用默认配置
-    const base = imageBedProviderMap[provider]?.defaultConfig || defaultImageBedConfig;
-    setLocalConfig({
-      ...base,
-      _configName: '',
-      provider,
-    });
-    setShowProviderMenu(false);
-  };
-
   if (!isOpen) return null;
+
+  const handleSave = () => {
+    onSave(localConfig);
+  };
 
   return (
     <div className="fixed inset-0 z-[1400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -154,85 +44,38 @@ const ImageBedConfigModal: React.FC<Props> = ({ isOpen, config, onClose, onSave 
               <div className="text-xs text-gray-500">本地存储，仅当前设备生效，可复制 / 导入 / 导出</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 relative">
-            <button
-              onClick={() => setShowProviderMenu((prev) => !prev)}
-              className="inline-flex items-center gap-2 px-3 py-[6px] rounded-lg border text-sm transition-colors bg-white/5 border-white/10 text-white hover:border-white/30"
-            >
-              <Icon name="Layers" size={16} /> {currentDefinition.label}
-              <Icon name="ChevronDown" size={14} className={`transition-transform ${showProviderMenu ? 'rotate-180' : ''}`} />
-            </button>
-            {showProviderMenu && (
-              <div className="absolute right-14 top-12 w-64 rounded-xl border border-white/10 bg-[#0f131a] shadow-xl shadow-black/40 overflow-hidden z-[1500]">
-                {imageBedProviderDefinitions.map((provider) => (
-                  <button
-                    key={provider.provider}
-                    onClick={() => handleProviderSwitch(provider.provider)}
-                    className={`w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-white/5 transition-colors ${
-                      provider.provider === localConfig.provider ? 'bg-white/5' : ''
-                    }`}
-                  >
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-white flex items-center gap-2">
-                        {provider.label}
-                        {provider.provider === localConfig.provider && <Icon name="Check" size={16} className="text-emerald-400" />}
-                      </div>
-                      <div className="text-xs text-gray-500 leading-snug">{provider.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-            <button
-              onClick={handleCopy}
-              className={`inline-flex items-center gap-2 px-3 py-[6px] rounded-lg border text-sm transition-colors ${
-                isCopied
-                  ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                  : 'bg-white/5 border-white/10 text-white hover:border-white/30'
-              }`}
-            >
-              <Icon name={isCopied ? 'Check' : 'Copy'} size={16} /> {isCopied ? '已复制' : '复制配置'}
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors"
-              aria-label="关闭"
-            >
-              <Icon name="X" size={16} />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors"
+            aria-label="关闭"
+          >
+            <Icon name="X" size={16} />
+          </button>
         </div>
 
-        {/* Body */}
+        {/* Body - 使用复用组件 */}
         <div className="p-6 space-y-6 bg-[#181b1f]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {currentDefinition.fields.map((field) => (
-              <Field
-                key={`${currentDefinition.provider}-${field.key}`}
-                field={field}
-                value={localConfig[field.key]}
-                onChange={(val) => updateField(field.key, val)}
-              />
-            ))}
-          </div>
+          <ImageBedConfigForm
+            config={localConfig}
+            onChange={setLocalConfig}
+            showProviderSwitch={true}
+            showCopyImport={true}
+            showReset={true}
+            layout="full"
+          />
 
-          <div className="flex items-center justify-between pt-2">
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-2 border-t border-white/10">
             <div className="text-xs text-gray-500">提示：密钥仅保存在本机；如需换设备请先导出。</div>
             <div className="flex items-center gap-2">
               <button
-                onClick={handleReset}
+                onClick={onClose}
                 className="px-4 py-2 rounded-lg border border-white/15 text-sm text-gray-200 hover:border-white/40 hover:bg-white/5 transition-colors"
               >
-                重置当前图床
+                取消
               </button>
               <button
-                onClick={handleImport}
-                className="px-4 py-2 rounded-lg bg-[#ff4655] hover:bg-[#d93a49] text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-md shadow-red-900/30"
-              >
-                <Icon name="Download" size={16} /> 导入
-              </button>
-              <button
-                onClick={() => onSave(localConfig)}
+                onClick={handleSave}
                 className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-md shadow-emerald-900/30"
               >
                 <Icon name="Check" size={16} /> 确认
@@ -245,109 +88,5 @@ const ImageBedConfigModal: React.FC<Props> = ({ isOpen, config, onClose, onSave 
   );
 };
 
-type FieldProps = {
-  field: ImageBedField;
-  value: ImageBedConfig[keyof ImageBedConfig];
-  onChange: (val: string | boolean) => void;
-};
-
-const Field: React.FC<FieldProps> = ({ field, value, onChange }) => {
-  const { label, required, placeholder, type = 'text', options } = field;
-  const isSwitch = type === 'switch';
-  const isSelect = type === 'select';
-  const displayValue = typeof value === 'boolean' ? value : value || '';
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!isSelect) return;
-    if (!isSelectOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!selectRef.current) return;
-      if (!selectRef.current.contains(e.target as Node)) {
-        setIsSelectOpen(false);
-      }
-    };
-    window.addEventListener('mousedown', handleClickOutside);
-    return () => window.removeEventListener('mousedown', handleClickOutside);
-  }, [isSelect, isSelectOpen]);
-
-  return (
-    <label className="flex flex-col gap-1 text-sm text-gray-300">
-      <span className="text-xs text-gray-400">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </span>
-      {isSwitch ? (
-        <button
-          type="button"
-          onClick={() => onChange(!displayValue)}
-          className={`flex items-center justify-between w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-left ${
-            displayValue ? 'border-emerald-500/50' : ''
-          }`}
-        >
-          <span className="text-white text-sm">{displayValue ? '已开启' : '未开启'}</span>
-          <span
-            className={`w-10 h-5 rounded-full p-[2px] transition-colors ${
-              displayValue ? 'bg-emerald-500/80' : 'bg-white/10'
-            }`}
-          >
-            <span
-              className={`block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-                displayValue ? 'translate-x-5' : ''
-              }`}
-            />
-          </span>
-        </button>
-      ) : isSelect ? (
-        <div className="relative" ref={selectRef}>
-          <button
-            type="button"
-            onClick={() => setIsSelectOpen((prev) => !prev)}
-            className="w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-left text-white focus:border-[#ff4655] outline-none transition-colors flex items-center justify-between gap-2"
-          >
-            <span className="truncate">{displayValue as string}</span>
-            <Icon
-              name="ChevronDown"
-              size={16}
-              className={`text-gray-400 transition-transform ${isSelectOpen ? 'rotate-180' : ''}`}
-            />
-          </button>
-          {isSelectOpen && (
-            <div className="absolute z-[1600] mt-1 w-full rounded-lg border border-white/10 bg-[#0b0f16]/95 shadow-xl shadow-black/50 backdrop-blur-md overflow-hidden">
-              {(options || []).map((opt) => {
-                const active = opt.value === displayValue;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => {
-                      onChange(opt.value);
-                      setIsSelectOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                      active ? 'bg-white/10 text-white' : 'text-gray-200 hover:bg-white/5'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      ) : (
-        <input
-          value={displayValue as string}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[#ff4655] outline-none transition-colors"
-        />
-      )}
-      {field.helper && <span className="text-[11px] text-gray-500">{field.helper}</span>}
-    </label>
-  );
-};
-
-export { defaultImageBedConfig } from '../constants/imageBedProviders';
+export { defaultImageBedConfig } from '../lib/imageBed';
 export default ImageBedConfigModal;

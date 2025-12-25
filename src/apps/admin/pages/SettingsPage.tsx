@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../../../components/Icon';
 import { getSystemSettings, updateSystemSettings } from '../../../lib/systemSettings';
-import { ImageBedConfig, ImageBedProvider } from '../../../types/imageBed';
-import { imageBedProviderDefinitions, imageBedProviderMap, defaultImageBedConfig } from '../../../lib/imageBed';
+import { ImageBedConfig } from '../../../types/imageBed';
+import { defaultImageBedConfig, imageBedProviderMap } from '../../../lib/imageBed';
 import { getAdminList, addAdmin, removeAdmin, AdminUser } from '../../../lib/adminService';
+import ImageBedConfigForm from '../../../components/ImageBedConfigForm';
 
 interface SettingsPageProps {
     isSuperAdmin: boolean;
@@ -60,26 +61,8 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
 
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isOssConfigValid, setIsOssConfigValid] = useState(false);
 
-    // 当前图床定义
-    const currentDefinition = useMemo(
-        () => imageBedProviderMap[ossConfig.provider] || imageBedProviderDefinitions[0],
-        [ossConfig.provider],
-    );
-
-    // 检查图床配置是否完整
-    const isOssConfigValid = useMemo(() => {
-        if (!ossConfig.provider) return false;
-        const definition = imageBedProviderMap[ossConfig.provider];
-        if (!definition) return false;
-        // 检查必填字段
-        return definition.fields
-            .filter((f) => f.required)
-            .every((f) => {
-                const val = ossConfig[f.key];
-                return val !== undefined && val !== '';
-            });
-    }, [ossConfig]);
 
     // 从 Supabase 加载设置
     useEffect(() => {
@@ -137,26 +120,7 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
         setRemovingAdminId(null);
     };
 
-    // 更新图床配置字段
-    const updateOssField = (key: keyof ImageBedConfig, value: string | boolean) => {
-        setOssConfig((prev) => {
-            const next: ImageBedConfig = { ...prev, [key]: value };
-            // 阿里云特殊处理
-            if (prev.provider === 'aliyun') {
-                if (key === 'area') next.region = typeof value === 'string' ? value : '';
-                if (key === 'path') next.basePath = typeof value === 'string' ? value : '';
-                if (key === 'customUrl') next.customDomain = typeof value === 'string' ? value : '';
-            }
-            return next;
-        });
-    };
 
-    // 切换图床提供商
-    const handleProviderSwitch = (provider: ImageBedProvider) => {
-        if (provider === ossConfig.provider) return;
-        const base = imageBedProviderMap[provider]?.defaultConfig || defaultImageBedConfig;
-        setOssConfig({ ...base, provider, _configName: 'official' });
-    };
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -189,51 +153,19 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
             case 'imageBed':
                 return (
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h4 className="text-white font-medium">选择图床提供商</h4>
-                                <p className="text-xs text-gray-500 mt-1">审核通过的点位图片将迁移到此图床</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {imageBedProviderDefinitions.map((def) => (
-                                    <button
-                                        key={def.provider}
-                                        onClick={() => handleProviderSwitch(def.provider)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${ossConfig.provider === def.provider
-                                            ? 'bg-[#ff4655]/20 border-[#ff4655] text-white'
-                                            : 'border-white/10 text-gray-400 hover:text-white hover:border-white/30'
-                                            }`}
-                                    >
-                                        {def.label}
-                                    </button>
-                                ))}
-                            </div>
+                        <div>
+                            <h4 className="text-white font-medium">官方图床配置</h4>
+                            <p className="text-xs text-gray-500 mt-1">审核通过的点位图片将迁移到此图床</p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                            {currentDefinition.fields.map((field) => (
-                                <div key={`${ossConfig.provider}-${field.key}`} className="flex flex-col gap-1">
-                                    <label className="text-xs text-gray-400">
-                                        {field.label}
-                                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                                    </label>
-                                    <input
-                                        value={(ossConfig[field.key] as string) || ''}
-                                        placeholder={field.placeholder}
-                                        onChange={(e) => updateOssField(field.key, e.target.value)}
-                                        className="w-full bg-[#0f1923] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:border-[#ff4655] outline-none transition-colors"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        {/* 配置状态提示 */}
-                        <div className={`p-3 rounded-lg border ${isOssConfigValid ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
-                            <div className="flex items-center gap-2">
-                                <Icon name={isOssConfigValid ? 'CheckCircle' : 'AlertTriangle'} size={16} className={isOssConfigValid ? 'text-emerald-400' : 'text-amber-400'} />
-                                <span className={`text-sm ${isOssConfigValid ? 'text-emerald-400' : 'text-amber-400'}`}>
-                                    {isOssConfigValid ? '图床配置有效' : '请填写所有必填字段'}
-                                </span>
-                            </div>
-                        </div>
+                        <ImageBedConfigForm
+                            config={ossConfig}
+                            onChange={setOssConfig}
+                            showProviderSwitch={true}
+                            showCopyImport={true}
+                            showReset={true}
+                            onValidChange={setIsOssConfigValid}
+                            layout="full"
+                        />
                     </div>
                 );
 
@@ -460,14 +392,14 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
                                     <div key={admin.id} className="flex items-center justify-between px-4 py-3">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${admin.role === 'super_admin'
-                                                    ? 'bg-amber-500/20 text-amber-400'
-                                                    : 'bg-blue-500/20 text-blue-400'
+                                                ? 'bg-amber-500/20 text-amber-400'
+                                                : 'bg-blue-500/20 text-blue-400'
                                                 }`}>
                                                 <Icon name={admin.role === 'super_admin' ? 'Crown' : 'Shield'} size={16} />
                                             </div>
                                             <div>
                                                 <div className="text-sm text-white flex items-center gap-2">
-                                                    {admin.nickname || admin.email.split('@')[0]}
+                                                    {admin.nickname || admin.email?.split('@')[0] || 'Unknown'}
                                                     {admin.role === 'super_admin' && (
                                                         <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">超级管理员</span>
                                                     )}

@@ -108,6 +108,8 @@ type Props = {
   handleBatchDownload: (scope: 'agent' | 'map') => Promise<void>;
   totalAgentLineups: number;
   totalMapLineups: number;
+  onSubmitLineup?: (lineupId: string) => void;
+  isAdmin?: boolean;
 };
 
 const AppModals: React.FC<Props> = ({
@@ -188,6 +190,8 @@ const AppModals: React.FC<Props> = ({
   handleBatchDownload,
   totalAgentLineups,
   totalMapLineups,
+  onSubmitLineup,
+  isAdmin,
 }) => {
   return (
     <>
@@ -286,6 +290,8 @@ const AppModals: React.FC<Props> = ({
         getMapDisplayName={getMapDisplayName}
         getMapEnglishName={getMapEnglishName}
         isGuest={isGuest}
+        onSubmitLineup={onSubmitLineup}
+        isAdmin={isAdmin}
       />
 
       <Lightbox viewingImage={viewingImage} setViewingImage={setViewingImage} />

@@ -25,6 +25,8 @@ type Props = {
   pinnedLineupIds: string[];
   onTogglePinLineup: (id: string) => void;
   pinnedLimit: number;
+  onSubmitLineup?: (lineupId: string) => void;  // 投稿单个点位
+  isAdmin?: boolean;  // 是否管理员
 };
 
 const RightPanel: React.FC<Props> = ({
@@ -50,6 +52,8 @@ const RightPanel: React.FC<Props> = ({
   pinnedLineupIds,
   onTogglePinLineup,
   pinnedLimit,
+  onSubmitLineup,
+  isAdmin = true,
 }) => {
   const pageSize = 7;
   const [page, setPage] = useState(1);
@@ -278,6 +282,19 @@ const RightPanel: React.FC<Props> = ({
                             >
                               <Icon name="Pin" size={14} />
                             </button>
+                            {/* 投稿按钮 - 仅普通用户显示 */}
+                            {!isAdmin && onSubmitLineup && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSubmitLineup(l.id);
+                                }}
+                                className="text-gray-600 hover:text-purple-400 p-1 rounded hover:bg-white/5 transition-colors"
+                                title="投稿此点位"
+                              >
+                                <Icon name="Send" size={14} />
+                              </button>
+                            )}
                             <button
                               onClick={(e) => handleDownload(l.id, e)}
                               className="text-gray-600 hover:text-emerald-400 p-1 rounded hover:bg-white/5 transition-colors"

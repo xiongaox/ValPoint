@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/Icon';
 import { updateAvatarCache } from '../../../components/UserAvatar';
+import { useUserProfile } from '../../../hooks/useUserProfile';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
 
 type Props = {
@@ -20,7 +21,8 @@ const AGENT_AVATARS = [
 ];
 
 const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage }) => {
-    const { user, updateProfile } = useEmailAuth();
+    const { user } = useEmailAuth();
+    const { profile, updateProfile, isLoading: isProfileLoading } = useUserProfile();
     const [nickname, setNickname] = useState('');
     const [currentAvatar, setCurrentAvatar] = useState('捷风.png'); // 默认头像
     const [pendingId, setPendingId] = useState<string | null>(null); // 用于补填的 ID
@@ -36,24 +38,34 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
     };
 
     useEffect(() => {
-        if (isOpen && user) {
-            setNickname(user.user_metadata?.nickname || '');
-            setCurrentAvatar(user.user_metadata?.avatar || '捷风.png');
+        if (isOpen && profile) {
+            // 从 user_profiles 表读取数据
+            setNickname(profile.nickname || '');
+            setCurrentAvatar(profile.avatar || '捷风.png');
             setIsAvatarPickerOpen(false);
 
             // 如果老用户没有 ID，生成一个待保存
-            if (!user.user_metadata?.custom_id) {
+            if (!profile.custom_id) {
                 setPendingId(generateId());
             } else {
                 setPendingId(null);
             }
         }
-    }, [isOpen, user]);
+    }, [isOpen, profile]);
 
     if (!isOpen) return null;
 
+    // 加载中状态
+    if (isProfileLoading) {
+        return (
+            <div className="fixed inset-0 z-[1400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                <div className="w-12 h-12 border-4 border-[#ff4655] border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     const handleSave = async () => {
-        if (!user) return;
+        if (!profile) return;
         setIsSubmitting(true);
 
         const updateData: any = {
@@ -155,7 +167,7 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
                             maxLength={8}
                         />
                         <div className="flex justify-between text-xs text-gray-600">
-                            <span>ID: {user?.user_metadata?.custom_id || pendingId || '未分配'}</span>
+                            <span>ID: {profile?.custom_id || pendingId || '未分配'}</span>
                             <span>{nickname.length}/8 (仅限大写英文字母与数字)</span>
                         </div>
                     </div>

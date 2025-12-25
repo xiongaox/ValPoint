@@ -1,18 +1,18 @@
 /**
  * 管理员权限服务
- * 用于检查和管理后台管理员权限
+ * 从 user_profiles.role 字段检查管理员权限
  */
 import { supabase } from '../supabaseClient';
 
 /** 管理员用户类型 */
 export interface AdminUser {
     id: string;
-    user_id: string;
-    email: string;
-    role: 'super_admin' | 'admin';
+    email: string | null;
     nickname: string | null;
+    role: 'user' | 'admin' | 'super_admin';
+    avatar: string | null;
+    custom_id: string | null;
     created_at: string;
-    created_by: string | null;
 }
 
 /** 权限检查结果 */
@@ -24,12 +24,13 @@ export interface AdminAccessResult {
 
 /**
  * 检查用户是否有管理员权限
+ * 从 user_profiles.role 字段读取
  */
 export async function checkAdminAccess(userId: string): Promise<AdminAccessResult> {
     const { data, error } = await supabase
-        .from('admin_users')
+        .from('user_profiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
     if (error || !data) {
@@ -40,9 +41,11 @@ export async function checkAdminAccess(userId: string): Promise<AdminAccessResul
         };
     }
 
+    const role = data.role as 'user' | 'admin' | 'super_admin';
+
     return {
-        isAdmin: true,
-        isSuperAdmin: data.role === 'super_admin',
+        isAdmin: role === 'admin' || role === 'super_admin',
+        isSuperAdmin: role === 'super_admin',
         adminInfo: data as AdminUser,
     };
 }
@@ -52,7 +55,7 @@ export async function checkAdminAccess(userId: string): Promise<AdminAccessResul
  */
 export async function checkAdminAccessByEmail(email: string): Promise<AdminAccessResult> {
     const { data, error } = await supabase
-        .from('admin_users')
+        .from('user_profiles')
         .select('*')
         .eq('email', email)
         .single();
@@ -65,20 +68,24 @@ export async function checkAdminAccessByEmail(email: string): Promise<AdminAcces
         };
     }
 
+    const role = data.role as 'user' | 'admin' | 'super_admin';
+
     return {
-        isAdmin: true,
-        isSuperAdmin: data.role === 'super_admin',
+        isAdmin: role === 'admin' || role === 'super_admin',
+        isSuperAdmin: role === 'super_admin',
         adminInfo: data as AdminUser,
     };
 }
 
 /**
  * 获取所有管理员列表
+ * 返回 role 为 admin 或 super_admin 的用户
  */
 export async function getAdminList(): Promise<AdminUser[]> {
     const { data, error } = await supabase
-        .from('admin_users')
+        .from('user_profiles')
         .select('*')
+        .in('role', ['admin', 'super_admin'])
         .order('created_at', { ascending: true });
 
     if (error) {
@@ -91,11 +98,11 @@ export async function getAdminList(): Promise<AdminUser[]> {
 
 /**
  * 添加管理员
- * 仅超级管理员可调用
+ * 仅超级管理员可调用，将 user_profiles.role 设置为 admin
  */
 export async function addAdmin(
     email: string,
-    nickname?: string
+    _nickname?: string
 ): Promise<{ success: boolean; error?: string }> {
     // 获取当前用户
     const { data: { user } } = await supabase.auth.getUser();
@@ -109,22 +116,21 @@ export async function addAdmin(
         return { success: false, error: '无权限' };
     }
 
-    // 检查邮箱是否已存在
+    // 检查目标用户是否存在
     const existingAccess = await checkAdminAccessByEmail(email);
-    if (existingAccess.isAdmin) {
-        return { success: false, error: '该邮箱已是管理员' };
+    if (!existingAccess.adminInfo) {
+        return { success: false, error: '用户不存在，请先让用户注册' };
     }
 
-    // 添加管理员
+    if (existingAccess.isAdmin) {
+        return { success: false, error: '该用户已是管理员' };
+    }
+
+    // 更新 role 为 admin
     const { error } = await supabase
-        .from('admin_users')
-        .insert({
-            user_id: crypto.randomUUID(), // 占位符，用户登录时会更新
-            email: email,
-            role: 'admin',
-            nickname: nickname || email.split('@')[0],
-            created_by: user.id,
-        });
+        .from('user_profiles')
+        .update({ role: 'admin' })
+        .eq('email', email);
 
     if (error) {
         console.error('添加管理员失败:', error);
@@ -136,7 +142,7 @@ export async function addAdmin(
 
 /**
  * 移除管理员
- * 仅超级管理员可调用，不能移除超级管理员
+ * 仅超级管理员可调用，将 user_profiles.role 设置回 user
  */
 export async function removeAdmin(
     adminId: string
@@ -153,12 +159,17 @@ export async function removeAdmin(
         return { success: false, error: '无权限' };
     }
 
-    // 删除管理员
+    // 检查目标用户是否是超级管理员（不能降级）
+    const targetAccess = await checkAdminAccess(adminId);
+    if (targetAccess.isSuperAdmin) {
+        return { success: false, error: '无法移除超级管理员' };
+    }
+
+    // 将 role 设置回 user
     const { error } = await supabase
-        .from('admin_users')
-        .delete()
-        .eq('id', adminId)
-        .neq('role', 'super_admin'); // 不能删除超级管理员
+        .from('user_profiles')
+        .update({ role: 'user' })
+        .eq('id', adminId);
 
     if (error) {
         console.error('移除管理员失败:', error);
@@ -169,21 +180,13 @@ export async function removeAdmin(
 }
 
 /**
- * 更新管理员的 user_id（用户首次登录时调用）
+ * 更新管理员的 user_id（已废弃，保留接口兼容性）
+ * @deprecated 新架构不再需要此函数
  */
 export async function updateAdminUserId(
-    email: string,
-    userId: string
+    _email: string,
+    _userId: string
 ): Promise<{ success: boolean }> {
-    const { error } = await supabase
-        .from('admin_users')
-        .update({ user_id: userId })
-        .eq('email', email);
-
-    if (error) {
-        console.error('更新管理员 user_id 失败:', error);
-        return { success: false };
-    }
-
+    // 在新架构中，user_profiles.id 直接关联 auth.users.id，无需单独更新
     return { success: true };
 }

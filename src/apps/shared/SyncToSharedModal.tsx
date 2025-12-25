@@ -1,14 +1,14 @@
 /**
  * 同步到共享库弹窗
- * 卡片式布局，显示英雄头像和地图封面
+ * 自动检测当前登录用户是否为管理员，无需手动验证
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '../../components/Icon';
 import { syncLineupsToShared, getSyncableCount, SyncScope, SyncResult } from '../../lib/syncService';
-import { supabase } from '../../supabaseClient';
 import { checkAdminAccessByEmail } from '../../lib/adminService';
 import { MAP_TRANSLATIONS } from '../../constants/maps';
+import { useEmailAuth } from '../../hooks/useEmailAuth';
 
 interface Props {
     isOpen: boolean;
@@ -35,10 +35,8 @@ const SyncToSharedModal: React.FC<Props> = ({
     verifiedAdminEmail,
     setVerifiedAdminEmail,
 }) => {
-    // 管理员验证表单
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isVerifying, setIsVerifying] = useState(false);
+    // 获取当前登录用户
+    const { user } = useEmailAuth();
 
     // 同步选项
     const [selectedScope, setSelectedScope] = useState<SyncScope | null>(null);
@@ -49,17 +47,41 @@ const SyncToSharedModal: React.FC<Props> = ({
     const [isSyncing, setIsSyncing] = useState(false);
     const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
     const [isLoadingCounts, setIsLoadingCounts] = useState(false);
+    const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
+    const [adminCheckFailed, setAdminCheckFailed] = useState(false);
 
     const isVerified = !!verifiedAdminEmail;
 
-    // 每次打开时重置选择状态
+    // 每次打开时重置选择状态，并自动检查管理员状态
     useEffect(() => {
         if (isOpen) {
             setSelectedScope(null);
-            setEmail('');
-            setPassword('');
+            setAdminCheckFailed(false);
+
+            // 如果已验证过，直接跳过
+            if (verifiedAdminEmail) return;
+
+            // 自动检测当前登录用户是否为管理员
+            if (user?.email) {
+                setIsCheckingAdmin(true);
+                checkAdminAccessByEmail(user.email)
+                    .then((result) => {
+                        if (result.isAdmin) {
+                            setVerifiedAdminEmail(user.email!);
+                        } else {
+                            setAdminCheckFailed(true);
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('检查管理员状态失败:', err);
+                        setAdminCheckFailed(true);
+                    })
+                    .finally(() => {
+                        setIsCheckingAdmin(false);
+                    });
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, user?.email, verifiedAdminEmail, setVerifiedAdminEmail]);
 
     // 获取待同步数量
     useEffect(() => {
@@ -86,40 +108,6 @@ const SyncToSharedModal: React.FC<Props> = ({
 
         fetchCounts();
     }, [isOpen, isVerified, personalUserId, currentMapName, currentAgentName]);
-
-    // 验证管理员身份
-    const handleVerify = useCallback(async () => {
-        if (!email || !password) {
-            setAlertMessage('请输入邮箱和密码');
-            return;
-        }
-
-        setIsVerifying(true);
-        try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                setAlertMessage('邮箱或密码错误');
-                setIsVerifying(false);
-                return;
-            }
-
-            const adminAccess = await checkAdminAccessByEmail(email);
-            await supabase.auth.signOut();
-
-            if (!adminAccess.isAdmin) {
-                setAlertMessage('该账号没有管理员权限');
-                setIsVerifying(false);
-                return;
-            }
-
-            setVerifiedAdminEmail(email);
-            setAlertMessage('验证成功！');
-        } catch {
-            setAlertMessage('验证失败，请稍后再试');
-        } finally {
-            setIsVerifying(false);
-        }
-    }, [email, password, setAlertMessage, setVerifiedAdminEmail]);
 
     // 执行同步
     const handleSync = useCallback(async () => {
@@ -156,12 +144,6 @@ const SyncToSharedModal: React.FC<Props> = ({
         }
     }, [selectedScope, personalUserId, currentMapName, currentAgentName, verifiedAdminEmail, setAlertMessage, onClose]);
 
-    const handleLogout = () => {
-        setVerifiedAdminEmail(null);
-        setEmail('');
-        setPassword('');
-    };
-
     const handleClose = () => {
         if (isSyncing) return;
         onClose();
@@ -174,18 +156,6 @@ const SyncToSharedModal: React.FC<Props> = ({
 
     const content = (
         <div className="fixed inset-0 z-[1500] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            {/* 覆盖浏览器默认的 autofill 样式 */}
-            <style>{`
-                input:-webkit-autofill,
-                input:-webkit-autofill:hover,
-                input:-webkit-autofill:focus,
-                input:-webkit-autofill:active {
-                    -webkit-box-shadow: 0 0 0 30px #0f1923 inset !important;
-                    -webkit-text-fill-color: white !important;
-                    caret-color: white !important;
-                    border-color: rgba(255, 255, 255, 0.08) !important;
-                }
-            `}</style>
             <div className="w-[400px] max-w-lg rounded-2xl border border-white/10 bg-[#181b1f]/95 shadow-2xl shadow-black/50 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#1c2028]">
@@ -196,7 +166,7 @@ const SyncToSharedModal: React.FC<Props> = ({
                         <div className="leading-tight">
                             <div className="text-xl font-bold text-white">同步到共享库</div>
                             <div className="text-xs text-gray-500">
-                                {!isVerified ? '请先验证管理员身份' : '选择要同步的范围'}
+                                {isCheckingAdmin ? '权限检测中...' : isVerified ? '选择要同步的范围' : '需要管理员权限'}
                             </div>
                         </div>
                     </div>
@@ -211,41 +181,23 @@ const SyncToSharedModal: React.FC<Props> = ({
 
                 {/* Body */}
                 <div className="p-5 bg-[#181b1f]">
-                    {!isVerified ? (
-                        // 管理员验证表单
-                        <div className="space-y-4">
-                            <div className="text-center py-2">
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                                    <Icon name="Shield" size={32} className="text-amber-400" />
-                                </div>
-                                <p className="text-white font-semibold mb-1">管理员身份验证</p>
-                                <p className="text-gray-400 text-sm">请使用管理员邮箱和密码登录</p>
+                    {isCheckingAdmin ? (
+                        // 检测中
+                        <div className="text-center py-8">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#ff4655]/10 border border-[#ff4655]/30 flex items-center justify-center">
+                                <Icon name="Loader" size={32} className="text-[#ff4655] animate-spin" />
                             </div>
-
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-2">管理员邮箱</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@example.com"
-                                    className="w-full px-4 py-3 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
-                                    disabled={isVerifying}
-                                />
+                            <p className="text-white font-semibold mb-2">正在检测权限</p>
+                            <p className="text-gray-400 text-sm">请稍候...</p>
+                        </div>
+                    ) : adminCheckFailed ? (
+                        // 无权限
+                        <div className="text-center py-8">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+                                <Icon name="ShieldX" size={32} className="text-red-400" />
                             </div>
-
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-2">密码</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="输入密码"
-                                    className="w-full px-4 py-3 bg-[#0f1923] border border-white/[0.08] rounded-lg text-white text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff4655]/50 focus:border-[#ff4655] transition-colors"
-                                    disabled={isVerifying}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-                                />
-                            </div>
+                            <p className="text-white font-semibold mb-2">无管理员权限</p>
+                            <p className="text-gray-400 text-sm">当前账号 ({user?.email}) 不是管理员</p>
                         </div>
                     ) : isSyncing ? (
                         // 同步中
@@ -266,18 +218,15 @@ const SyncToSharedModal: React.FC<Props> = ({
                                 </div>
                             )}
                         </div>
-                    ) : (
+                    ) : isVerified ? (
                         // 选择同步范围 - 卡片布局
                         <div className="space-y-4">
                             {/* 已验证提示 */}
                             <div className="flex items-center justify-between text-sm bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
                                 <div className="flex items-center gap-2 text-emerald-400">
                                     <Icon name="CheckCircle" size={16} />
-                                    <span>已验证：{verifiedAdminEmail}</span>
+                                    <span>管理员：{verifiedAdminEmail}</span>
                                 </div>
-                                <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-white">
-                                    切换账号
-                                </button>
                             </div>
 
                             {isLoadingCounts ? (
@@ -353,42 +302,22 @@ const SyncToSharedModal: React.FC<Props> = ({
                                 </div>
                             )}
                         </div>
-                    )}
+                    ) : null}
                 </div>
 
                 {/* Footer */}
                 {!isSyncing && (
                     <div className="px-5 py-4 border-t border-white/10 bg-[#1c2028] flex items-center justify-between">
                         <div className="text-xs text-gray-500">
-                            {!isVerified ? '仅管理员可使用此功能' : '图片 URL 直接复用，无需重传'}
+                            {isVerified ? '图片 URL 直接复用，无需重传' : '仅管理员可使用此功能'}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={handleClose}
                                 className="px-4 py-2 rounded-lg border border-white/15 text-sm text-gray-200 hover:border-white/40 hover:bg-white/5 transition-colors"
                             >
-                                取消
+                                {adminCheckFailed ? '关闭' : '取消'}
                             </button>
-
-                            {!isVerified && (
-                                <button
-                                    onClick={handleVerify}
-                                    disabled={isVerifying || !email || !password}
-                                    className="px-5 py-2 rounded-lg bg-[#ff4655] hover:bg-[#ff5a67] text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-md shadow-[#ff4655]/30 disabled:opacity-50"
-                                >
-                                    {isVerifying ? (
-                                        <>
-                                            <Icon name="Loader" size={16} className="animate-spin" />
-                                            验证中...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Icon name="Shield" size={16} />
-                                            验证身份
-                                        </>
-                                    )}
-                                </button>
-                            )}
 
                             {isVerified && selectedScope && (
                                 <button

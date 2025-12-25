@@ -13,6 +13,8 @@ const ViewerModal = ({
   isGuest,
   handleCopyShared = undefined,
   isSavingShared = false,
+  onSubmitLineup,  // 投稿回调
+  isAdmin = true,   // 是否管理员（默认true，不显示投稿按钮）
 }: any) => {
   const [authorInfo, setAuthorInfo] = useState<{ name: string; avatar: string; uid?: string } | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
@@ -113,6 +115,7 @@ const ViewerModal = ({
                   <Icon name="Play" size={14} /> 精准空降
                 </a>
               )}
+              {/* 编辑按钮 */}
               {!handleCopyShared && !isGuest && (
                 <button
                   type="button"
@@ -121,6 +124,17 @@ const ViewerModal = ({
                   title="编辑"
                 >
                   <Icon name="Pencil" size={14} /> 编辑
+                </button>
+              )}
+              {/* 投稿按钮 - 仅普通用户在个人库显示 */}
+              {!handleCopyShared && !isGuest && !isAdmin && onSubmitLineup && (
+                <button
+                  type="button"
+                  onClick={() => onSubmitLineup(viewingLineup.id)}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/10 text-sm text-purple-300 hover:border-purple-400 hover:text-purple-200 transition-colors"
+                  title="投稿此点位"
+                >
+                  <Icon name="Send" size={14} /> 投稿
                 </button>
               )}
               {handleCopyShared && (

@@ -226,6 +226,171 @@ export const submitLineup = async (
 };
 
 /**
+ * 从 URL 下载图片并转换为 Uint8Array
+ */
+const downloadImageAsBuffer = async (imageUrl: string): Promise<{ data: Uint8Array; ext: string } | null> => {
+    try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            console.warn(`下载图片失败: ${imageUrl}`, response.status);
+            return null;
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+
+        // 从 URL 或 Content-Type 推断扩展名
+        const contentType = response.headers.get('content-type') || '';
+        let ext = 'jpg';
+        if (contentType.includes('png')) ext = 'png';
+        else if (contentType.includes('webp')) ext = 'webp';
+        else if (contentType.includes('gif')) ext = 'gif';
+        else {
+            // 从 URL 提取扩展名
+            const urlExt = imageUrl.split('.').pop()?.split('?')[0]?.toLowerCase();
+            if (urlExt && ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(urlExt)) {
+                ext = urlExt === 'jpeg' ? 'jpg' : urlExt;
+            }
+        }
+
+        return { data, ext };
+    } catch (error) {
+        console.error(`下载图片异常: ${imageUrl}`, error);
+        return null;
+    }
+};
+
+/**
+ * 直接从本地点位数据投稿（图片会重新上传到 Supabase Storage）
+ */
+export const submitLineupDirectly = async (
+    lineup: {
+        id: string;
+        title: string;
+        mapName: string;
+        agentName: string;
+        agentIcon?: string | null;
+        skillIcon?: string | null;
+        side: 'attack' | 'defense';
+        abilityIndex?: number | null;
+        agentPos?: { lat: number; lng: number } | null;
+        skillPos?: { lat: number; lng: number } | null;
+        standImg?: string | null;
+        standDesc?: string | null;
+        stand2Img?: string | null;
+        stand2Desc?: string | null;
+        aimImg?: string | null;
+        aimDesc?: string | null;
+        aim2Img?: string | null;
+        aim2Desc?: string | null;
+        landImg?: string | null;
+        landDesc?: string | null;
+        sourceLink?: string | null;
+        authorName?: string | null;
+        authorAvatar?: string | null;
+        authorUid?: string | null;
+    },
+    userId: string,
+    userEmail: string | undefined,
+    onProgress?: (progress: SubmissionProgress) => void,
+): Promise<SubmissionResult> => {
+    try {
+        // 1. 检查投稿限制
+        const { allowed } = await checkDailySubmissionLimit(userId);
+        if (!allowed) {
+            return {
+                success: false,
+                errorMessage: `今日投稿次数已达上限，请明天再试`,
+            };
+        }
+
+        // 2. 收集需要上传的图片
+        const imageFields = [
+            { key: 'stand_img', url: lineup.standImg },
+            { key: 'stand2_img', url: lineup.stand2Img },
+            { key: 'aim_img', url: lineup.aimImg },
+            { key: 'aim2_img', url: lineup.aim2Img },
+            { key: 'land_img', url: lineup.landImg },
+        ].filter((f) => f.url);
+
+        const totalImages = imageFields.length;
+        onProgress?.({ status: 'uploading', uploadedCount: 0, totalImages });
+
+        // 3. 生成投稿 ID
+        const submissionId = crypto.randomUUID();
+
+        // 4. 下载并重新上传图片到 Supabase Storage
+        const imageUrls: Record<string, string> = {};
+        let uploadedCount = 0;
+
+        for (const field of imageFields) {
+            if (!field.url) continue;
+
+            const downloaded = await downloadImageAsBuffer(field.url);
+            if (downloaded) {
+                const fileName = `${field.key}.${downloaded.ext}`;
+                const newUrl = await uploadImageToStorage(downloaded.data, fileName, submissionId, userId);
+                imageUrls[field.key] = newUrl;
+            }
+            uploadedCount++;
+            onProgress?.({ status: 'uploading', uploadedCount, totalImages });
+        }
+
+        onProgress?.({ status: 'saving', uploadedCount, totalImages });
+
+        // 5. 保存投稿记录
+        const submissionData: Partial<LineupSubmission> = {
+            id: submissionId,
+            submitter_id: userId,
+            submitter_email: userEmail,
+            title: lineup.title || '未命名点位',
+            map_name: lineup.mapName,
+            agent_name: lineup.agentName,
+            agent_icon: lineup.agentIcon || undefined,
+            skill_icon: lineup.skillIcon || undefined,
+            side: lineup.side,
+            ability_index: lineup.abilityIndex || undefined,
+            agent_pos: lineup.agentPos || undefined,
+            skill_pos: lineup.skillPos || undefined,
+            stand_img: imageUrls.stand_img,
+            stand_desc: lineup.standDesc || undefined,
+            stand2_img: imageUrls.stand2_img,
+            stand2_desc: lineup.stand2Desc || undefined,
+            aim_img: imageUrls.aim_img,
+            aim_desc: lineup.aimDesc || undefined,
+            aim2_img: imageUrls.aim2_img,
+            aim2_desc: lineup.aim2Desc || undefined,
+            land_img: imageUrls.land_img,
+            land_desc: lineup.landDesc || undefined,
+            source_link: lineup.sourceLink || undefined,
+            author_name: lineup.authorName || undefined,
+            author_avatar: lineup.authorAvatar || undefined,
+            author_uid: lineup.authorUid || undefined,
+            status: 'pending',
+        };
+
+        const { error } = await supabase.from('lineup_submissions').insert(submissionData);
+
+        if (error) {
+            throw new Error(`保存投稿失败: ${error.message}`);
+        }
+
+        onProgress?.({ status: 'done', uploadedCount, totalImages });
+
+        return {
+            success: true,
+            submissionId,
+        };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : '投稿失败';
+        onProgress?.({ status: 'error', uploadedCount: 0, totalImages: 0, errorMessage: message });
+        return {
+            success: false,
+            errorMessage: message,
+        };
+    }
+};
+
+/**
  * 获取用户的投稿列表
  */
 export const getUserSubmissions = async (userId: string): Promise<LineupSubmission[]> => {

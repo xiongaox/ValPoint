@@ -12,6 +12,7 @@
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import Icon from '../../../components/Icon';
+import Select from '../../../components/Select';
 import { getSharedLineups, deleteSharedLineup, SharedLineup } from '../../../lib/reviewService';
 import { MAP_TRANSLATIONS } from '../../../constants/maps';
 
@@ -134,7 +135,7 @@ const SharedManagePage: React.FC = () => {
             </div>
 
             {/* 筛选区 */}
-            <div className="bg-[#1f2326] rounded-xl border border-white/5 overflow-hidden">
+            <div className="bg-[#1f2326] rounded-xl border border-white/5">
                 {/* 顶部搜索和刷新 */}
                 <div className="p-4 border-b border-white/5">
                     <div className="flex items-center gap-3">
@@ -161,44 +162,22 @@ const SharedManagePage: React.FC = () => {
                 {/* 筛选条件区 */}
                 <div className="p-4 flex items-center gap-4">
                     {/* 特工筛选 */}
-                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all ${filterAgent
-                        ? 'bg-[#ff4655]/10 border border-[#ff4655]/30'
-                        : 'bg-[#0f1923] border border-white/10 hover:border-white/20'
-                        }`}>
-                        <Icon name="User" size={16} className={filterAgent ? 'text-[#ff4655]' : 'text-gray-500'} />
-                        <select
-                            value={filterAgent}
-                            onChange={(e) => setFilterAgent(e.target.value)}
-                            className="bg-transparent text-sm focus:outline-none cursor-pointer appearance-none pr-6"
-                            style={{ color: filterAgent ? 'white' : '#9ca3af' }}
-                        >
-                            <option value="">全部特工</option>
-                            {agentList.map((agent) => (
-                                <option key={agent} value={agent}>{agent}</option>
-                            ))}
-                        </select>
-                        <Icon name="ChevronDown" size={14} className="text-gray-500 -ml-5" />
-                    </div>
+                    <Select
+                        value={filterAgent}
+                        onChange={setFilterAgent}
+                        options={agentList.map(agent => ({ label: agent, value: agent }))}
+                        placeholder="全部特工"
+                        icon="User"
+                    />
 
                     {/* 地图筛选 */}
-                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all ${filterMap
-                        ? 'bg-[#ff4655]/10 border border-[#ff4655]/30'
-                        : 'bg-[#0f1923] border border-white/10 hover:border-white/20'
-                        }`}>
-                        <Icon name="Map" size={16} className={filterMap ? 'text-[#ff4655]' : 'text-gray-500'} />
-                        <select
-                            value={filterMap}
-                            onChange={(e) => setFilterMap(e.target.value)}
-                            className="bg-transparent text-sm focus:outline-none cursor-pointer appearance-none pr-6"
-                            style={{ color: filterMap ? 'white' : '#9ca3af' }}
-                        >
-                            <option value="">全部地图</option>
-                            {mapList.map((map) => (
-                                <option key={map} value={map}>{MAP_TRANSLATIONS[map] || map}</option>
-                            ))}
-                        </select>
-                        <Icon name="ChevronDown" size={14} className="text-gray-500 -ml-5" />
-                    </div>
+                    <Select
+                        value={filterMap}
+                        onChange={setFilterMap}
+                        options={mapList.map(map => ({ label: MAP_TRANSLATIONS[map] || map, value: map }))}
+                        placeholder="全部地图"
+                        icon="Map"
+                    />
 
                     {/* 分隔线 */}
                     <div className="w-px h-6 bg-white/10" />

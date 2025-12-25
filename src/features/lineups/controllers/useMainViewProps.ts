@@ -35,6 +35,7 @@ type Params = {
   onToggleActions: () => void;
   onImageBedConfig: () => void;
   onAdvancedSettings: () => void;
+  onPngSettings: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
   onSyncToShared?: () => void;
@@ -64,6 +65,7 @@ type Params = {
   user: User | null;
   onSignOut: () => void;
   onOpenProfile: () => void;
+  canBatchDownload?: boolean;
 };
 
 export function buildMainViewProps(params: Params): React.ComponentProps<typeof MainView> {
@@ -112,6 +114,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       onToggle: params.onToggleActions,
       onImageBedConfig: params.onImageBedConfig,
       onAdvancedSettings: params.onAdvancedSettings,
+      onPngSettings: params.onPngSettings,
       onChangePassword: params.onChangePassword,
       onClearLineups: params.onClearLineups,
       onSyncToShared: params.onSyncToShared,
@@ -120,6 +123,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       onProfile: params.onOpenProfile,
       isAdmin: params.isAdmin,
       pendingTransfers: params.pendingTransfers,
+      canBatchDownload: params.canBatchDownload,
     },
     right: {
       activeTab: params.activeTab,

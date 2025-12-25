@@ -15,6 +15,8 @@ import ClearLineupsModal from '../../components/ClearLineupsModal';
 
 import ImageBedConfigModal from '../../components/ImageBedConfigModal';
 import AdvancedSettingsDrawer from '../../components/AdvancedSettingsDrawer';
+import ChangePasswordModal from '../../components/ChangePasswordModal';
+import ImageProcessingModal from '../../components/ImageProcessingModal';
 import EditorModal from '../../components/EditorModal';
 import ViewerModal from '../../components/ViewerModal';
 import Lightbox from '../../components/Lightbox';
@@ -80,9 +82,12 @@ type Props = {
   imageBedConfig: ImageBedConfig;
   onImageConfigClose: () => void;
   onImageConfigSave: (cfg: ImageBedConfig) => void;
-  isImageProcessingOpen: boolean;
+  // advanced settings & image processing
+  isAdvancedSettingsOpen: boolean;
+  onAdvancedSettingsClose: () => void;
+  isPngSettingsOpen: boolean;
+  onPngSettingsClose: () => void;
   imageProcessingSettings: ImageProcessingSettings;
-  onImageProcessingClose: () => void;
   onImageProcessingSave: (cfg: ImageProcessingSettings) => void;
   // editor/viewer
   isEditorOpen: boolean;
@@ -160,17 +165,19 @@ const AppModals: React.FC<Props> = ({
   onClearConfirm,
   onClearAgentConfirm,
   onClearModalClose,
-  isChangePasswordOpen: _isChangePasswordOpen,
+  isChangePasswordOpen,
   isChangingPassword,
   onChangePasswordSubmit,
-  setIsChangePasswordOpen: _setIsChangePasswordOpen,
+  setIsChangePasswordOpen,
   isImageConfigOpen,
   imageBedConfig,
   onImageConfigClose,
   onImageConfigSave,
-  isImageProcessingOpen,
+  isAdvancedSettingsOpen,
+  onAdvancedSettingsClose,
+  isPngSettingsOpen,
+  onPngSettingsClose,
   imageProcessingSettings,
-  onImageProcessingClose,
   onImageProcessingSave,
   isEditorOpen,
   editingLineupId,
@@ -231,6 +238,13 @@ const AppModals: React.FC<Props> = ({
         onLoginConfirm={onLoginConfirm}
       />
 
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        isChangingPassword={isChangingPassword}
+        onChangePasswordSubmit={onChangePasswordSubmit}
+      />
+
       <MapPickerModal
         isOpen={isMapModalOpen}
         maps={maps}
@@ -268,14 +282,20 @@ const AppModals: React.FC<Props> = ({
       />
 
       <ImageBedConfigModal isOpen={isImageConfigOpen} config={imageBedConfig} onClose={onImageConfigClose} onSave={onImageConfigSave} />
+
       <AdvancedSettingsDrawer
-        isOpen={isImageProcessingOpen}
+        isOpen={isAdvancedSettingsOpen}
         settings={imageProcessingSettings}
-        onClose={onImageProcessingClose}
+        onClose={onAdvancedSettingsClose}
         onSave={onImageProcessingSave}
         userId={userId}
-        isChangingPassword={isChangingPassword}
-        onChangePasswordSubmit={onChangePasswordSubmit}
+      />
+
+      <ImageProcessingModal
+        isOpen={isPngSettingsOpen}
+        settings={imageProcessingSettings}
+        onClose={onPngSettingsClose}
+        onSave={onImageProcessingSave}
       />
 
       <EditorModal

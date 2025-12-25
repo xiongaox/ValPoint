@@ -17,6 +17,8 @@ export interface SystemSettings {
     official_oss_config: ImageBedConfig | null;
     submission_enabled: boolean;
     daily_submission_limit: number;
+    // 下载限制
+    daily_download_limit: number;
     // 时间戳
     created_at: string;
     updated_at: string;
@@ -68,6 +70,7 @@ export async function updateSystemSettings(
         | 'official_oss_config'
         | 'submission_enabled'
         | 'daily_submission_limit'
+        | 'daily_download_limit'
     >>
 ): Promise<{ success: boolean; error?: string }> {
     const { error } = await supabase

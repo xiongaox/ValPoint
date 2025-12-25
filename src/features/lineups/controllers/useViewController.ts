@@ -16,7 +16,7 @@ type Params = {
   setNewLineupData: React.Dispatch<React.SetStateAction<NewLineupForm>>;
   setSelectedSide: React.Dispatch<React.SetStateAction<'all' | 'attack' | 'defense'>>;
   setSelectedAbilityIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  setSelectedAgent: React.Dispatch<React.SetStateAction<AgentOption | null>>;
+  setSelectedAgent: React.Dispatch<React.SetStateAction<AgentOption | null>> | ((agent: AgentOption | null) => void);
   fetchLineups: (userId: string | null) => Promise<void>;
   userId: string | null;
   setAlertMessage: (msg: string | null) => void;

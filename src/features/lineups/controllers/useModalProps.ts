@@ -62,11 +62,14 @@ type Params = {
   imageBedConfig: ImageBedConfig;
   onImageConfigSave: (cfg: ImageBedConfig) => void;
   setIsImageConfigOpen: (v: boolean) => void;
-  // image processing
-  isImageProcessingOpen: boolean;
+  // advanced settings
+  isAdvancedSettingsOpen: boolean;
   imageProcessingSettings: ImageProcessingSettings;
   onImageProcessingSave: (cfg: ImageProcessingSettings) => void;
-  setIsImageProcessingOpen: (v: boolean) => void;
+  setIsAdvancedSettingsOpen: (v: boolean) => void;
+  // png settings
+  isPngSettingsOpen: boolean;
+  setIsPngSettingsOpen: (v: boolean) => void;
   // editor/viewer
   isEditorOpen: boolean;
   editingLineupId: string | null;
@@ -165,9 +168,11 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     imageBedConfig: params.imageBedConfig,
     onImageConfigClose: () => params.setIsImageConfigOpen(false),
     onImageConfigSave: params.onImageConfigSave,
-    isImageProcessingOpen: params.isImageProcessingOpen,
+    isAdvancedSettingsOpen: params.isAdvancedSettingsOpen,
     imageProcessingSettings: params.imageProcessingSettings,
-    onImageProcessingClose: () => params.setIsImageProcessingOpen(false),
+    onAdvancedSettingsClose: () => params.setIsAdvancedSettingsOpen(false),
+    isPngSettingsOpen: params.isPngSettingsOpen,
+    onPngSettingsClose: () => params.setIsPngSettingsOpen(false),
     onImageProcessingSave: params.onImageProcessingSave,
     isEditorOpen: params.isEditorOpen,
     editingLineupId: params.editingLineupId,

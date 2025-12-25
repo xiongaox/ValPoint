@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     is_banned BOOLEAN DEFAULT false,
     ban_reason TEXT,
     download_count BIGINT DEFAULT 0,
+    can_batch_download BOOLEAN DEFAULT false, -- 是否允许批量下载
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -172,6 +173,7 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
     official_oss_config JSONB DEFAULT NULL,       -- 官方图床配置
     submission_enabled BOOLEAN DEFAULT false,      -- 是否开启投稿
     daily_submission_limit INTEGER DEFAULT 10,     -- 每日投稿限制
+    daily_download_limit INTEGER DEFAULT 50,       -- 每日下载限制
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -196,11 +198,20 @@ ALTER TABLE public.valorant_lineups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.valorant_shared ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lineup_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_daily_downloads ENABLE ROW LEVEL SECURITY;
 
 -- (1) 用户中心策略
 CREATE POLICY "用户可查看任何人但仅修改本人 Profile" ON public.user_profiles
     FOR ALL USING (auth.role() = 'authenticated')
+    FOR ALL USING (auth.role() = 'authenticated')
     WITH CHECK (auth.uid() = id);
+
+-- (1.5) 管理员可更新所有 Profile (用于授权批量下载等)
+CREATE POLICY "Admins can update all profiles" ON public.user_profiles
+    FOR UPDATE
+    TO authenticated
+    USING ((select role from public.user_profiles where id = auth.uid()) in ('admin', 'super_admin'))
+    WITH CHECK ((select role from public.user_profiles where id = auth.uid()) in ('admin', 'super_admin'));
 
 -- (2) 个人点位库策略：仅限本人增删改查
 CREATE POLICY "个人点位仅限本人操作" ON public.valorant_lineups
@@ -227,6 +238,12 @@ CREATE POLICY "系统配置全员可读" ON public.system_settings FOR SELECT TO
 CREATE POLICY "仅管理员可修改系统配置" ON public.system_settings
     FOR UPDATE TO authenticated
     USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin')));
+
+-- (6) 下载限制记录策略
+CREATE POLICY "用户可查看和更新自己的下载记录" ON public.user_daily_downloads
+    FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
 
 -- 7. 索引优化 (提高查询效率)
 CREATE INDEX IF NOT EXISTS idx_lineups_user_id ON public.valorant_lineups(user_id);

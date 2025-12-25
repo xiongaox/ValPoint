@@ -32,7 +32,7 @@ type EditorParams = {
   setSelectedLineupId: React.Dispatch<React.SetStateAction<string | null>>;
   setViewingLineup: React.Dispatch<React.SetStateAction<BaseLineup | null>>;
   setSelectedMap: React.Dispatch<React.SetStateAction<{ displayName: string; displayIcon?: string | null } | null>>;
-  setSelectedAgent: React.Dispatch<React.SetStateAction<AgentOption | null>>;
+  setSelectedAgent: React.Dispatch<React.SetStateAction<AgentOption | null>> | ((agent: AgentOption | null) => void);
   maps: { displayName: string; displayIcon?: string | null }[];
   agents: AgentOption[];
   getMapDisplayName: (name: string) => string;

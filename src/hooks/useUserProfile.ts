@@ -20,6 +20,7 @@ export interface UserProfile {
     is_banned: boolean;
     ban_reason: string | null;
     download_count: number;
+    can_batch_download?: boolean; // 是否允许批量下载
     created_at: string;
     updated_at: string;
 }

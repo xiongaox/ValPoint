@@ -11,7 +11,7 @@ import Icon from '../../../components/Icon';
 import { updateAvatarCache } from '../../../components/UserAvatar';
 import { useUserProfile } from '../../../hooks/useUserProfile';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
-import { AGENT_AVATARS, getAvatarByUserId } from '../../../utils/avatarUtils';
+import { AGENT_AVATARS, getAvatarByUserId, getAvatarByEmail } from '../../../utils/avatarUtils';
 
 type Props = {
     isOpen: boolean;
@@ -23,8 +23,8 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
     const { user } = useEmailAuth();
     const { profile, updateProfile, isLoading: isProfileLoading } = useUserProfile();
     const [nickname, setNickname] = useState('');
-    // 使用用户 ID 生成确定性随机默认头像
-    const defaultAvatar = user?.id ? getAvatarByUserId(user.id) : '捷风.png';
+    // 使用用户邮箱生成确定性随机默认头像，以保持与 UserAvatar 一致
+    const defaultAvatar = user?.email ? getAvatarByEmail(user.email) : '捷风.png';
     const [currentAvatar, setCurrentAvatar] = useState(defaultAvatar);
     const [pendingId, setPendingId] = useState<string | null>(null); // 用于补填的 ID
     const [isSubmitting, setIsSubmitting] = useState(false);

@@ -47,23 +47,60 @@ function UsersPage() {
             const from = (currentPage - 1) * PAGE_SIZE;
             const to = from + PAGE_SIZE - 1;
 
-            // 构建查询
-            let query = supabase
+            // 1. 如果是第一页，且不是在纯排序模式（如下载量排序时可能不强制置顶？用户要求"永久置顶"，所以始终执行）
+            // 获取管理员 (Pinned)
+            let adminUsers: UserProfile[] = [];
+            if (currentPage === 1) {
+                let adminQuery = supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .in('role', ['admin', 'super_admin']);
+
+                // 应用相同的搜索条件
+                if (searchQuery.trim()) {
+                    adminQuery = adminQuery.or(`email.ilike.%${searchQuery}%,nickname.ilike.%${searchQuery}%,custom_id.ilike.%${searchQuery}%`);
+                }
+
+                const { data: admins } = await adminQuery;
+
+                if (admins) {
+                    //在此处手动排序：Super Admin > Admin
+                    // 并且在同一等级内按注册时间排序
+                    adminUsers = (admins as UserProfile[]).sort((a, b) => {
+                        // 优先级值：Super Admin = 2, Admin = 1
+                        const getPriority = (role: string) => {
+                            if (role === 'super_admin') return 2;
+                            if (role === 'admin') return 1;
+                            return 0;
+                        };
+                        const pA = getPriority(a.role);
+                        const pB = getPriority(b.role);
+                        if (pA !== pB) return pB - pA; // 降序：高优先级在前
+
+                        // 同级按时间倒序
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    });
+                }
+            }
+
+            // 2. 获取普通用户 (Paginated)
+            let userQuery = supabase
                 .from('user_profiles')
-                .select('*', { count: 'exact' });
+                .select('*', { count: 'exact' })
+                .not('role', 'in', '("admin","super_admin")'); // 排除管理员
 
             // 搜索过滤
             if (searchQuery.trim()) {
-                query = query.or(`email.ilike.%${searchQuery}%,nickname.ilike.%${searchQuery}%,custom_id.ilike.%${searchQuery}%`);
+                userQuery = userQuery.or(`email.ilike.%${searchQuery}%,nickname.ilike.%${searchQuery}%,custom_id.ilike.%${searchQuery}%`);
             }
 
             // 排序
-            query = query.order(sortField, { ascending: sortOrder === 'asc' });
+            userQuery = userQuery.order(sortField, { ascending: sortOrder === 'asc' });
 
             // 分页
-            query = query.range(from, to);
+            userQuery = userQuery.range(from, to);
 
-            const { data, error, count } = await query;
+            const { data: normalUsers, error, count } = await userQuery;
 
             if (error) {
                 console.error('加载用户列表失败:', error);
@@ -71,8 +108,13 @@ function UsersPage() {
                 return;
             }
 
-            setUsers(data || []);
-            setTotalCount(count || 0);
+            // 合并结果：第一页显示 [Admins, Users]，其他页显示 [Users]
+            const finalUsers = currentPage === 1 ? [...adminUsers, ...(normalUsers || [])] : (normalUsers || []);
+
+            console.log('[UsersPage] Loaded users:', finalUsers.map(u => ({ id: u.id, email: u.email, can_batch: u.can_batch_download })));
+
+            setUsers(finalUsers as UserProfile[]);
+            setTotalCount(count || 0); // 分页总数仅基于普通用户
         } catch (err) {
             console.error('加载用户列表异常:', err);
             setAlertMessage('加载用户列表失败');
@@ -130,10 +172,14 @@ function UsersPage() {
                     nickname: data.nickname,
                     avatar: data.avatar,
                     is_banned: data.is_banned,
+                    can_batch_download: data.can_batch_download,
                     ban_reason: data.ban_reason,
                     updated_at: new Date().toISOString(),
                 })
-                .eq('id', userId);
+                .eq('id', userId)
+                .select(); // Add select() to return the updated record
+
+            console.log('[UsersPage] Update response:', { error, userId, data: { can_batch_download: data.can_batch_download } });
 
             if (error) {
                 setAlertMessage('保存失败: ' + error.message);
@@ -203,6 +249,26 @@ function UsersPage() {
 
     // 计算分页信息
     const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+    const getRoleBadge = (role: string) => {
+        if (role === 'super_admin') {
+            return (
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/30 text-[10px] text-yellow-500 font-bold uppercase tracking-wider">
+                    <Icon name="Crown" size={12} />
+                    Super
+                </div>
+            );
+        }
+        if (role === 'admin') {
+            return (
+                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-[10px] text-blue-400 font-bold uppercase tracking-wider">
+                    <Icon name="Shield" size={12} />
+                    Admin
+                </div>
+            );
+        }
+        return null;
+    };
 
     return (
         <div className="space-y-6">
@@ -302,10 +368,13 @@ function UsersPage() {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <UserAvatar email={user.email} size={40} className="rounded-lg" />
-                                            <div className="flex flex-col">
-                                                <span className="text-sm text-white">
-                                                    {user.nickname || user.email.split('@')[0]}
-                                                </span>
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm text-white font-medium">
+                                                        {user.nickname || user.email.split('@')[0]}
+                                                    </span>
+                                                    {getRoleBadge(user.role)}
+                                                </div>
                                                 <span className="text-xs text-gray-500">{user.email}</span>
                                             </div>
                                         </div>
@@ -314,6 +383,12 @@ function UsersPage() {
                                         <span className="text-sm font-mono text-gray-300">
                                             {user.custom_id || '-'}
                                         </span>
+                                        {user.can_batch_download && (
+                                            <div className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#ff4655]/20 text-[#ff4655] text-[10px] font-medium border border-[#ff4655]/30" title="允许批量下载">
+                                                <Icon name="Download" size={10} />
+                                                批量
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-400">
                                         {new Date(user.created_at).toLocaleDateString('zh-CN')}

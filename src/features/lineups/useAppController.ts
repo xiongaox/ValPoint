@@ -46,6 +46,7 @@ import { buildMainViewProps } from './controllers/useMainViewProps';
 import { buildModalProps } from './controllers/useModalProps';
 import { buildUiProps } from './controllers/useUiProps';
 import { useAppState } from './controllers/useAppState';
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 /** 置顶点位数量上限 */
 const DEFAULT_PINNED_COUNT = 8;
@@ -82,6 +83,16 @@ export function useAppController() {
   const { user, signOut } = useEmailAuth();
   // 将 Supabase UUID 作为用户 ID
   const userId = user?.id || null;
+  const { profile, loading: profileLoading } = useUserProfile();
+
+  // Debug log for profile permissions
+  if (profile) {
+    console.log('[AppController] Current Profile:', {
+      role: profile.role,
+      can_batch: profile.can_batch_download
+    });
+  }
+
   // 个人信息弹窗状态
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   // 统一使用登录模式，不再支持游客模式
@@ -122,15 +133,22 @@ export function useAppController() {
     searchQuery,
   });
 
-  // 切换地图时自动选择默认特工（第一个）
+  // 切换特工时重置筛选
+  const handleSelectAgent = useCallback((agent: AgentOption | null) => {
+    setSelectedAgent(agent);
+    setSelectedSide('all');
+  }, [setSelectedAgent, setSelectedSide]);
+
+  // 切换地图时自动选择默认特工（第一个）并重置筛选
   const handleSelectMap = useCallback((map: MapOption | null) => {
     setSelectedMap(map);
+    setSelectedSide('all');
     if (map && agents.length > 0) {
       setSelectedAgent(agents[0]);
     } else {
       setSelectedAgent(null);
     }
-  }, [agents, setSelectedMap, setSelectedAgent]);
+  }, [agents, setSelectedMap, setSelectedAgent, setSelectedSide]);
 
   useAppLifecycle({
     userId,
@@ -161,7 +179,7 @@ export function useAppController() {
     setNewLineupData,
     setSelectedSide,
     setSelectedAbilityIndex,
-    setSelectedAgent,
+    setSelectedAgent: handleSelectAgent, // Use the wrapper here too if needed, but view controller typically handles tabs
     fetchLineups,
     userId,
     setAlertMessage: modal.setAlertMessage,
@@ -187,7 +205,7 @@ export function useAppController() {
     setSelectedLineupId,
     setViewingLineup,
     setSelectedMap,
-    setSelectedAgent,
+    setSelectedAgent: handleSelectAgent,
     maps,
     agents,
     getMapDisplayName,
@@ -222,18 +240,21 @@ export function useAppController() {
     isImageConfigOpen,
     setIsImageConfigOpen,
     imageBedConfig,
-    isImageProcessingOpen,
-    setIsImageProcessingOpen,
+    isAdvancedSettingsOpen,
+    setIsAdvancedSettingsOpen,
+    isPngSettingsOpen,
+    setIsPngSettingsOpen,
     imageProcessingSettings,
     handleImageBedConfig,
     handleOpenAdvancedSettings,
+    handleOpenPngSettings,
     handleChangePassword,
     handleQuickClear,
     handleImageConfigSave,
     handleImageProcessingSave,
   } = useActionMenu({
     userId,
-    setAlertMessage: (msg) => modal.setAlertMessage(msg),
+    setAlertMessage: (msg: string) => modal.setAlertMessage(msg),
     setIsAuthModalOpen,
     setPendingUserId,
     setCustomUserIdInput,
@@ -301,8 +322,6 @@ export function useAppController() {
     setPlacingType((prev) => (prev === type ? null : type));
   };
 
-
-
   const mainViewProps = buildMainViewProps({
     activeTab,
     selectedMap,
@@ -310,7 +329,7 @@ export function useAppController() {
     selectedSide,
     setSelectedSide,
     selectedAgent,
-    setSelectedAgent,
+    setSelectedAgent: handleSelectAgent,
     agents,
     agentCounts,
     selectedAbilityIndex,
@@ -338,6 +357,7 @@ export function useAppController() {
     onToggleActions: () => setIsActionMenuOpen((v) => !v),
     onImageBedConfig: handleImageBedConfig,
     onAdvancedSettings: handleOpenAdvancedSettings,
+    onPngSettings: handleOpenPngSettings,
     onChangePassword: handleChangePassword,
     onClearLineups: handleQuickClear,
     pendingTransfers,
@@ -367,6 +387,7 @@ export function useAppController() {
     user,
     onSignOut: signOut,
     onOpenProfile: () => setIsProfileModalOpen(true),
+    canBatchDownload: profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.can_batch_download,
   });
 
   const modalProps = buildModalProps({
@@ -416,10 +437,12 @@ export function useAppController() {
     imageBedConfig,
     onImageConfigSave: handleImageConfigSave,
     setIsImageConfigOpen,
-    isImageProcessingOpen,
+    isAdvancedSettingsOpen,
+    setIsAdvancedSettingsOpen,
+    isPngSettingsOpen,
+    setIsPngSettingsOpen,
     imageProcessingSettings,
     onImageProcessingSave: handleImageProcessingSave,
-    setIsImageProcessingOpen,
     isEditorOpen: modal.isEditorOpen,
     editingLineupId,
     newLineupData,

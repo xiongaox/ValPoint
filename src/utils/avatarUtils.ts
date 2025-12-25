@@ -42,5 +42,5 @@ export const getAvatarByUserId = (userId: string): string => {
  * 根据用户邮箱生成确定性随机头像（同一邮箱始终返回相同头像）
  */
 export const getAvatarByEmail = (email: string): string => {
-    return getAvatarByUserId(email); // 复用同一哈希逻辑
+    return getAvatarByUserId((email || '').toLowerCase()); // 复用同一哈希逻辑，确保大小写不敏感
 };

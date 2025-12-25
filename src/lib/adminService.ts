@@ -182,3 +182,44 @@ export async function removeAdmin(
 
     return { success: true };
 }
+
+/**
+ * 更新用户权限
+ * 仅超级管理员或管理员可调用
+ */
+export async function updateUserPermission(
+    userId: string,
+    permission: { canBatchDownload?: boolean }
+): Promise<{ success: boolean; error?: string }> {
+    // 1. 检查调用者权限
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: '未登录' };
+
+    const callerAccess = await checkAdminAccess(user.id);
+    if (!callerAccess.isAdmin) {
+        return { success: false, error: '无权限' };
+    }
+
+    // 2. 准备更新数据
+    const updates: any = {};
+    if (permission.canBatchDownload !== undefined) {
+        updates.can_batch_download = permission.canBatchDownload;
+    }
+
+    if (Object.keys(updates).length === 0) {
+        return { success: true };
+    }
+
+    // 3. 执行更新
+    const { error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('id', userId);
+
+    if (error) {
+        console.error('更新用户权限失败:', error);
+        return { success: false, error: error.message };
+    }
+
+    return { success: true };
+}

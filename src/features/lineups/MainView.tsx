@@ -57,6 +57,7 @@ type QuickActionsProps = {
   onToggle: () => void;
   onImageBedConfig: () => void;
   onAdvancedSettings: () => void;
+  onPngSettings?: () => void;
   onChangePassword: () => void;
   onClearLineups: () => void;
   onSyncToShared?: () => void;
@@ -65,6 +66,7 @@ type QuickActionsProps = {
   onProfile?: () => void;
   isAdmin?: boolean;
   pendingTransfers: number;
+  canBatchDownload?: boolean;
 };
 
 type RightProps = {
@@ -149,6 +151,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           onToggle={quickActions.onToggle}
           onImageBedConfig={quickActions.onImageBedConfig}
           onAdvancedSettings={quickActions.onAdvancedSettings}
+          onPngSettings={quickActions.onPngSettings}
           onChangePassword={quickActions.onChangePassword}
           onClearLineups={quickActions.onClearLineups}
           onSyncToShared={quickActions.onSyncToShared}
@@ -157,6 +160,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           onProfile={quickActions.onProfile}
           isAdmin={quickActions.isAdmin}
           pendingTransfers={quickActions.pendingTransfers}
+          canBatchDownload={quickActions.canBatchDownload}
         />
         {/* 左上角：库切换 + 用户卡片 */}
         <div className="absolute top-3 left-3 z-10 flex items-center gap-3">

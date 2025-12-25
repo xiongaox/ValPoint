@@ -87,6 +87,10 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
                 }
                 setSubmissionEnabled(data.submission_enabled ?? false);
                 setDailySubmissionLimit(data.daily_submission_limit ?? 10);
+                setSettings(prev => ({
+                    ...prev,
+                    dailyDownloadLimit: data.daily_download_limit ?? 50
+                }));
             }
             setIsLoading(false);
         }
@@ -138,6 +142,7 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
             official_oss_config: ossConfig,
             submission_enabled: submissionEnabled,
             daily_submission_limit: dailySubmissionLimit,
+            daily_download_limit: settings.dailyDownloadLimit,
         });
 
         if (result.success) {

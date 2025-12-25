@@ -21,8 +21,10 @@ export interface UserProfile {
     is_banned: boolean;
     ban_reason: string | null;
     download_count: number;
+    can_batch_download?: boolean;
     created_at: string;
     updated_at: string;
+    role: 'user' | 'admin' | 'super_admin';
 }
 
 interface UserEditModalProps {
@@ -40,6 +42,7 @@ function UserEditModal({ isOpen, user, onClose, onSave, isSubmitting }: UserEdit
     const [nickname, setNickname] = useState('');
     const [avatar, setAvatar] = useState('');
     const [isBanned, setIsBanned] = useState(false);
+    const [canBatchDownload, setCanBatchDownload] = useState(false);
     const [banReason, setBanReason] = useState('');
     const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
 
@@ -50,6 +53,7 @@ function UserEditModal({ isOpen, user, onClose, onSave, isSubmitting }: UserEdit
             // 使用用户邮箱生成确定性随机默认头像
             setAvatar(user.avatar || getAvatarByEmail(user.email));
             setIsBanned(user.is_banned);
+            setCanBatchDownload(user.can_batch_download || false);
             setBanReason(user.ban_reason || '');
             setIsAvatarPickerOpen(false);
         }
@@ -63,6 +67,7 @@ function UserEditModal({ isOpen, user, onClose, onSave, isSubmitting }: UserEdit
             nickname,
             avatar,
             is_banned: isBanned,
+            can_batch_download: canBatchDownload,
             ban_reason: isBanned ? banReason : null,
         });
         // 更新头像缓存，确保所有组件立即显示新头像
@@ -152,11 +157,24 @@ function UserEditModal({ isOpen, user, onClose, onSave, isSubmitting }: UserEdit
                     </div>
 
                     {/* 账户状态文案 */}
+                    {/* 账户状态文案 */}
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-400">账户状态</span>
                         <span className={isBanned ? 'text-red-400 font-medium' : 'text-emerald-400 font-medium'}>
                             {isBanned ? '已禁用' : '正常'}
                         </span>
+                    </div>
+
+                    {/* 批量下载权限 */}
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">批量下载</span>
+                        <button
+                            type="button"
+                            onClick={() => setCanBatchDownload(!canBatchDownload)}
+                            className={`relative w-10 h-5 rounded-full transition-colors ${canBatchDownload ? 'bg-[#ff4655]' : 'bg-gray-700'}`}
+                        >
+                            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${canBatchDownload ? 'left-5.5 translate-x-0' : 'left-0.5'}`} style={{ left: canBatchDownload ? '22px' : '2px' }} />
+                        </button>
                     </div>
 
                     {/* 禁用原因输入框（仅禁用时显示） */}
@@ -237,8 +255,8 @@ function UserEditModal({ isOpen, user, onClose, onSave, isSubmitting }: UserEdit
                         </div>
                     </div>
                 )}
-            </div>
-        </div>,
+            </div >
+        </div >,
         document.body
     );
 }

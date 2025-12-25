@@ -192,6 +192,8 @@ const RightPanel: React.FC<Props> = ({
               <div className="relative flex-1">
                 <input
                   type="text"
+                  name="search"
+                  autoComplete="off"
                   placeholder="搜索点位标题..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}

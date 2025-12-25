@@ -1,12 +1,5 @@
-/**
- * SharedQuickActions - 共享库快捷操作组件
- * 
- * 职责：
- * - 提供修改密码、查看个人信息的浮动菜单
- * - 管理菜单的展开/收起状态
- */
 import React from 'react';
-import Icon from '../../../components/Icon';
+import Icon, { IconName } from '../../../components/Icon';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
 
 type Props = {
@@ -15,6 +8,21 @@ type Props = {
     onChangePassword: () => void;
     onUserProfile: () => void;
 };
+
+const ActionButton = ({ onClick, icon, title, color = "bg-[#2a2f38]" }: { onClick: () => void, icon: IconName, title: string, color?: string }) => (
+    <div className="flex items-center gap-3 animate-in slide-in-from-bottom-2 fade-in duration-200">
+        <div className="px-2 py-1 bg-[#11161c] border border-white/10 rounded-md text-xs text-gray-300 shadow-lg whitespace-nowrap">
+            {title}
+        </div>
+        <button
+            onClick={onClick}
+            className={`w-12 h-12 rounded-full ${color} hover:brightness-110 text-white flex items-center justify-center shadow-lg border border-white/10 transition-all active:scale-95`}
+            title={title}
+        >
+            <Icon name={icon} size={20} />
+        </button>
+    </div>
+);
 
 const SharedQuickActions: React.FC<Props> = ({
     isOpen,
@@ -29,34 +37,18 @@ const SharedQuickActions: React.FC<Props> = ({
 
     return (
         <div className="absolute bottom-4 right-4 z-30 pointer-events-none">
-            <div className="relative flex items-center gap-3 pointer-events-none">
-                <div className="relative pointer-events-auto">
+            <div className="relative flex items-end flex-col gap-3 pointer-events-none">
+                <div className="pointer-events-auto flex flex-col items-end gap-3 button-list">
                     {isOpen && (
-                        <div className="absolute bottom-14 right-0 bg-[#11161c] border border-white/15 rounded-2xl shadow-2xl p-3 w-44 space-y-2 backdrop-blur animate-in fade-in slide-in-from-bottom-2 duration-200">
-                            <div className="text-[11px] text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                                <Icon name="Settings" size={12} /> 快捷功能
-                            </div>
-
-                            <button
-                                onClick={onUserProfile}
-                                className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-[13px] text-white border border-white/10 transition-colors"
-                            >
-                                <span className="flex items-center gap-1.5"><Icon name="User" size={14} /> 个人信息</span>
-                                <Icon name="ChevronRight" size={12} className="text-gray-400" />
-                            </button>
-
-                            <button
-                                onClick={onChangePassword}
-                                className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-[13px] text-white border border-white/10 transition-colors"
-                            >
-                                <span className="flex items-center gap-1.5"><Icon name="Key" size={14} /> 修改密码</span>
-                                <Icon name="ChevronRight" size={12} className="text-gray-400" />
-                            </button>
-                        </div>
+                        <>
+                            <ActionButton onClick={onUserProfile} icon="User" title="个人信息" />
+                            <ActionButton onClick={onChangePassword} icon="Key" title="修改密码" />
+                        </>
                     )}
+
                     <button
                         onClick={onToggle}
-                        className={`w-12 h-12 rounded-full bg-[#ff4655] hover:bg-[#d93a49] text-white flex items-center justify-center shadow-lg shadow-red-900/40 border border-white/10 transition-all duration-300 ${isOpen ? 'rotate-90' : 'hover:scale-105'
+                        className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg border border-white/10 transition-all duration-300 z-40 ${isOpen ? 'bg-[#2a2f38] rotate-90' : 'bg-[#ff4655] hover:bg-[#d93a49] shadow-red-900/40'
                             }`}
                         title="快捷功能"
                     >

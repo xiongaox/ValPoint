@@ -36,7 +36,8 @@ export function useActionMenu({
 }: Params) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isImageConfigOpen, setIsImageConfigOpen] = useState(false);
-  const [isImageProcessingOpen, setIsImageProcessingOpen] = useState(false);
+  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
+  const [isPngSettingsOpen, setIsPngSettingsOpen] = useState(false);
   const [imageBedConfig, setImageBedConfig] = useState<ImageBedConfig>(defaultImageBedConfig);
   const { settings: imageProcessingSettings, saveSettings: saveImageProcessingSettings } = useImageProcessingSettings();
 
@@ -105,10 +106,7 @@ export function useActionMenu({
       return;
     }
     setIsActionMenuOpen(false);
-    setPendingUserId(userId);
-    setCustomUserIdInput(userId);
-    setPasswordInput('');
-    setIsImageProcessingOpen(true);
+    setIsChangePasswordOpen(true);
   };
 
   const handleQuickClear = () => {
@@ -140,13 +138,22 @@ export function useActionMenu({
 
   const handleOpenAdvancedSettings = () => {
     setIsActionMenuOpen(false);
-    setIsImageProcessingOpen(true);
+    setIsAdvancedSettingsOpen(true);
+  };
+
+  const handleOpenPngSettings = () => {
+    setIsActionMenuOpen(false);
+    setIsPngSettingsOpen(true);
   };
 
   const handleImageProcessingSave = (cfg: ImageProcessingSettings) => {
     saveImageProcessingSettings(cfg);
-    setAlertMessage('高级设置已保存，仅当前设备生效');
-    setIsImageProcessingOpen(false);
+    setAlertMessage('设置已保存');
+    // 注意：ImageProcessingModal 是独立的，这个 save 也会用于 advanced settings save
+    // 这里我们可能需要根据来源关闭不同的 modal。但 saveImageProcessingSettings 是通用的。
+    // 简单起见，两个都尝试关闭。
+    setIsAdvancedSettingsOpen(false);
+    setIsPngSettingsOpen(false);
   };
 
   return {
@@ -154,13 +161,16 @@ export function useActionMenu({
     setIsActionMenuOpen,
     isImageConfigOpen,
     setIsImageConfigOpen,
-    isImageProcessingOpen,
-    setIsImageProcessingOpen,
+    isAdvancedSettingsOpen,
+    setIsAdvancedSettingsOpen,
+    isPngSettingsOpen,
+    setIsPngSettingsOpen,
     imageBedConfig,
     setImageBedConfig,
     imageProcessingSettings,
     handleImageBedConfig,
     handleOpenAdvancedSettings,
+    handleOpenPngSettings,
     handleChangePassword,
     handleQuickClear,
     handleImageConfigSave,

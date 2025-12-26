@@ -10,10 +10,14 @@ services:
       - "3210:3210" # Admin App
     environment:
       - NODE_ENV=production
+      # Supabase 主库（个人点位数据存储，必填）
       - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
       - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      # Supabase 共享库（公共点位数据，留空则使用主库）
       - VITE_SUPABASE_SHARE_URL=${VITE_SUPABASE_SHARE_URL}
       - VITE_SUPABASE_SHARE_ANON_KEY=${VITE_SUPABASE_SHARE_ANON_KEY}
+      # 共享库前端地址（可选，优先级高于后台配置，用于本地调试或固定配置）
+      - VITE_SHARED_LIBRARY_URL=${VITE_SHARED_LIBRARY_URL}
     networks:
       - valpoint-net
 

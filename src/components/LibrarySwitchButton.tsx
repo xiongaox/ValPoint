@@ -23,10 +23,19 @@ const LibrarySwitchButton: React.FC<LibrarySwitchButtonProps> = ({ currentLibrar
     useEffect(() => {
         async function loadSettings() {
             setIsLoading(true);
+
+            // 环境变量优先（支持本地和云服务器独立配置）
+            const envSharedUrl = (window as any).__ENV__?.VITE_SHARED_LIBRARY_URL
+                || import.meta.env.VITE_SHARED_LIBRARY_URL
+                || '';
+
             const settings = await getSystemSettings();
             if (settings) {
                 setPersonalUrl(settings.personal_library_url || '');
-                setSharedUrl(settings.shared_library_url || '');
+                // 环境变量 > 数据库配置
+                setSharedUrl(envSharedUrl || settings.shared_library_url || '');
+            } else {
+                setSharedUrl(envSharedUrl);
             }
             setIsLoading(false);
         }

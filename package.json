@@ -15,7 +15,9 @@
     "preview": "vite preview",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "release": "node scripts/auto_tag.js --run",
+    "release:preview": "node scripts/auto_tag.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.2",

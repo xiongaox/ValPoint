@@ -9,7 +9,10 @@ import React from 'react';
 const PreviewModal = ({ isOpen, previewInput, setPreviewInput, onClose, onSubmit }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="modal-content bg-[#1f2326] border-l-4 border-[#ff4655] p-6 rounded shadow-2xl max-w-md w-full">
         <h3 className="text-lg font-bold text-white mb-4">加载分享点位</h3>
         <input

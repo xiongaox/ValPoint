@@ -86,7 +86,7 @@ export function useEmailAuth(): UseEmailAuthResult {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: window.location.origin + '/shared.html',
+                    emailRedirectTo: window.location.origin + window.location.pathname,
                     data: data,
                 },
             });
@@ -205,7 +205,7 @@ export function useEmailAuth(): UseEmailAuthResult {
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: window.location.origin + '/shared.html',
+                    emailRedirectTo: window.location.origin + window.location.pathname,
                 },
             });
 

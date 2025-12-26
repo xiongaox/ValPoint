@@ -6,7 +6,7 @@
  * - 实现基于 React Router 的管理页面路由配置
  * - 提供全局弹窗管理器 (Global Modal Context/Host)
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import '../../styles/fonts.css';
 import '../../index.css';
@@ -36,6 +36,9 @@ function AdminApp() {
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
     const [adminAccess, setAdminAccess] = useState<AdminAccessResult | null>(null);
 
+    // 防止重复处理相同用户
+    const processedUserIdRef = useRef<string | null>(null);
+
     // 监听用户登录状态
     useEffect(() => {
         // 获取当前用户
@@ -47,13 +50,22 @@ function AdminApp() {
         });
 
         // 监听登录状态变化
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            const newUserId = session?.user?.id ?? null;
+
+            // 如果是相同用户的重复 SIGNED_IN 事件，跳过处理
+            if (event === 'SIGNED_IN' && newUserId && processedUserIdRef.current === newUserId) {
+                return;
+            }
+
+            // 更新已处理的用户 ID
+            processedUserIdRef.current = newUserId;
+
             setUser(session?.user ?? null);
             if (!session?.user) {
                 setAdminAccess(null);
                 setIsCheckingAccess(false);
             } else {
-                // 登录成功后设置检查中状态
                 setIsCheckingAccess(true);
             }
         });
@@ -70,14 +82,12 @@ function AdminApp() {
 
         const checkAccess = async () => {
             setIsCheckingAccess(true);
-            // 首先通过 user_id 检查
             let access = await checkAdminAccess(user.id);
 
-            // 如果通过 user_id 找不到，尝试通过邮箱查找（可能是首次登录）
+            // 如果通过 user_id 找不到，尝试通过邮箱查找
             if (!access.isAdmin && user.email) {
                 const emailAccess = await checkAdminAccessByEmail(user.email);
                 if (emailAccess.isAdmin) {
-                    // user_profiles.id 直接关联 auth.users.id，无需额外更新
                     access = emailAccess;
                 }
             }

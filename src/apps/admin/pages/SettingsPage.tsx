@@ -9,6 +9,7 @@
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import Icon from '../../../components/Icon';
+import AlertModal from '../../../components/AlertModal';
 import { getSystemSettings, updateSystemSettings } from '../../../lib/systemSettings';
 import { ImageBedConfig } from '../../../types/imageBed';
 import { defaultImageBedConfig, imageBedProviderMap } from '../../../lib/imageBed';
@@ -67,6 +68,11 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
     const [newAdminNickname, setNewAdminNickname] = useState('');
     const [isAddingAdmin, setIsAddingAdmin] = useState(false);
     const [removingAdminId, setRemovingAdminId] = useState<string | null>(null);
+    const [alertMessage, setAlertMessage] = useState<string | null>(null);
+    const [confirmState, setConfirmState] = useState<{
+        message: string;
+        onConfirm: () => void;
+    } | null>(null);
 
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -115,22 +121,27 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
             const list = await getAdminList();
             setAdminList(list);
         } else {
-            alert(result.error || '添加失败');
+            setAlertMessage(result.error || '添加失败');
         }
         setIsAddingAdmin(false);
     };
 
     // 移除管理员
     const handleRemoveAdmin = async (adminId: string) => {
-        if (!confirm('确定要移除该管理员吗？')) return;
-        setRemovingAdminId(adminId);
-        const result = await removeAdmin(adminId);
-        if (result.success) {
-            setAdminList((prev) => prev.filter((a) => a.id !== adminId));
-        } else {
-            alert(result.error || '移除失败');
-        }
-        setRemovingAdminId(null);
+        setConfirmState({
+            message: '确定要移除该管理员吗？',
+            onConfirm: async () => {
+                setConfirmState(null);
+                setRemovingAdminId(adminId);
+                const result = await removeAdmin(adminId);
+                if (result.success) {
+                    setAdminList((prev) => prev.filter((a) => a.id !== adminId));
+                } else {
+                    setAlertMessage(result.error || '移除失败');
+                }
+                setRemovingAdminId(null);
+            }
+        });
     };
 
 
@@ -497,6 +508,21 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
                     </>
                 )}
             </button>
+
+            {/* 确认弹窗 */}
+            <AlertModal
+                message={confirmState?.message ?? null}
+                onClose={() => setConfirmState(null)}
+                actionLabel="取消"
+                secondaryLabel="确定"
+                onSecondary={confirmState?.onConfirm}
+            />
+
+            {/* 消息弹窗 */}
+            <AlertModal
+                message={alertMessage}
+                onClose={() => setAlertMessage(null)}
+            />
         </div>
     );
 }

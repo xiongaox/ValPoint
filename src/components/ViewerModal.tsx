@@ -64,7 +64,10 @@ const ViewerModal = ({
   const imageList = imageItems.filter((item) => item.src).map((item) => item.src);
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="modal-content bg-[#1f2326] w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-white/10 shadow-2xl overflow-hidden relative">
         <div className="p-6 border-b border-white/10 bg-[#252a30]">
           <div className="flex items-start justify-between gap-4">

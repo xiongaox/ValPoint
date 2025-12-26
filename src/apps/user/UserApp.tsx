@@ -15,6 +15,7 @@ import AppModals from '../../features/lineups/AppModals';
 import { useAppController } from '../../features/lineups/useAppController';
 import SyncToSharedModal from '../shared/SyncToSharedModal';
 import PendingSubmissionsDrawer from './PendingSubmissionsDrawer';
+import AlertModal from '../../components/AlertModal';
 import SharedLoginPage from '../shared/SharedLoginPage';
 import UserProfileModal from '../shared/components/UserProfileModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
@@ -38,6 +39,11 @@ function UserApp() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [alertMessage, setAlertMessage] = useState<string | null>(null);
     const [isAlertFading, setIsAlertFading] = useState(false);
+    // 确认弹窗状态
+    const [confirmState, setConfirmState] = useState<{
+        message: string;
+        onConfirm: () => void;
+    } | null>(null);
 
     // 管理员验证状态（持久化，关闭弹窗后保持）
     const [verifiedAdminEmail, setVerifiedAdminEmail] = useState<string | null>(null);
@@ -63,34 +69,37 @@ function UserApp() {
             return;
         }
 
-        // 确认投稿
-        const confirmed = window.confirm(`确定要投稿「${lineup.title}」吗？\n\n今日剩余投稿次数: ${remaining}`);
-        if (!confirmed) return;
+        // 显示确认弹窗
+        setConfirmState({
+            message: `确定要投稿「${lineup.title}」吗？\n\n今日剩余投稿次数: ${remaining}`,
+            onConfirm: async () => {
+                setConfirmState(null);
+                setIsSubmitting(true);
+                setAlertMessage('正在投稿，上传图片中...');
 
-        setIsSubmitting(true);
-        setAlertMessage('正在投稿，上传图片中...');
+                const result = await submitLineupDirectly(
+                    lineup,
+                    user.id,
+                    profile?.custom_id || profile?.nickname || user.email || undefined,
+                    (progress) => {
+                        if (progress.status === 'uploading') {
+                            setAlertMessage(`上传图片中 (${progress.uploadedCount}/${progress.totalImages})`);
+                        } else if (progress.status === 'saving') {
+                            setAlertMessage('保存投稿记录...');
+                        }
+                    }
+                );
 
-        const result = await submitLineupDirectly(
-            lineup,
-            user.id,
-            profile?.custom_id || profile?.nickname || user.email || undefined, // 优先使用 custom_id
-            (progress) => {
-                if (progress.status === 'uploading') {
-                    setAlertMessage(`上传图片中 (${progress.uploadedCount}/${progress.totalImages})`);
-                } else if (progress.status === 'saving') {
-                    setAlertMessage('保存投稿记录...');
+                setIsSubmitting(false);
+
+                if (result.success) {
+                    setAlertMessage('投稿成功！等待管理员审核');
+                } else {
+                    setAlertMessage(`投稿失败: ${result.errorMessage}`);
                 }
             }
-        );
-
-        setIsSubmitting(false);
-
-        if (result.success) {
-            setAlertMessage('投稿成功！等待管理员审核');
-        } else {
-            setAlertMessage(`投稿失败: ${result.errorMessage}`);
-        }
-    }, [user, orderedLineups, isSubmitting]);
+        });
+    }, [user, orderedLineups, isSubmitting, profile]);
 
     // Alert 自动消失（5秒后渐隐）
     useEffect(() => {
@@ -189,6 +198,15 @@ function UserApp() {
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
                 setAlertMessage={(msg) => setAlertMessage(msg)}
+            />
+
+            {/* 确认弹窗 */}
+            <AlertModal
+                message={confirmState?.message ?? null}
+                onClose={() => setConfirmState(null)}
+                actionLabel="取消"
+                secondaryLabel="确定"
+                onSecondary={confirmState?.onConfirm}
             />
 
             {/* Alert 提示 - 5秒后渐隐消失 */}

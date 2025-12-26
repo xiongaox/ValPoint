@@ -92,7 +92,7 @@ const QuickActions: React.FC<Props> = ({
 
               {/* 待审点位 (普通用户) */}
               {!isAdmin && onPendingSubmissions && (
-                <ActionButton onClick={onPendingSubmissions} icon="Clock" title="待审点位" color="bg-[#f59e0b]" />
+                <ActionButton onClick={onPendingSubmissions} icon="Clock" title="待审点位" />
               )}
 
               {/* 同步到共享库 (管理员) */}

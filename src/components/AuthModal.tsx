@@ -41,7 +41,10 @@ const AuthModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && userId && onClose()}
+    >
       <div className="w-full max-w-lg bg-[#1f2326] border border-white/10 rounded-xl shadow-2xl p-6 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>

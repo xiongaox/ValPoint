@@ -39,7 +39,10 @@ const ClearLineupsModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="relative bg-gradient-to-b from-[#1c2228] to-[#11161b] border border-white/10 rounded-2xl shadow-2xl max-w-[520px] w-full p-7 space-y-8">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">

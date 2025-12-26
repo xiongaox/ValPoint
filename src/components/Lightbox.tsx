@@ -87,38 +87,58 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       <div className="relative max-w-6xl w-full flex flex-col items-center gap-4">
         <img src={src} className="lightbox-img rounded max-h-[80vh]" onClick={(e) => e.stopPropagation()} />
 
-        {hasList && (
-          <div
-            className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md border border-white/15"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
-              onClick={(e) => { e.stopPropagation(); goPrev(); }}
-              title="上一张 (A)"
-            >
-              <Icon name="ChevronLeft" size={22} />
-            </button>
-            <div className="flex items-center gap-2">
-              {list.map((thumbSrc, idx) => (
-                <button
-                  key={thumbSrc + idx}
-                  className={`w-16 h-10 rounded overflow-hidden border ${idx === currentIndex ? 'border-[#ff4655]' : 'border-white/15'} bg-black/40 hover:border-[#ff4655] transition-colors`}
-                  onClick={() => setViewingImage({ src: thumbSrc, list, index: idx })}
-                >
-                  <img src={thumbSrc} className="w-full h-full object-cover" />
-                </button>
-              ))}
+        {/* 底部控制栏：快捷键提示 + 缩略图 */}
+        <div
+          className="flex items-center justify-center gap-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* 左侧：A - 上一张 */}
+          <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">
+              A
             </div>
-            <button
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
-              onClick={(e) => { e.stopPropagation(); goNext(); }}
-              title="下一张 (D)"
-            >
-              <Icon name="ChevronRight" size={22} />
-            </button>
+            <span className="text-white/70 text-sm">上一张</span>
           </div>
-        )}
+
+          {/* 中间：缩略图栏 */}
+          {hasList && (
+            <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md border border-white/15">
+              <button
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                title="上一张 (A)"
+              >
+                <Icon name="ChevronLeft" size={22} />
+              </button>
+              <div className="flex items-center gap-2">
+                {list.map((thumbSrc, idx) => (
+                  <button
+                    key={thumbSrc + idx}
+                    className={`w-16 h-10 rounded overflow-hidden border ${idx === currentIndex ? 'border-[#ff4655]' : 'border-white/15'} bg-black/40 hover:border-[#ff4655] transition-colors`}
+                    onClick={() => setViewingImage({ src: thumbSrc, list, index: idx })}
+                  >
+                    <img src={thumbSrc} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <button
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                title="下一张 (D)"
+              >
+                <Icon name="ChevronRight" size={22} />
+              </button>
+            </div>
+          )}
+
+          {/* 右侧：D - 下一张 */}
+          <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">
+              D
+            </div>
+            <span className="text-white/70 text-sm">下一张</span>
+          </div>
+        </div>
       </div>
 
       <button

@@ -10,7 +10,10 @@ import Icon from './Icon';
 const MapPickerModal = ({ isOpen, maps, selectedMap, setSelectedMap, setIsMapModalOpen, getMapDisplayName }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in">
+    <div
+      className="fixed inset-0 z-[999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in"
+      onClick={(e) => e.target === e.currentTarget && setIsMapModalOpen(false)}
+    >
       <div className="w-full max-w-6xl max-h-full flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold uppercase tracking-widest text-white">

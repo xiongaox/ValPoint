@@ -7,10 +7,16 @@
  * - 本地作者或 B 站/抖音作者信息展示及跳转
  * - 视频来源精准空降（跳转到对应视频）
  * - 编辑、投稿或转存点位操作
+ * 
+ * 移动端适配：
+ * - 全屏弹窗，支持滚动
+ * - 按钮组横向滚动
+ * - 图片单列展示
  */
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
 import { fetchAuthorInfo } from '../utils/authorFetcher';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const ViewerModal = ({
   viewingLineup,
@@ -27,6 +33,7 @@ const ViewerModal = ({
 }: any) => {
   const [authorInfo, setAuthorInfo] = useState<{ name: string; avatar: string; uid?: string } | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!viewingLineup?.sourceLink) {
@@ -65,14 +72,27 @@ const ViewerModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="modal-content bg-[#1f2326] w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-white/10 shadow-2xl overflow-hidden relative">
-        <div className="p-6 border-b border-white/10 bg-[#252a30]">
-          <div className="flex items-start justify-between gap-4">
+      <div className={`modal-content bg-[#1f2326] flex flex-col rounded-none md:rounded-xl border-0 md:border border-white/10 shadow-2xl overflow-hidden relative ${isMobile ? 'w-full h-full' : 'w-full max-w-4xl max-h-[90vh]'
+        }`}>
+        {/* 头部区域 */}
+        <div className={`border-b border-white/10 bg-[#252a30] ${isMobile ? 'p-4' : 'p-6'}`}>
+          {/* 移动端：关闭按钮在右上角固定 */}
+          {isMobile && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/40 text-white hover:bg-[#ff4655]/20"
+            >
+              <Icon name="X" size={20} />
+            </button>
+          )}
+
+          <div className={`${isMobile ? 'flex flex-col gap-3' : 'flex items-start justify-between gap-4'}`}>
             <div className="space-y-2">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <span
                   className={`text-[12px] font-bold px-2 py-0.5 rounded ${viewingLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
                     }`}
@@ -83,13 +103,15 @@ const ViewerModal = ({
                   {getMapDisplayName(getMapEnglishName(viewingLineup.mapName))}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">{viewingLineup.title}</h2>
+              <h2 className={`font-bold text-white tracking-tight ${isMobile ? 'text-xl' : 'text-2xl'}`}>{viewingLineup.title}</h2>
               <div className="flex items-center gap-2 opacity-70">
                 {viewingLineup.agentIcon && <img src={viewingLineup.agentIcon} className="w-7 h-7 rounded-full" />}
                 <span className="text-sm font-bold text-white">{viewingLineup.agentName}</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+
+            {/* 操作按钮组 - 移动端可横向滚动 */}
+            <div className={`flex items-center gap-2 ${isMobile ? 'overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide' : 'shrink-0'}`}>
               {authorInfo && viewingLineup.sourceLink && (
                 authorInfo.uid ? (
                   <a
@@ -100,20 +122,20 @@ const ViewerModal = ({
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors whitespace-nowrap"
                   >
                     <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.name} referrerPolicy="no-referrer" />
                     <span>{authorInfo.name}</span>
                   </a>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white">
+                  <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white whitespace-nowrap">
                     <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.name} referrerPolicy="no-referrer" />
                     <span>{authorInfo.name}</span>
                   </div>
                 )
               )}
               {isLoadingAuthor && (
-                <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-gray-400">
+                <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-gray-400 whitespace-nowrap">
                   <Icon name="Loader" size={14} className="animate-spin" /> 加载中...
                 </div>
               )}
@@ -122,17 +144,17 @@ const ViewerModal = ({
                   href={viewingLineup.sourceLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors whitespace-nowrap"
                 >
                   <Icon name="Play" size={14} /> 精准空降
                 </a>
               )}
-              {/* 编辑按钮 */}
-              {!handleCopyShared && !isGuest && (
+              {/* 编辑按钮 - 移动端隐藏 */}
+              {!handleCopyShared && !isGuest && !isMobile && (
                 <button
                   type="button"
                   onClick={() => handleEditStart(viewingLineup)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors whitespace-nowrap"
                   title="编辑"
                 >
                   <Icon name="Pencil" size={14} /> 编辑
@@ -143,37 +165,42 @@ const ViewerModal = ({
                 <button
                   type="button"
                   onClick={() => onSubmitLineup(viewingLineup.id)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/10 text-sm text-purple-300 hover:border-purple-400 hover:text-purple-200 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-500/50 bg-purple-500/10 text-sm text-purple-300 hover:border-purple-400 hover:text-purple-200 transition-colors whitespace-nowrap"
                   title="投稿此点位"
                 >
                   <Icon name="Send" size={14} /> 投稿
                 </button>
               )}
-              {handleCopyShared && (
+              {/* 下载按钮 - 移动端隐藏 */}
+              {handleCopyShared && !isMobile && (
                 <button
                   type="button"
                   onClick={() => handleCopyShared(viewingLineup)}
                   disabled={isSavingShared}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 text-sm text-emerald-300 hover:border-emerald-400 hover:text-emerald-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 text-sm text-emerald-300 hover:border-emerald-400 hover:text-emerald-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
                   title="下载点位"
                 >
                   <Icon name="Download" size={14} /> {isSavingShared ? '下载中...' : '下载点位'}
                 </button>
               )}
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#ff4655]/60 bg-[#ff4655]/10 text-sm text-white hover:bg-[#ff4655]/20 hover:border-[#ff4655] transition-colors"
-                title="关闭"
-              >
-                <Icon name="X" size={14} /> 关闭
-              </button>
+              {/* 桌面端关闭按钮在按钮组内 */}
+              {!isMobile && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#ff4655]/60 bg-[#ff4655]/10 text-sm text-white hover:bg-[#ff4655]/20 hover:border-[#ff4655] transition-colors whitespace-nowrap"
+                  title="关闭"
+                >
+                  <Icon name="X" size={14} /> 关闭
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 bg-[#181b1f]">
-          <div className="grid grid-cols-2 gap-6">
+        {/* 图片内容区域 */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#181b1f]">
+          <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
             {imageItems.map((item, idx) =>
               item.src ? (
                 <div key={idx} className="flex flex-col gap-2">

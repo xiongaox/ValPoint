@@ -319,6 +319,8 @@ export function useAppController() {
   const mainViewProps = buildMainViewProps({
     activeTab,
     selectedMap,
+    setSelectedMap: handleSelectMap, // 新增：用于移动端地图选择
+    maps, // 新增：地图列表
     setIsMapModalOpen: modal.setIsMapModalOpen,
     selectedSide,
     setSelectedSide,

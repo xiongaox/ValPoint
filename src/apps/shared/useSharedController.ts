@@ -31,7 +31,7 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
     const [selectedMap, setSelectedMapState] = useState<MapOption | null>(null);
     const [selectedAgent, setSelectedAgent] = useState<AgentOption | null>(null);
     const [selectedAbilityIndex, setSelectedAbilityIndex] = useState<number | null>(null);
-    const [selectedSide, setSelectedSide] = useState<'all' | 'attack' | 'defense'>('all');
+    const [selectedSide, setSelectedSide] = useState<'all' | 'attack' | 'defense'>('attack');
     const [searchQuery, setSearchQuery] = useState('');
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
     const [selectedLineupId, setSelectedLineupId] = useState<string | null>(null);

@@ -2,13 +2,16 @@
  * Lightbox - 图片全屏预览组件
  * 
  * 支持：
- * - 多图切换和预览（带缩略图栏）
+ * - Carousel 模式：无缝滑动切换，支持甩动 (Flick)
+ * - 双指缩放 & 拖拽 (Pivot Zoom)
+ * - 双击缩放 (Double Tap)
+ * - 下拉关闭 (Pull to Dismiss)
  * - 键盘快捷键（A: 上一张, D: 下一张, ESC/Q: 关闭）
- * - 点击遮罩层关闭
  */
-import React, { useMemo, useEffect, useCallback } from 'react';
+import React, { useMemo, useEffect, useLayoutEffect, useCallback, useState, useRef } from 'react';
 import Icon from './Icon';
 import { LightboxImage } from '../types/ui';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 type Props = {
   viewingImage: LightboxImage | null;
@@ -16,12 +19,14 @@ type Props = {
 };
 
 const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
+  const isMobile = useIsMobile();
+
   const { src, list, index } = useMemo(() => {
     if (!viewingImage) {
       return { src: '', list: [], index: 0 };
     }
     if (typeof viewingImage === 'string') {
-      return { src: viewingImage, list: [], index: 0 };
+      return { src: viewingImage, list: [viewingImage], index: 0 };
     }
     return {
       src: viewingImage?.src,
@@ -32,121 +37,396 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
 
   const hasList = list && list.length > 1;
   const currentIndex = hasList ? Math.min(Math.max(index, 0), list.length - 1) : 0;
+  const prevIndex = hasList ? (currentIndex - 1 + list.length) % list.length : -1;
+  const nextIndex = hasList ? (currentIndex + 1) % list.length : -1;
+  const prevSrc = hasList && prevIndex !== -1 ? list[prevIndex] : null;
+  const nextSrc = hasList && nextIndex !== -1 ? list[nextIndex] : null;
+
+  const getNextIndex = useCallback(() => (currentIndex + 1) % list.length, [currentIndex, list.length]);
+  const getPrevIndex = useCallback(() => (currentIndex - 1 + list.length) % list.length, [currentIndex, list.length]);
 
   const goPrev = useCallback(() => {
     if (!hasList) return;
-    const nextIndex = (currentIndex - 1 + list.length) % list.length;
-    setViewingImage({ src: list[nextIndex], list, index: nextIndex });
-  }, [hasList, currentIndex, list, setViewingImage]);
+    setViewingImage({ src: list[getPrevIndex()], list, index: getPrevIndex() });
+  }, [hasList, getPrevIndex, list, setViewingImage]);
 
   const goNext = useCallback(() => {
     if (!hasList) return;
-    const nextIndex = (currentIndex + 1) % list.length;
-    setViewingImage({ src: list[nextIndex], list, index: nextIndex });
-  }, [hasList, currentIndex, list, setViewingImage]);
+    setViewingImage({ src: list[getNextIndex()], list, index: getNextIndex() });
+  }, [hasList, getNextIndex, list, setViewingImage]);
 
   const close = useCallback(() => {
     setViewingImage(null);
   }, [setViewingImage]);
 
-  // 键盘快捷键：A 上一张，D 下一张，Q 关闭
+  // 键盘支持
   useEffect(() => {
     if (!viewingImage) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 忽略输入框中的按键
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       switch (e.key.toLowerCase()) {
-        case 'a':
-          e.preventDefault();
-          goPrev();
-          break;
-        case 'd':
-          e.preventDefault();
-          goNext();
-          break;
+        case 'a': e.preventDefault(); goPrev(); break;
+        case 'd': e.preventDefault(); goNext(); break;
         case 'q':
-        case 'escape':
-          e.preventDefault();
-          close();
-          break;
+        case 'escape': e.preventDefault(); close(); break;
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [viewingImage, goPrev, goNext, close]);
 
+  // Touch & Gesture State
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const lastValidTapEndTime = useRef<number>(0); // 上一次有效点击(非滑动)的结束时间
+
+  // Carousel State
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  // Vertical Dismiss State
+  const [dragY, setDragY] = useState(0);
+  const [isDraggingVertical, setIsDraggingVertical] = useState(false);
+
+  // Zoom State
+  const [scale, setScale] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [startPinchDist, setStartPinchDist] = useState<number | null>(null);
+  const [startPinchCenter, setStartPinchCenter] = useState<{ x: number, y: number } | null>(null);
+  const [startScale, setStartScale] = useState(1);
+  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
+
+  // 重置状态
+  useLayoutEffect(() => {
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+    setDragY(0);
+    setIsDraggingVertical(false);
+
+    setIsResetting(true);
+    setSwipeOffset(0);
+    setIsSwiping(false);
+
+    requestAnimationFrame(() => {
+      setIsResetting(false);
+    });
+  }, [src]);
+
+  const minSwipeDistance = 50;
+  const minFlickVelocity = 0.5; // px/ms
+
+  const getDistance = (touches: React.TouchList) => {
+    return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+  };
+
+  const getCenter = (touches: React.TouchList) => {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2 - window.innerWidth / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2 - window.innerHeight / 2
+    };
+  };
+
+  const handleDoubleTap = (e: React.TouchEvent) => {
+    const tapX = e.touches[0].clientX - window.innerWidth / 2;
+    const tapY = e.touches[0].clientY - window.innerHeight / 2;
+
+    if (scale > 1) {
+      // 已放大 -> 复原
+      setScale(1);
+      setPan({ x: 0, y: 0 });
+    } else {
+      // 未放大 -> 放大到 2.5 倍
+      // 计算新的 Pan，使点击点移动到屏幕中心
+      const targetScale = 2.5;
+      const newPanX = -tapX * (targetScale - 1);
+      const newPanY = -tapY * (targetScale - 1);
+
+      setScale(targetScale);
+      setPan({ x: newPanX, y: newPanY });
+    }
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const now = Date.now();
+
+    if (e.touches.length === 1) {
+      // 双击检测：检查这是否是第二次点击，并且距离上一次有效点击很近
+      if (now - lastValidTapEndTime.current < 300) {
+        handleDoubleTap(e);
+        lastValidTapEndTime.current = 0; // 重置防止三击触发
+        return;
+      }
+
+      touchStartTime.current = now;
+      setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+
+      if (scale > 1) {
+        setStartPan({ ...pan });
+      } else {
+        setIsSwiping(true);
+        setIsResetting(false);
+      }
+    } else if (e.touches.length === 2) {
+      const dist = getDistance(e.touches);
+      const center = getCenter(e.touches);
+      setStartPinchDist(dist);
+      setStartScale(scale);
+      setStartPinchCenter(center);
+      setStartPan(pan);
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && startPinchDist && startPinchCenter) {
+      // Pinch Zoom
+      const dist = getDistance(e.touches);
+      const center = getCenter(e.touches);
+      const newScale = Math.min(Math.max(startScale * (dist / startPinchDist), 1), 4);
+
+      const ratio = newScale / startScale;
+      const newPanX = center.x - (startPinchCenter.x - startPan.x) * ratio;
+      const newPanY = center.y - (startPinchCenter.y - startPan.y) * ratio;
+
+      setScale(newScale);
+      if (newScale === 1) setPan({ x: 0, y: 0 });
+      else setPan({ x: newPanX, y: newPanY });
+
+    } else if (e.touches.length === 1 && touchStart) {
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - touchStart.x;
+      const deltaY = currentY - touchStart.y;
+
+      if (scale === 1) {
+        // 判定方向：如果在未锁定方向前，Y轴移动明显大于X轴，锁定为垂直拖动（关闭模式）
+        if (!isDraggingVertical && !isSwiping && Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+          setIsDraggingVertical(true);
+          setIsSwiping(false);
+        } else if (!isDraggingVertical && Math.abs(deltaX) > 10) {
+          // 锁定为水平滑动
+        }
+
+        if (isDraggingVertical) {
+          setDragY(deltaY);
+          e.preventDefault();
+        } else {
+          // 水平滑动 -> Carousel
+          if ((deltaX > 0 && !prevSrc) || (deltaX < 0 && !nextSrc)) {
+            setSwipeOffset(deltaX * 0.3);
+          } else {
+            setSwipeOffset(deltaX);
+          }
+        }
+      } else {
+        handleZoomPan(e.touches[0].clientX, e.touches[0].clientY, deltaX, deltaY);
+      }
+    }
+  };
+
+  const handleZoomPan = (cx: number, cy: number, dx: number, dy: number) => {
+    const potentialPanX = startPan.x + dx;
+    const potentialPanY = startPan.y + dy;
+    const maxPanX = (window.innerWidth * (scale - 1)) / 2;
+    const maxPanY = (window.innerHeight * (scale - 1)) / 2;
+
+    let clampedPanX = Math.min(Math.max(potentialPanX, -maxPanX), maxPanX);
+    let clampedPanY = Math.min(Math.max(potentialPanY, -maxPanY), maxPanY);
+
+    const overflowX = potentialPanX - clampedPanX;
+    setPan({ x: clampedPanX, y: clampedPanY });
+
+    if (Math.abs(overflowX) > 1) {
+      if ((overflowX > 0 && !prevSrc) || (overflowX < 0 && !nextSrc)) {
+        setSwipeOffset(overflowX * 0.3);
+      } else {
+        setSwipeOffset(overflowX);
+      }
+      setIsSwiping(true);
+    } else {
+      setSwipeOffset(0);
+      setIsSwiping(false);
+    }
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    setStartPinchDist(null);
+    setStartPinchCenter(null);
+
+    const now = Date.now();
+    const touchDuration = now - touchStartTime.current;
+
+    // 此处判断这是否是一次“有效点击”（即没有发生显著位移）
+    // 如果是，则记录时间，供下一次 onTouchStart 判断双击
+    // 注意：isSwiping 可能会在 touchMove 初始阶段设为 true，所以要结合 offset 判断
+    const isMoved = Math.abs(swipeOffset) > 10 || Math.abs(dragY) > 10 || isDraggingVertical;
+    if (!isMoved && touchStart && touchDuration < 300) {
+      lastValidTapEndTime.current = now;
+    }
+
+    // 1. 处理垂直关闭
+    if (isDraggingVertical) {
+      if (Math.abs(dragY) > 100) {
+        close();
+      } else {
+        setDragY(0);
+      }
+      setIsDraggingVertical(false);
+      return;
+    }
+
+    // 2. 处理 Carousel Swipe
+    let finalSwipeOffset = swipeOffset;
+    if (!touchStart) return;
+
+    if (scale === 1 && touchStart) {
+      // Flick Detection
+      const distanceX = e.changedTouches[0].clientX - touchStart.x;
+      const velocity = Math.abs(distanceX) / touchDuration;
+
+      if (velocity > minFlickVelocity && Math.abs(distanceX) > 20) {
+        if (distanceX > 0) finalSwipeOffset = window.innerWidth;
+        else finalSwipeOffset = -window.innerWidth;
+      } else {
+        finalSwipeOffset = distanceX;
+      }
+    }
+
+    const threshold = window.innerWidth * 0.25;
+    setIsSwiping(false);
+
+    if (Math.abs(finalSwipeOffset) > threshold || (Math.abs(swipeOffset) > threshold && scale > 1)) {
+      const checkOffset = scale > 1 ? swipeOffset : finalSwipeOffset;
+
+      if (checkOffset < 0 && nextSrc) {
+        setSwipeOffset(-window.innerWidth);
+        setTimeout(() => goNext(), 300);
+      } else if (checkOffset > 0 && prevSrc) {
+        setSwipeOffset(window.innerWidth);
+        setTimeout(() => goPrev(), 300);
+      } else {
+        setSwipeOffset(0);
+      }
+    } else {
+      setSwipeOffset(0);
+    }
+
+    setTouchStart(null);
+  };
+
   if (!viewingImage) return null;
 
-  return (
-    <div className="fixed inset-0 z-[2000] bg-black/95 flex items-center justify-center p-4 cursor-zoom-out" onClick={close}>
-      <div className="relative max-w-6xl w-full flex flex-col items-center gap-4">
-        <img src={src} className="lightbox-img rounded max-h-[80vh]" onClick={(e) => e.stopPropagation()} />
+  const bgOpacity = 1 - Math.min(Math.abs(dragY) / 300, 0.8);
 
-        {/* 底部控制栏：快捷键提示 + 缩略图 */}
-        <div
-          className="flex items-center justify-center gap-6"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* 左侧：A - 上一张 */}
+  return (
+    <div
+      className="fixed inset-0 z-[2000] flex flex-col items-center justify-center cursor-zoom-out touch-none overflow-hidden transition-colors"
+      style={{ backgroundColor: `rgba(0, 0, 0, ${bgOpacity * 0.95})` }}
+      onClick={close}
+    >
+
+      {/* Carousel Container */}
+      <div
+        className="absolute inset-0 flex items-center justify-center transition-transform ease-out will-change-transform"
+        style={{
+          transform: `translateX(${swipeOffset}px) translateY(${dragY}px) scale(${1 - Math.abs(dragY) / 1000})`,
+          transitionDuration: isSwiping || isResetting || isDraggingVertical ? '0ms' : '300ms'
+        }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* 上一张 */}
+        {prevSrc && (
+          <div className="absolute left-0 top-0 w-full h-full -translate-x-full flex items-center justify-center p-4">
+            <img src={prevSrc} className="max-h-[80vh] max-w-full object-contain pointer-events-none" />
+          </div>
+        )}
+
+        {/* 当前张 */}
+        <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+          <img
+            src={src}
+            className="max-h-[80vh] max-w-full object-contain will-change-transform"
+            style={{
+              transform: `scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
+              transition: isSwiping || isDraggingVertical || scale > 1 ? 'none' : 'transform 200ms ease-out'
+            }}
+          />
+        </div>
+
+        {/* 下一张 */}
+        {nextSrc && (
+          <div className="absolute left-0 top-0 w-full h-full translate-x-full flex items-center justify-center p-4">
+            <img src={nextSrc} className="max-h-[80vh] max-w-full object-contain pointer-events-none" />
+          </div>
+        )}
+      </div>
+
+      {/* 缩略图烂 & 按钮 */}
+      <div
+        className={`shrink-0 flex items-center justify-center gap-6 z-20 transition-opacity duration-200 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'} ${isMobile
+          ? 'fixed bottom-0 w-full px-2 pb-6 pt-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent'
+          : 'fixed bottom-8'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {!isMobile && (
           <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">
-              A
-            </div>
+            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">A</div>
             <span className="text-white/70 text-sm">上一张</span>
           </div>
+        )}
 
-          {/* 中间：缩略图栏 */}
-          {hasList && (
-            <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md border border-white/15">
+        {hasList && (
+          <div className={`flex items-center gap-3 px-4 py-2 rounded-full border border-white/15 ${isMobile
+            ? 'overflow-x-auto w-fit mx-auto max-w-full scrollbar-hide bg-transparent border-none'
+            : 'bg-black/70 backdrop-blur-md'
+            }`}>
+            {!isMobile && (
               <button
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15 shrink-0"
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
                 title="上一张 (A)"
               >
                 <Icon name="ChevronLeft" size={22} />
               </button>
-              <div className="flex items-center gap-2">
-                {list.map((thumbSrc, idx) => (
-                  <button
-                    key={thumbSrc + idx}
-                    className={`w-16 h-10 rounded overflow-hidden border ${idx === currentIndex ? 'border-[#ff4655]' : 'border-white/15'} bg-black/40 hover:border-[#ff4655] transition-colors`}
-                    onClick={() => setViewingImage({ src: thumbSrc, list, index: idx })}
-                  >
-                    <img src={thumbSrc} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              {list.map((thumbSrc, idx) => (
+                <button
+                  key={thumbSrc + idx}
+                  className={`w-16 h-10 rounded overflow-hidden border shrink-0 ${idx === currentIndex ? 'border-[#ff4655]' : 'border-white/15'} bg-black/40 hover:border-[#ff4655] transition-colors`}
+                  onClick={(e) => { e.stopPropagation(); setViewingImage({ src: thumbSrc, list, index: idx }); }}
+                >
+                  <img src={thumbSrc} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+
+            {!isMobile && (
               <button
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15 shrink-0"
                 onClick={(e) => { e.stopPropagation(); goNext(); }}
                 title="下一张 (D)"
               >
                 <Icon name="ChevronRight" size={22} />
               </button>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {/* 右侧：D - 下一张 */}
+        {!isMobile && (
           <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">
-              D
-            </div>
+            <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">D</div>
             <span className="text-white/70 text-sm">下一张</span>
           </div>
-        </div>
+        )}
       </div>
 
       <button
-        className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-md border border-white/20"
-        onClick={(e) => {
-          e.stopPropagation();
-          close();
-        }}
+        className={`absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-md border border-white/20 z-50 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
+        onClick={(e) => { e.stopPropagation(); close(); }}
         title="关闭 (Q)"
       >
         <Icon name="X" size={28} />

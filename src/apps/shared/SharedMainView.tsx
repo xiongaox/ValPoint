@@ -5,8 +5,9 @@
  * - 组装左侧侧边栏、中心地图和右侧面板
  * - 集成投稿弹窗、用户卡片、快捷操作等功能
  * - 管理应用中的顶级交互弹窗状态
+ * - 响应式布局：移动端隐藏左右面板，使用弹窗选择器
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import LeafletMap from '../../components/LeafletMap';
 import LeftPanel from '../../components/LeftPanel';
@@ -29,6 +30,14 @@ import ChangelogModal from '../../components/ChangelogModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
+// 移动端组件
+import { useIsMobile } from '../../hooks/useIsMobile';
+import MobileAgentPicker from '../../components/MobileAgentPicker';
+import MobileMapPicker from '../../components/MobileMapPicker';
+import MobileLineupList from '../../components/MobileLineupList';
+import Icon from '../../components/Icon';
+import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
+
 interface SharedMainViewProps {
     user: User | null; // 可选，未登录也可以浏览
     onSignOut: () => void;
@@ -45,12 +54,32 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [submissionEnabled, setSubmissionEnabled] = useState(false);
 
+    // 移动端检测
+    const isMobile = useIsMobile();
+    const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
+    const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
+    const [isMobileLineupListOpen, setIsMobileLineupListOpen] = useState(false);
+    const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false); // 用户下拉菜单
+
     // 快捷功能状态
     const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
     const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+
+    // 移动端技能过滤（存储被禁用的技能索引）
+    const [disabledAbilities, setDisabledAbilities] = useState<Set<number>>(new Set());
+
+    // 根据禁用技能过滤点位（移动端）
+    const mobileFilteredLineups = useMemo(() => {
+        if (!isMobile || disabledAbilities.size === 0) {
+            return controller.filteredLineups;
+        }
+        return controller.filteredLineups.filter(l =>
+            l.abilityIndex === null || !disabledAbilities.has(l.abilityIndex)
+        );
+    }, [isMobile, disabledAbilities, controller.filteredLineups]);
 
     // 加载投稿开关状态
     useEffect(() => {
@@ -79,31 +108,33 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
     return (
         <div className="flex h-screen w-screen bg-[#0f1923] text-white overflow-hidden">
-            {/* 左侧面板 - 地图和特工选择 */}
-            <LeftPanel
-                activeTab="view"
-                selectedMap={controller.selectedMap}
-                setIsMapModalOpen={controller.setIsMapModalOpen}
-                selectedSide={controller.selectedSide}
-                setSelectedSide={controller.setSelectedSide}
-                selectedAgent={controller.selectedAgent}
-                setSelectedAgent={controller.setSelectedAgent}
-                agents={controller.agents}
-                agentCounts={controller.agentCounts}
-                selectedAbilityIndex={controller.selectedAbilityIndex}
-                setSelectedAbilityIndex={controller.setSelectedAbilityIndex}
-                setIsPreviewModalOpen={() => { }}
-                getMapDisplayName={controller.getMapDisplayName}
-                openChangelog={() => setIsChangelogOpen(true)}
-            />
+            {/* 左侧面板 - 仅桌面端显示 */}
+            {!isMobile && (
+                <LeftPanel
+                    activeTab="view"
+                    selectedMap={controller.selectedMap}
+                    setIsMapModalOpen={controller.setIsMapModalOpen}
+                    selectedSide={controller.selectedSide}
+                    setSelectedSide={controller.setSelectedSide}
+                    selectedAgent={controller.selectedAgent}
+                    setSelectedAgent={controller.setSelectedAgent}
+                    agents={controller.agents}
+                    agentCounts={controller.agentCounts}
+                    selectedAbilityIndex={controller.selectedAbilityIndex}
+                    setSelectedAbilityIndex={controller.setSelectedAbilityIndex}
+                    setIsPreviewModalOpen={() => { }}
+                    getMapDisplayName={controller.getMapDisplayName}
+                    openChangelog={() => setIsChangelogOpen(true)}
+                />
+            )}
 
             {/* 中间地图区域 */}
-            <div className="flex-1 relative bg-[#0f1923] z-0 border-l border-r border-white/10">
+            <div className={`flex-1 relative bg-[#0f1923] z-0 ${!isMobile ? 'border-l border-r border-white/10' : ''}`}>
                 <LeafletMap
                     mapIcon={controller.mapIcon}
                     mapCover={controller.mapCover}
                     activeTab="view"
-                    lineups={controller.filteredLineups}
+                    lineups={mobileFilteredLineups}
                     selectedLineupId={controller.selectedLineupId}
                     onLineupSelect={controller.setSelectedLineupId}
                     newLineupData={controller.newLineupData}
@@ -117,64 +148,197 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     sharedLineup={controller.selectedLineup}
                 />
 
-                {/* 用户信息卡片 (Compact Player Card) */}
-                <div className="absolute top-3 left-3 z-10 flex items-center gap-3">
-                    {user && <LibrarySwitchButton currentLibrary="shared" />}
-                    <CompactUserCard
-                        user={user}
-                        onSignOut={onSignOut}
-                        onRequestLogin={onRequestLogin}
-                    />
-                </div>
+                {/* 移动端布局 */}
+                {isMobile && (
+                    <>
+                        {/* 左上角：库切换按钮（移动端紧凑样式） */}
+                        <div className="absolute top-3 left-3 z-10">
+                            <a
+                                href={user ? '/' : '#'}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                title="切换到个人库"
+                            >
+                                <Icon name="BookOpen" size={18} className="text-[#ff4655]" />
+                                <span className="text-white text-sm font-medium">共享库</span>
+                            </a>
+                        </div>
 
-                {/* 作者信息快捷按钮 (右上角) */}
-                <div className="absolute top-3 right-3 z-10">
-                    <AuthorLinksBar />
-                </div>
+                        {/* 右上角：用户胶囊按钮 + 列表按钮 */}
+                        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+                            {user ? (
+                                <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 overflow-hidden">
+                                    {/* 左侧：头像 → 个人中心 */}
+                                    <button
+                                        onClick={() => setIsProfileModalOpen(true)}
+                                        className="w-11 h-11 flex items-center justify-center overflow-hidden hover:bg-white/10 transition-colors"
+                                        title="个人中心"
+                                    >
+                                        {profile?.avatar ? (
+                                            <img
+                                                src={profile.avatar.startsWith('/') || profile.avatar.startsWith('http') ? profile.avatar : `/agents/${profile.avatar}`}
+                                                alt=""
+                                                className="w-8 h-8 rounded-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                                }}
+                                            />
+                                        ) : null}
+                                        <span className={`text-white text-sm font-bold ${profile?.avatar ? 'hidden' : ''}`}>
+                                            {(profile?.nickname || profile?.custom_id || user.email)?.[0]?.toUpperCase() || 'U'}
+                                        </span>
+                                    </button>
+                                    {/* 右侧：退出按钮 - 红色选中状态 */}
+                                    <button
+                                        onClick={onSignOut}
+                                        className="px-4 py-2 m-1 bg-[#ff4655] rounded-full text-white text-sm font-medium hover:bg-[#ff5b6b] transition-colors"
+                                        title="退出登录"
+                                    >
+                                        退出
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={onRequestLogin}
+                                    className="w-11 h-11 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                    title="登录"
+                                >
+                                    <Icon name="User" size={20} className="text-white" />
+                                </button>
+                            )}
+                            {/* 点位列表入口 */}
+                            <button
+                                onClick={() => setIsMobileLineupListOpen(true)}
+                                className="w-11 h-11 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                title="点位列表"
+                            >
+                                <Icon name="List" size={20} className="text-white" />
+                            </button>
+                        </div>
 
-                {/* 快捷功能按钮 (仅登录可见) */}
-                {user && (
-                    <SharedQuickActions
-                        isOpen={isQuickActionsOpen}
-                        onToggle={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
-                        onChangePassword={() => {
-                            setIsQuickActionsOpen(false);
-                            setIsChangePasswordOpen(true);
-                        }}
-                        onUserProfile={() => {
-                            setIsQuickActionsOpen(false);
-                            setIsProfileModalOpen(true);
-                        }}
-                    />
+                        {/* 底部工具栏：地图 | 攻防 | 角色 - 同一水平线 */}
+                        <div className="absolute bottom-12 left-3 right-3 z-10 flex items-center justify-between gap-2">
+                            {/* 左侧：地图选择 - 胶囊按钮 */}
+                            <button
+                                onClick={() => setIsMobileMapPickerOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                            >
+                                <Icon name="Map" size={18} className="text-[#ff4655]" />
+                                <span className="text-white text-sm font-medium max-w-[70px] truncate">{controller.getMapDisplayName(controller.selectedMap?.displayName || '') || '地图'}</span>
+                            </button>
+
+                            {/* 中间：攻防切换 */}
+                            <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1">
+                                <button
+                                    onClick={() => controller.setSelectedSide('attack')}
+                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${controller.selectedSide === 'attack'
+                                        ? 'bg-[#ff4655] text-white'
+                                        : 'text-gray-400'
+                                        }`}
+                                >
+                                    进攻
+                                </button>
+                                <button
+                                    onClick={() => controller.setSelectedSide('defense')}
+                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${controller.selectedSide === 'defense'
+                                        ? 'bg-emerald-500 text-white'
+                                        : 'text-gray-400'
+                                        }`}
+                                >
+                                    防守
+                                </button>
+                            </div>
+
+                            {/* 右侧：角色选择 - 胶囊按钮 */}
+                            <button
+                                onClick={() => setIsMobileAgentPickerOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                            >
+                                <img
+                                    src={controller.selectedAgent?.displayIcon || `/agents/${controller.selectedAgent?.displayName || 'default'}.webp`}
+                                    alt=""
+                                    className="w-6 h-6 rounded-full object-cover"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = '/agents/default.webp';
+                                    }}
+                                />
+                                <span className="text-white text-sm font-medium max-w-[70px] truncate">{controller.selectedAgent?.displayName || '角色'}</span>
+                            </button>
+                        </div>
+
+                        {/* 右上角：技能过滤图标（点位列表下方）*/}
+                        {controller.selectedAgent && (
+                            <div className="absolute top-20 right-3 mr-1.5 z-10 flex flex-col gap-4">
+                                {getAbilityList(controller.selectedAgent).map((ability: any, idx: number) => {
+                                    const iconUrl = getAbilityIcon(controller.selectedAgent!, idx);
+                                    const isDisabled = disabledAbilities.has(idx);
+                                    const isSelected = !isDisabled; // 选中 = 未禁用
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => {
+                                                setDisabledAbilities(prev => {
+                                                    const next = new Set(prev);
+                                                    if (next.has(idx)) {
+                                                        next.delete(idx);
+                                                    } else {
+                                                        next.add(idx);
+                                                    }
+                                                    return next;
+                                                });
+                                            }}
+                                            className={`w-10 h-10 rounded-full border-2 backdrop-blur-sm transition-all flex items-center justify-center ${isSelected
+                                                ? 'bg-[#ff4655] border-[#ff4655] shadow-lg shadow-red-500/30'
+                                                : 'bg-black/40 border-white/10 opacity-50'
+                                                }`}
+                                            title={ability.displayName || `技能${idx + 1}`}
+                                        >
+                                            {iconUrl ? (
+                                                <img
+                                                    src={iconUrl}
+                                                    alt=""
+                                                    className={`w-8 h-8 object-contain ${isSelected ? 'brightness-0 invert' : ''}`}
+                                                />
+                                            ) : (
+                                                <span className="text-white text-sm font-bold">{idx + 1}</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            {/* 右侧面板 - 与个人库共享模式一致 */}
-            <SharedRightPanel
-                activeTab={activeTab}
-                onTabSwitch={(tab) => {
-                    if (tab === 'submit') {
-                        handleOpenSubmit();
-                    } else {
-                        setActiveTab(tab);
-                    }
-                }}
-                isLoading={controller.isLoading}
-                searchQuery={controller.searchQuery}
-                setSearchQuery={controller.setSearchQuery}
-                selectedSide={controller.selectedSide}
-                setSelectedSide={controller.setSelectedSide}
-                filteredLineups={controller.filteredLineups}
-                selectedLineupId={controller.selectedLineupId}
-                handleViewLineup={controller.handleViewLineup}
-                handleDownload={controller.handleDownload}
-                getMapDisplayName={controller.getMapDisplayName}
-                onOpenFilter={() => controller.setIsFilterModalOpen(true)}
-                userId={user?.id}
-                submissionEnabled={submissionEnabled}
-            />
+            {/* 右侧面板 - 仅桌面端显示 */}
+            {!isMobile && (
+                <SharedRightPanel
+                    activeTab={activeTab}
+                    onTabSwitch={(tab) => {
+                        if (tab === 'submit') {
+                            handleOpenSubmit();
+                        } else {
+                            setActiveTab(tab);
+                        }
+                    }}
+                    isLoading={controller.isLoading}
+                    searchQuery={controller.searchQuery}
+                    setSearchQuery={controller.setSearchQuery}
+                    selectedSide={controller.selectedSide}
+                    setSelectedSide={controller.setSelectedSide}
+                    filteredLineups={controller.filteredLineups}
+                    selectedLineupId={controller.selectedLineupId}
+                    handleViewLineup={controller.handleViewLineup}
+                    handleDownload={controller.handleDownload}
+                    getMapDisplayName={controller.getMapDisplayName}
+                    onOpenFilter={() => controller.setIsFilterModalOpen(true)}
+                    userId={user?.id}
+                    submissionEnabled={submissionEnabled}
+                />
+            )}
 
-            {/* 地图选择弹窗 */}
+            {/* 地图选择弹窗 - 桌面端 */}
             <MapPickerModal
                 isOpen={controller.isMapModalOpen}
                 maps={controller.maps}
@@ -182,6 +346,35 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 setSelectedMap={controller.setSelectedMap}
                 setIsMapModalOpen={controller.setIsMapModalOpen}
                 getMapDisplayName={controller.getMapDisplayName}
+            />
+
+            {/* 移动端角色选择弹窗 */}
+            <MobileAgentPicker
+                isOpen={isMobileAgentPickerOpen}
+                onClose={() => setIsMobileAgentPickerOpen(false)}
+                agents={controller.agents}
+                selectedAgent={controller.selectedAgent}
+                onSelect={controller.setSelectedAgent}
+                agentCounts={controller.agentCounts}
+            />
+
+            {/* 移动端地图选择弹窗 */}
+            <MobileMapPicker
+                isOpen={isMobileMapPickerOpen}
+                onClose={() => setIsMobileMapPickerOpen(false)}
+                maps={controller.maps}
+                selectedMap={controller.selectedMap}
+                onSelect={controller.setSelectedMap}
+            />
+
+            {/* 移动端点位列表弹窗 */}
+            <MobileLineupList
+                isOpen={isMobileLineupListOpen}
+                onClose={() => setIsMobileLineupListOpen(false)}
+                lineups={controller.filteredLineups}
+                selectedLineupId={controller.selectedLineupId}
+                onSelectLineup={controller.setSelectedLineupId}
+                isLoading={controller.isLoading}
             />
 
             {/* 点位详情弹窗 */}

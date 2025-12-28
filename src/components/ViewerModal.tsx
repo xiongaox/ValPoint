@@ -205,7 +205,8 @@ const ViewerModal = ({
               item.src ? (
                 <div key={idx} className="flex flex-col gap-2">
                   <div
-                    className="relative group cursor-zoom-in aspect-video bg-[#0f1923] rounded-lg overflow-hidden border border-white/10 hover:border-[#ff4655]/70 transition-colors"
+                    className={`relative group cursor-zoom-in aspect-video bg-[#0f1923] rounded-lg overflow-hidden border border-white/10 transition-colors ${!isMobile ? 'hover:border-[#ff4655]/70' : 'active:border-[#ff4655]/70'
+                      }`}
                     onClick={() =>
                       setViewingImage({
                         src: item.src,
@@ -215,7 +216,7 @@ const ViewerModal = ({
                     }
                   >
                     <img src={item.src} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/15 to-transparent pointer-events-none" />
                     <div className="absolute inset-x-0 top-0 p-3 flex items-center gap-2 text-white font-bold text-base drop-shadow pointer-events-none">
                       <Icon name="Image" size={16} className="text-[#ff4655]" /> {item.label}
                     </div>
@@ -226,7 +227,7 @@ const ViewerModal = ({
                         </div>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Icon name="Maximize2" className="text-white" />
                     </div>
                   </div>

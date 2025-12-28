@@ -268,7 +268,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
                         {/* 右上角：技能过滤图标（点位列表下方）*/}
                         {controller.selectedAgent && (
-                            <div className="absolute top-20 right-3 mr-1.5 z-10 flex flex-col gap-4">
+                            <div className="absolute top-20 right-3.5 z-10 flex flex-col gap-4">
                                 {getAbilityList(controller.selectedAgent).map((ability: any, idx: number) => {
                                     const iconUrl = getAbilityIcon(controller.selectedAgent!, idx);
                                     const isDisabled = disabledAbilities.has(idx);
@@ -297,7 +297,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                                 <img
                                                     src={iconUrl}
                                                     alt=""
-                                                    className={`w-8 h-8 object-contain ${isSelected ? 'brightness-0 invert' : ''}`}
+                                                    className={`w-6 h-6 object-contain ${isSelected ? 'brightness-0 invert' : ''}`}
                                                 />
                                             ) : (
                                                 <span className="text-white text-sm font-bold">{idx + 1}</span>

@@ -78,7 +78,9 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   // Touch & Gesture State
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const touchStartTime = useRef<number>(0);
-  const lastValidTapEndTime = useRef<number>(0); // 上一次有效点击(非滑动)的结束时间
+  const lastValidTapEndTime = useRef<number>(0);
+
+  const [isPinching, setIsPinching] = useState(false);
 
   // Carousel State
   const [swipeOffset, setSwipeOffset] = useState(0);
@@ -97,12 +99,26 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   const [startScale, setStartScale] = useState(1);
   const [startPan, setStartPan] = useState({ x: 0, y: 0 });
 
+  const MAX_SCALE = 3;
+
+  // Hint State
+  const [showHint, setShowHint] = useState(false);
+
+  // Persistent Hints: 只有切图时(viewingImage 变化)且是移动端，才重置显示
+  useEffect(() => {
+    if (isMobile && viewingImage) {
+      setShowHint(true);
+    }
+  }, [isMobile, viewingImage]);
+
+
   // 重置状态
   useLayoutEffect(() => {
     setScale(1);
     setPan({ x: 0, y: 0 });
     setDragY(0);
     setIsDraggingVertical(false);
+    setIsPinching(false);
 
     setIsResetting(true);
     setSwipeOffset(0);
@@ -113,7 +129,6 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
     });
   }, [src]);
 
-  const minSwipeDistance = 50;
   const minFlickVelocity = 0.5; // px/ms
 
   const getDistance = (touches: React.TouchList) => {
@@ -132,12 +147,9 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
     const tapY = e.touches[0].clientY - window.innerHeight / 2;
 
     if (scale > 1) {
-      // 已放大 -> 复原
       setScale(1);
       setPan({ x: 0, y: 0 });
     } else {
-      // 未放大 -> 放大到 2.5 倍
-      // 计算新的 Pan，使点击点移动到屏幕中心
       const targetScale = 2.5;
       const newPanX = -tapX * (targetScale - 1);
       const newPanY = -tapY * (targetScale - 1);
@@ -148,13 +160,15 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
+    // 只要有交互，就隐藏提示 (Persistent until interaction)
+    if (showHint) setShowHint(false);
+
     const now = Date.now();
 
     if (e.touches.length === 1) {
-      // 双击检测：检查这是否是第二次点击，并且距离上一次有效点击很近
       if (now - lastValidTapEndTime.current < 300) {
         handleDoubleTap(e);
-        lastValidTapEndTime.current = 0; // 重置防止三击触发
+        lastValidTapEndTime.current = 0;
         return;
       }
 
@@ -164,7 +178,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       if (scale > 1) {
         setStartPan({ ...pan });
       } else {
-        setIsSwiping(true);
+        // FIX: 不急着设置为 Swiping，等待 Move 判断方向
         setIsResetting(false);
       }
     } else if (e.touches.length === 2) {
@@ -174,23 +188,33 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       setStartScale(scale);
       setStartPinchCenter(center);
       setStartPan(pan);
+      setIsPinching(true);
     }
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2 && startPinchDist && startPinchCenter) {
-      // Pinch Zoom
+      // Pinch Zoom Logic (Omitted for brevity - same as before)
       const dist = getDistance(e.touches);
       const center = getCenter(e.touches);
-      const newScale = Math.min(Math.max(startScale * (dist / startPinchDist), 1), 4);
+
+      let newScale = startScale * (dist / startPinchDist);
+
+      if (newScale > MAX_SCALE) {
+        const excess = newScale - MAX_SCALE;
+        newScale = MAX_SCALE + excess * 0.3;
+      }
+      if (newScale < 1) {
+        const deficiency = 1 - newScale;
+        newScale = 1 - deficiency * 0.3;
+      }
 
       const ratio = newScale / startScale;
       const newPanX = center.x - (startPinchCenter.x - startPan.x) * ratio;
       const newPanY = center.y - (startPinchCenter.y - startPan.y) * ratio;
 
       setScale(newScale);
-      if (newScale === 1) setPan({ x: 0, y: 0 });
-      else setPan({ x: newPanX, y: newPanY });
+      setPan({ x: newPanX, y: newPanY });
 
     } else if (e.touches.length === 1 && touchStart) {
       const currentX = e.touches[0].clientX;
@@ -199,18 +223,19 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       const deltaY = currentY - touchStart.y;
 
       if (scale === 1) {
-        // 判定方向：如果在未锁定方向前，Y轴移动明显大于X轴，锁定为垂直拖动（关闭模式）
-        if (!isDraggingVertical && !isSwiping && Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
-          setIsDraggingVertical(true);
-          setIsSwiping(false);
-        } else if (!isDraggingVertical && Math.abs(deltaX) > 10) {
-          // 锁定为水平滑动
+        // 判定方向锁定
+        if (!isDraggingVertical && !isSwiping) {
+          if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+            setIsDraggingVertical(true); // 锁定为垂直
+          } else if (Math.abs(deltaX) > 10) {
+            setIsSwiping(true); // 锁定为水平
+          }
         }
 
         if (isDraggingVertical) {
           setDragY(deltaY);
           e.preventDefault();
-        } else {
+        } else if (isSwiping) {
           // 水平滑动 -> Carousel
           if ((deltaX > 0 && !prevSrc) || (deltaX < 0 && !nextSrc)) {
             setSwipeOffset(deltaX * 0.3);
@@ -230,11 +255,19 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
     const maxPanX = (window.innerWidth * (scale - 1)) / 2;
     const maxPanY = (window.innerHeight * (scale - 1)) / 2;
 
-    let clampedPanX = Math.min(Math.max(potentialPanX, -maxPanX), maxPanX);
-    let clampedPanY = Math.min(Math.max(potentialPanY, -maxPanY), maxPanY);
+    const clampAndDamp = (val: number, max: number) => {
+      if (val > max) return max + (val - max) * 0.3;
+      if (val < -max) return -max + (val + max) * 0.3;
+      return val;
+    };
 
-    const overflowX = potentialPanX - clampedPanX;
-    setPan({ x: clampedPanX, y: clampedPanY });
+    let pX = clampAndDamp(potentialPanX, maxPanX);
+    let pY = clampAndDamp(potentialPanY, maxPanY);
+
+    let hardClampedX = Math.min(Math.max(potentialPanX, -maxPanX), maxPanX);
+    const overflowX = potentialPanX - hardClampedX;
+
+    setPan({ x: pX, y: pY });
 
     if (Math.abs(overflowX) > 1) {
       if ((overflowX > 0 && !prevSrc) || (overflowX < 0 && !nextSrc)) {
@@ -252,14 +285,19 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   const onTouchEnd = (e: React.TouchEvent) => {
     setStartPinchDist(null);
     setStartPinchCenter(null);
+    setIsPinching(false);
 
     const now = Date.now();
     const touchDuration = now - touchStartTime.current;
 
-    // 此处判断这是否是一次“有效点击”（即没有发生显著位移）
-    // 如果是，则记录时间，供下一次 onTouchStart 判断双击
-    // 注意：isSwiping 可能会在 touchMove 初始阶段设为 true，所以要结合 offset 判断
-    const isMoved = Math.abs(swipeOffset) > 10 || Math.abs(dragY) > 10 || isDraggingVertical;
+    // 0. 处理缩放回弹
+    if (scale > MAX_SCALE) setScale(MAX_SCALE);
+    else if (scale < 1) {
+      setScale(1);
+      setPan({ x: 0, y: 0 });
+    }
+
+    const isMoved = Math.abs(swipeOffset) > 10 || Math.abs(dragY) > 10 || isDraggingVertical || isSwiping;
     if (!isMoved && touchStart && touchDuration < 300) {
       lastValidTapEndTime.current = now;
     }
@@ -277,14 +315,17 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
 
     // 2. 处理 Carousel Swipe
     let finalSwipeOffset = swipeOffset;
-    if (!touchStart) return;
 
-    if (scale === 1 && touchStart) {
+    // 只有当真正触发了 Swipe (Start + Move锁定了Swipe) 或者是还没锁定但瞬时 flick 才处理
+    // 如果 touchStart 但没有 move (点击)，不处理 flick
+    if (scale <= 1 && touchStart) {
       // Flick Detection
       const distanceX = e.changedTouches[0].clientX - touchStart.x;
       const velocity = Math.abs(distanceX) / touchDuration;
 
-      if (velocity > minFlickVelocity && Math.abs(distanceX) > 20) {
+      // 如果已经锁定了 Swiping 且速度够快
+      // 或者还没锁定(距离短)但速度极快 (Flick)
+      if ((isSwiping || Math.abs(distanceX) > 20) && velocity > minFlickVelocity) {
         if (distanceX > 0) finalSwipeOffset = window.innerWidth;
         else finalSwipeOffset = -window.innerWidth;
       } else {
@@ -350,7 +391,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
             className="max-h-[80vh] max-w-full object-contain will-change-transform"
             style={{
               transform: `scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
-              transition: isSwiping || isDraggingVertical || scale > 1 ? 'none' : 'transform 200ms ease-out'
+              transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
             }}
           />
         </div>
@@ -431,6 +472,15 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       >
         <Icon name="X" size={28} />
       </button>
+
+      {/* 底部操作提示 (仅移动端) */}
+      <div
+        className={`fixed bottom-24 left-0 right-0 flex justify-center pointer-events-none transition-opacity duration-500 z-30 ${showHint ? 'opacity-100' : 'opacity-0'}`}
+      >
+        <div className="bg-black/60 backdrop-blur-md text-white/90 text-xs px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
+          双击缩放 · 双指调整 · 下拉关闭
+        </div>
+      </div>
     </div>
   );
 };

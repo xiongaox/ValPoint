@@ -109,6 +109,7 @@ function askQuestion(question) {
 async function main() {
     const args = process.argv.slice(2);
     const runMode = args.includes('--run');
+    const autoPush = args.includes('-y') || args.includes('--yes');
 
     console.log(`${colors.blue}======================================${colors.reset}`);
     console.log(`${colors.blue}        ValPoint 自动发版脚本${colors.reset}`);
@@ -125,7 +126,13 @@ async function main() {
     // 检查未推送的 commit
     if (hasUnpushedCommits() && runMode) {
         console.log(`${colors.yellow}⚠ 检测到未推送的 commit${colors.reset}`);
-        const answer = await askQuestion('是否先推送代码? (y/n): ');
+        let answer = 'n';
+        if (autoPush) {
+            console.log(`${colors.cyan}检测到 -y 参数，自动推送代码...${colors.reset}`);
+            answer = 'y';
+        } else {
+            answer = await askQuestion('是否先推送代码? (y/n): ');
+        }
         if (answer === 'y' || answer === 'yes') {
             console.log(`${colors.cyan}正在推送代码...${colors.reset}`);
             try {
@@ -188,7 +195,14 @@ async function main() {
 
             // 询问是否推送 tag（触发 Docker 构建）
             console.log(`${colors.cyan}推送标签将触发 GitHub Actions 构建 Docker 镜像${colors.reset}`);
-            const answer = await askQuestion('是否推送标签并构建 Docker? (y/n): ');
+
+            let answer = 'n';
+            if (autoPush) {
+                console.log(`${colors.cyan}检测到 -y 参数，自动推送标签...${colors.reset}`);
+                answer = 'y';
+            } else {
+                answer = await askQuestion('是否推送标签并构建 Docker? (y/n): ');
+            }
 
             if (answer === 'y' || answer === 'yes') {
                 console.log(`\n${colors.blue}正在推送标签...${colors.reset}`);

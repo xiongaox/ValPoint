@@ -17,6 +17,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "release": "node scripts/auto_tag.js --run",
+    "release:yes": "node scripts/auto_tag.js --run -y",
     "release:preview": "node scripts/auto_tag.js"
   },
   "dependencies": {

@@ -80,9 +80,20 @@ function hasUncommittedChanges() {
  * 检查是否有未推送的 commit
  */
 function hasUnpushedCommits() {
-    // 检查本地分支相对于远程跟踪分支是否有超前
-    const unpushed = runCommand('git log @{u}..HEAD --oneline 2>/dev/null', true);
-    return unpushed.length > 0;
+    try {
+        // 检查本地分支相对于远程跟踪分支是否有超前
+        // 使用 stdio: ['pipe', 'pipe', 'ignore'] 来忽略 stderr，代替 2>/dev/null
+        const unpushed = execSync('git log @{u}..HEAD --oneline', {
+            encoding: 'utf8',
+            stdio: ['pipe', 'pipe', 'ignore']
+        }).trim();
+        return unpushed.length > 0;
+    } catch (e) {
+        // 如果报错（例如没有设置 upstream），我们假设没有未推送的代码或者无法判断
+        // 为了安全起见，如果不确定可以返回 false，或者根据需求提示用户
+        // 这里为了简单，且之前逻辑是 quiet 的，我们返回 false (但此时可能无法自动 push)
+        return false;
+    }
 }
 
 /**

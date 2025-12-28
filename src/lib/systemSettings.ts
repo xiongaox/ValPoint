@@ -55,8 +55,11 @@ export async function getSystemSettings(): Promise<SystemSettings | null> {
 
     if (error) {
         console.error('Failed to fetch system settings:', error);
+        console.error('SETTINGS_ID used:', SETTINGS_ID);
         return cachedSettings; // 返回旧缓存
     }
+
+    console.log('[SystemSettings] Loaded:', data?.author_links ? 'has author_links' : 'NO author_links');
 
     cachedSettings = data;
     cacheTimestamp = now;

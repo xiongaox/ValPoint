@@ -19,6 +19,7 @@ import { useUserProfile } from '../../hooks/useUserProfile';
 import MobileAgentPicker from '../../components/MobileAgentPicker';
 import MobileMapPicker from '../../components/MobileMapPicker';
 import MobileLineupList from '../../components/MobileLineupList';
+import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
 
 import LeftPanel from '../../components/LeftPanel';
 import RightPanel from '../../components/RightPanel';
@@ -127,6 +128,9 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
   const [isMobileLineupListOpen, setIsMobileLineupListOpen] = useState(false);
   const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false); // 用户下拉菜单
 
+  // 移动端技能过滤（存储被禁用的技能索引）
+  const [disabledAbilities, setDisabledAbilities] = useState<Set<number>>(new Set());
+
   // 获取共享库URL用于切换
   const sharedLibraryUrl = (window as any).__ENV__?.VITE_SHARED_LIBRARY_URL
     || import.meta.env.VITE_SHARED_LIBRARY_URL
@@ -215,46 +219,49 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
         {/* 移动端布局 */}
         {isMobile && (
           <>
-            {/* 左上角：库切换按钮 */}
+            {/* 左上角：库切换 Tab（移动端样式） */}
             <div className="absolute top-3 left-3 z-10">
-              <a
-                href={sharedLibraryUrl || '#'}
-                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
-                title="切换到共享库"
-              >
-                <Icon name="BookOpen" size={18} className="text-[#ff4655]" />
-                <span className="text-white text-sm font-medium">个人库</span>
-              </a>
+              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
+                <div className="px-4 h-[32px] flex items-center justify-center rounded-full text-sm font-medium bg-[#ff4655] text-white">
+                  个人库
+                </div>
+                <a
+                  href={sharedLibraryUrl || '#'}
+                  className="px-4 h-[32px] flex items-center justify-center rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white"
+                >
+                  共享库
+                </a>
+              </div>
             </div>
 
             {/* 右上角：用户胶囊按钮 + 列表按钮 */}
             <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 overflow-hidden">
+              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5 items-center gap-2">
                 {/* 左侧：头像 → 个人中心 */}
                 <button
                   onClick={onOpenProfile}
-                  className="w-11 h-11 flex items-center justify-center overflow-hidden hover:bg-white/10 transition-colors"
+                  className="w-[32px] h-[32px] flex items-center justify-center rounded-full overflow-hidden hover:bg-white/10 transition-colors"
                   title="个人中心"
                 >
                   {profile?.avatar ? (
                     <img
                       src={profile.avatar.startsWith('/') || profile.avatar.startsWith('http') ? profile.avatar : `/agents/${profile.avatar}`}
                       alt=""
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                         (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                       }}
                     />
                   ) : null}
-                  <span className={`text-white text-sm font-bold ${profile?.avatar ? 'hidden' : ''}`}>
+                  <span className={`text-white text-xs font-bold ${profile?.avatar ? 'hidden' : ''}`}>
                     {(profile?.nickname || profile?.custom_id || user?.email)?.[0]?.toUpperCase() || 'U'}
                   </span>
                 </button>
                 {/* 右侧：退出按钮 - 红色选中状态 */}
                 <button
                   onClick={onSignOut}
-                  className="px-4 py-2 m-1 bg-[#ff4655] rounded-full text-white text-sm font-medium hover:bg-[#ff5b6b] transition-colors"
+                  className="px-5 h-[32px] bg-[#ff4655] rounded-full text-white text-sm font-medium hover:bg-[#ff5b6b] transition-colors"
                   title="退出登录"
                 >
                   退出
@@ -262,7 +269,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               </div>
               <button
                 onClick={() => setIsMobileLineupListOpen(true)}
-                className="w-11 h-11 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                className="w-[46px] h-[46px] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
                 title="点位列表"
               >
                 <Icon name="List" size={20} className="text-white" />
@@ -274,17 +281,17 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               {/* 左侧：地图选择 */}
               <button
                 onClick={() => setIsMobileMapPickerOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                className="flex items-center gap-2 px-4 h-[46px] bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
               >
                 <Icon name="Map" size={18} className="text-[#ff4655]" />
                 <span className="text-white text-sm font-medium max-w-[70px] truncate">{left.getMapDisplayName(left.selectedMap?.displayName || '') || '地图'}</span>
               </button>
 
               {/* 中间：攻防切换 */}
-              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1">
+              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
                 <button
                   onClick={() => left.setSelectedSide('attack')}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${left.selectedSide === 'attack'
+                  className={`px-3 h-[32px] rounded-full text-sm font-medium whitespace-nowrap transition-all ${left.selectedSide === 'attack'
                     ? 'bg-[#ff4655] text-white'
                     : 'text-gray-400'
                     }`}
@@ -293,7 +300,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
                 </button>
                 <button
                   onClick={() => left.setSelectedSide('defense')}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${left.selectedSide === 'defense'
+                  className={`px-4 h-[32px] rounded-full text-sm font-medium whitespace-nowrap transition-all ${left.selectedSide === 'defense'
                     ? 'bg-emerald-500 text-white'
                     : 'text-gray-400'
                     }`}
@@ -303,21 +310,65 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               </div>
 
               {/* 右侧：角色选择 */}
-              <button
-                onClick={() => setIsMobileAgentPickerOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
-              >
-                <img
-                  src={left.selectedAgent?.displayIcon || `/agents/${left.selectedAgent?.displayName || 'default'}.webp`}
-                  alt=""
-                  className="w-6 h-6 rounded-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/agents/default.webp';
-                  }}
-                />
-                <span className="text-white text-sm font-medium max-w-[70px] truncate">{left.selectedAgent?.displayName || '角色'}</span>
-              </button>
+              <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
+                <button
+                  onClick={() => setIsMobileAgentPickerOpen(true)}
+                  className="flex items-center gap-2 px-2 h-[32px] rounded-full"
+                >
+                  <img
+                    src={left.selectedAgent?.displayIcon || `/agents/${left.selectedAgent?.displayName || 'default'}.webp`}
+                    alt=""
+                    className="w-7 h-7 rounded-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/agents/default.webp';
+                    }}
+                  />
+                  <span className="text-white text-sm font-medium max-w-[60px] truncate">{left.selectedAgent?.displayName || '角色'}</span>
+                </button>
+              </div>
             </div>
+
+            {/* 右上角：技能过滤图标（点位列表下方）*/}
+            {left.selectedAgent && (
+              <div className="absolute top-20 right-3.5 z-10 flex flex-col gap-4">
+                {getAbilityList(left.selectedAgent).map((ability: any, idx: number) => {
+                  const iconUrl = getAbilityIcon(left.selectedAgent!, idx);
+                  const isDisabled = disabledAbilities.has(idx);
+                  const isSelected = !isDisabled; // 选中 = 未禁用
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setDisabledAbilities(prev => {
+                          const next = new Set(prev);
+                          if (next.has(idx)) {
+                            next.delete(idx);
+                          } else {
+                            next.add(idx);
+                          }
+                          return next;
+                        });
+                      }}
+                      className={`w-10 h-10 rounded-full border-2 backdrop-blur-sm transition-all flex items-center justify-center ${isSelected
+                        ? 'bg-[#ff4655] border-[#ff4655] shadow-lg shadow-red-500/30'
+                        : 'bg-black/40 border-white/10 opacity-50'
+                        }`}
+                      title={ability.displayName || `技能${idx + 1}`}
+                    >
+                      {iconUrl ? (
+                        <img
+                          src={iconUrl}
+                          alt=""
+                          className={`w-6 h-6 object-contain ${isSelected ? 'brightness-0 invert' : ''}`}
+                        />
+                      ) : (
+                        <span className="text-white text-sm font-bold">{idx + 1}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
       </div>

@@ -18,6 +18,7 @@
     "docs:preview": "vitepress preview docs",
     "release": "node scripts/auto_tag.js --run",
     "release:yes": "node scripts/auto_tag.js --run -y",
+    "release:only-github": "node scripts/auto_tag.js --run -y --no-docker",
     "release:preview": "node scripts/auto_tag.js"
   },
   "dependencies": {

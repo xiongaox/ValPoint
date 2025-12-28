@@ -110,6 +110,7 @@ async function main() {
     const args = process.argv.slice(2);
     const runMode = args.includes('--run');
     const autoPush = args.includes('-y') || args.includes('--yes');
+    const noDocker = args.includes('--no-docker');
 
     console.log(`${colors.blue}======================================${colors.reset}`);
     console.log(`${colors.blue}        ValPoint 自动发版脚本${colors.reset}`);
@@ -181,7 +182,12 @@ async function main() {
         console.log(`${colors.yellow}${currentVersion}${colors.reset} <- ${hash} ${msg}`);
 
         if (runMode) {
-            runCommand(`git tag "${currentVersion}" "${hash}"`);
+            const tagMessage = noDocker
+                ? `Release ${currentVersion} [skip docker]`
+                : `Release ${currentVersion}`;
+
+            // Use -a -m to create annotated tag with message
+            runCommand(`git tag -a "${currentVersion}" -m "${tagMessage}" "${hash}"`);
             tagsToPush.push(currentVersion);
         }
     }
@@ -194,7 +200,11 @@ async function main() {
             console.log(`${colors.green}✓ 已创建 ${tagsToPush.length} 个本地标签${colors.reset}\n`);
 
             // 询问是否推送 tag（触发 Docker 构建）
-            console.log(`${colors.cyan}推送标签将触发 GitHub Actions 构建 Docker 镜像${colors.reset}`);
+            if (noDocker) {
+                console.log(`${colors.cyan}推送标签 (检测到 --no-docker，将跳过 Docker 构建)${colors.reset}`);
+            } else {
+                console.log(`${colors.cyan}推送标签将触发 GitHub Actions 构建 Docker 镜像${colors.reset}`);
+            }
 
             let answer = 'n';
             if (autoPush) {

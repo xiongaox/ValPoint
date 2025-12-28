@@ -68,6 +68,9 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
     const [isChangelogOpen, setIsChangelogOpen] = useState(false);
 
+    // 个人库 URL（用于移动端跳转）
+    const [personalLibraryUrl, setPersonalLibraryUrl] = useState<string>('');
+
     // 移动端技能过滤（存储被禁用的技能索引）
     const [disabledAbilities, setDisabledAbilities] = useState<Set<number>>(new Set());
 
@@ -90,6 +93,26 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
             }
         }
         loadSubmissionStatus();
+    }, []);
+
+    // 加载个人库 URL（用于移动端跳转）
+    useEffect(() => {
+        async function loadPersonalLibraryUrl() {
+            // 环境变量优先
+            const envUrl = (window as any).__ENV__?.VITE_PERSONAL_LIBRARY_URL
+                || import.meta.env.VITE_PERSONAL_LIBRARY_URL
+                || '';
+            if (envUrl) {
+                setPersonalLibraryUrl(envUrl);
+                return;
+            }
+            // 从数据库配置获取
+            const settings = await getSystemSettings();
+            if (settings?.personal_library_url) {
+                setPersonalLibraryUrl(settings.personal_library_url);
+            }
+        }
+        loadPersonalLibraryUrl();
     }, []);
 
     // 记录打开投稿弹窗前的Tab（用于关闭时恢复）
@@ -148,50 +171,89 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     sharedLineup={controller.selectedLineup}
                 />
 
+                {/* 桌面端叠加元素 */}
+                {!isMobile && (
+                    <>
+                        {/* 用户信息卡片 (左上角) */}
+                        <div className="absolute top-3 left-3 z-10 flex items-center gap-3">
+                            {user && <LibrarySwitchButton currentLibrary="shared" />}
+                            <CompactUserCard
+                                user={user}
+                                onSignOut={onSignOut}
+                                onRequestLogin={onRequestLogin}
+                            />
+                        </div>
+
+                        {/* 作者信息快捷按钮 (右上角) */}
+                        <div className="absolute top-3 right-3 z-10">
+                            <AuthorLinksBar />
+                        </div>
+
+                        {/* 快捷功能按钮 (仅登录可见) */}
+                        {user && (
+                            <SharedQuickActions
+                                isOpen={isQuickActionsOpen}
+                                onToggle={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
+                                onChangePassword={() => {
+                                    setIsQuickActionsOpen(false);
+                                    setIsChangePasswordOpen(true);
+                                }}
+                                onUserProfile={() => {
+                                    setIsQuickActionsOpen(false);
+                                    setIsProfileModalOpen(true);
+                                }}
+                            />
+                        )}
+                    </>
+                )}
+
                 {/* 移动端布局 */}
                 {isMobile && (
                     <>
-                        {/* 左上角：库切换按钮（移动端紧凑样式） */}
+                        {/* 左上角：库切换 Tab（移动端样式） */}
                         <div className="absolute top-3 left-3 z-10">
-                            <a
-                                href={user ? '/' : '#'}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
-                                title="切换到个人库"
-                            >
-                                <Icon name="BookOpen" size={18} className="text-[#ff4655]" />
-                                <span className="text-white text-sm font-medium">共享库</span>
-                            </a>
+                            <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
+                                <a
+                                    href={personalLibraryUrl || '/'}
+                                    className="px-4 h-[32px] flex items-center justify-center rounded-full text-sm font-medium transition-all text-gray-400 hover:text-white"
+                                >
+                                    个人库
+                                </a>
+                                <div className="px-4 h-[32px] flex items-center justify-center rounded-full text-sm font-medium bg-[#17b890] text-white">
+                                    共享库
+                                </div>
+                            </div>
                         </div>
 
                         {/* 右上角：用户胶囊按钮 + 列表按钮 */}
                         <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
                             {user ? (
-                                <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 overflow-hidden">
+                                <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5 items-center gap-2">
                                     {/* 左侧：头像 → 个人中心 */}
                                     <button
                                         onClick={() => setIsProfileModalOpen(true)}
-                                        className="w-11 h-11 flex items-center justify-center overflow-hidden hover:bg-white/10 transition-colors"
+                                        className="w-[32px] h-[32px] flex items-center justify-center rounded-full overflow-hidden hover:bg-white/10 transition-colors"
                                         title="个人中心"
                                     >
                                         {profile?.avatar ? (
                                             <img
                                                 src={profile.avatar.startsWith('/') || profile.avatar.startsWith('http') ? profile.avatar : `/agents/${profile.avatar}`}
                                                 alt=""
-                                                className="w-8 h-8 rounded-full object-cover"
+                                                className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                     (e.target as HTMLImageElement).style.display = 'none';
                                                     (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                                                 }}
                                             />
                                         ) : null}
-                                        <span className={`text-white text-sm font-bold ${profile?.avatar ? 'hidden' : ''}`}>
+                                        <span className={`text-white text-xs font-bold ${profile?.avatar ? 'hidden' : ''}`}>
                                             {(profile?.nickname || profile?.custom_id || user.email)?.[0]?.toUpperCase() || 'U'}
                                         </span>
                                     </button>
                                     {/* 右侧：退出按钮 - 红色选中状态 */}
                                     <button
                                         onClick={onSignOut}
-                                        className="px-4 py-2 m-1 bg-[#ff4655] rounded-full text-white text-sm font-medium hover:bg-[#ff5b6b] transition-colors"
+                                        className="px-5 h-[32px] bg-[#ff4655] rounded-full text-white text-sm font-medium hover:bg-[#ff5b6b] transition-colors"
                                         title="退出登录"
                                     >
                                         退出
@@ -200,7 +262,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             ) : (
                                 <button
                                     onClick={onRequestLogin}
-                                    className="w-11 h-11 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                    className="w-[46px] h-[46px] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
                                     title="登录"
                                 >
                                     <Icon name="User" size={20} className="text-white" />
@@ -209,7 +271,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             {/* 点位列表入口 */}
                             <button
                                 onClick={() => setIsMobileLineupListOpen(true)}
-                                className="w-11 h-11 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                className="w-[46px] h-[46px] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
                                 title="点位列表"
                             >
                                 <Icon name="List" size={20} className="text-white" />
@@ -221,17 +283,17 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             {/* 左侧：地图选择 - 胶囊按钮 */}
                             <button
                                 onClick={() => setIsMobileMapPickerOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
+                                className="flex items-center gap-2 px-4 h-[46px] bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
                             >
                                 <Icon name="Map" size={18} className="text-[#ff4655]" />
                                 <span className="text-white text-sm font-medium max-w-[70px] truncate">{controller.getMapDisplayName(controller.selectedMap?.displayName || '') || '地图'}</span>
                             </button>
 
                             {/* 中间：攻防切换 */}
-                            <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1">
+                            <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
                                 <button
                                     onClick={() => controller.setSelectedSide('attack')}
-                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${controller.selectedSide === 'attack'
+                                    className={`px-3 h-[32px] rounded-full text-sm font-medium whitespace-nowrap transition-all ${controller.selectedSide === 'attack'
                                         ? 'bg-[#ff4655] text-white'
                                         : 'text-gray-400'
                                         }`}
@@ -240,7 +302,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                 </button>
                                 <button
                                     onClick={() => controller.setSelectedSide('defense')}
-                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${controller.selectedSide === 'defense'
+                                    className={`px-4 h-[32px] rounded-full text-sm font-medium whitespace-nowrap transition-all ${controller.selectedSide === 'defense'
                                         ? 'bg-emerald-500 text-white'
                                         : 'text-gray-400'
                                         }`}
@@ -249,21 +311,23 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                 </button>
                             </div>
 
-                            {/* 右侧：角色选择 - 胶囊按钮 */}
-                            <button
-                                onClick={() => setIsMobileAgentPickerOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10"
-                            >
-                                <img
-                                    src={controller.selectedAgent?.displayIcon || `/agents/${controller.selectedAgent?.displayName || 'default'}.webp`}
-                                    alt=""
-                                    className="w-6 h-6 rounded-full object-cover"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = '/agents/default.webp';
-                                    }}
-                                />
-                                <span className="text-white text-sm font-medium max-w-[70px] truncate">{controller.selectedAgent?.displayName || '角色'}</span>
-                            </button>
+                            {/* 右侧：角色选择 - Tab 样式 */}
+                            <div className="flex bg-black/60 backdrop-blur-sm rounded-full border border-white/10 p-1.5">
+                                <button
+                                    onClick={() => setIsMobileAgentPickerOpen(true)}
+                                    className="flex items-center gap-2 px-2 h-[32px] rounded-full"
+                                >
+                                    <img
+                                        src={controller.selectedAgent?.displayIcon || `/agents/${controller.selectedAgent?.displayName || 'default'}.webp`}
+                                        alt=""
+                                        className="w-7 h-7 rounded-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/agents/default.webp';
+                                        }}
+                                    />
+                                    <span className="text-white text-sm font-medium max-w-[60px] truncate">{controller.selectedAgent?.displayName || '角色'}</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* 右上角：技能过滤图标（点位列表下方）*/}

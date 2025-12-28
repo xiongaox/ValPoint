@@ -15,6 +15,7 @@ import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm } from 
 import { downloadLineupBundle } from '../../lib/lineupDownload';
 import { checkDailyDownloadLimit, incrementDownloadCount, logDownload } from '../../lib/downloadLimit';
 import { MAP_TRANSLATIONS } from '../../constants/maps';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface UseSharedControllerParams {
     user: User | null; // 可选，支持游客模式
@@ -24,6 +25,9 @@ interface UseSharedControllerParams {
 }
 
 export function useSharedController({ user, setAlertMessage, setViewingImage, onRequestLogin }: UseSharedControllerParams) {
+    // 移动端检测
+    const isMobile = useIsMobile();
+
     // 地图数据
     const { maps, agents } = useValorantData();
 
@@ -31,7 +35,8 @@ export function useSharedController({ user, setAlertMessage, setViewingImage, on
     const [selectedMap, setSelectedMapState] = useState<MapOption | null>(null);
     const [selectedAgent, setSelectedAgent] = useState<AgentOption | null>(null);
     const [selectedAbilityIndex, setSelectedAbilityIndex] = useState<number | null>(null);
-    const [selectedSide, setSelectedSide] = useState<'all' | 'attack' | 'defense'>('attack');
+    // 桌面端默认全部，移动端默认进攻
+    const [selectedSide, setSelectedSide] = useState<'all' | 'attack' | 'defense'>(() => isMobile ? 'attack' : 'all');
     const [searchQuery, setSearchQuery] = useState('');
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
     const [selectedLineupId, setSelectedLineupId] = useState<string | null>(null);

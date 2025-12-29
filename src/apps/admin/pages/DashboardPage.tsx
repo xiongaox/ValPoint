@@ -23,59 +23,72 @@ interface StatsCard {
     trend?: { value: number; isUp: boolean };
 }
 
+import { fetchDashboardStats, fetchRecentActivities, DashboardStats, RecentActivity } from '../../../services/adminStatsService';
+
 /**
  * 统计仪表盘页面
  */
 function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
-    const [stats, setStats] = useState<StatsCard[]>([]);
+    const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
+    const [activities, setActivities] = useState<RecentActivity[]>([]);
 
     useEffect(() => {
-        // TODO: 从 Supabase 加载真实数据
-        const mockStats: StatsCard[] = [
-            {
-                label: '总点位数',
-                value: 1234,
-                icon: 'MapPin',
-                color: 'bg-blue-500/20 text-blue-400',
-                trend: { value: 12, isUp: true },
-            },
-            {
-                label: '今日新增',
-                value: 23,
-                icon: 'TrendingUp',
-                color: 'bg-emerald-500/20 text-emerald-400',
-                trend: { value: 5, isUp: true },
-            },
-            {
-                label: '注册用户',
-                value: 456,
-                icon: 'Users',
-                color: 'bg-purple-500/20 text-purple-400',
-                trend: { value: 8, isUp: true },
-            },
-            {
-                label: '今日下载',
-                value: 89,
-                icon: 'Download',
-                color: 'bg-orange-500/20 text-orange-400',
-                trend: { value: 3, isUp: false },
-            },
-        ];
-
-        setTimeout(() => {
-            setStats(mockStats);
-            setIsLoading(false);
-        }, 500);
+        async function loadData() {
+            try {
+                const [statsData, recentActivities] = await Promise.all([
+                    fetchDashboardStats(),
+                    fetchRecentActivities()
+                ]);
+                setDashboardData(statsData);
+                setActivities(recentActivities);
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadData();
     }, []);
 
-    if (isLoading) {
+    if (isLoading || !dashboardData) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="w-8 h-8 border-3 border-[#ff4655] border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
+
+    const stats: StatsCard[] = [
+        {
+            label: '总点位数',
+            value: dashboardData.totalLineups,
+            icon: 'MapPin',
+            color: 'bg-blue-500/20 text-blue-400',
+            trend: { value: dashboardData.trends.lineups, isUp: dashboardData.trends.lineups > 0 },
+        },
+        {
+            label: '今日新增',
+            value: dashboardData.todayNewLineups,
+            icon: 'TrendingUp',
+            color: 'bg-emerald-500/20 text-emerald-400',
+            trend: { value: 5, isUp: true },
+        },
+        {
+            label: '注册用户',
+            value: dashboardData.totalUsers,
+            icon: 'Users',
+            color: 'bg-purple-500/20 text-purple-400',
+            trend: { value: dashboardData.trends.users, isUp: dashboardData.trends.users > 0 },
+        },
+        {
+            label: '今日下载',
+            value: dashboardData.todayDownloads,
+            icon: 'Download',
+            color: 'bg-orange-500/20 text-orange-400',
+            trend: { value: Math.abs(dashboardData.trends.downloads), isUp: dashboardData.trends.downloads > 0 },
+        },
+    ];
 
     return (
         <div className="flex gap-4 items-start h-[calc(100vh-100px)] overflow-hidden">
@@ -134,20 +147,9 @@ function DashboardPage() {
                 <div className="bg-[#1f2326] rounded-xl border border-white/10 p-4 h-full flex flex-col">
                     <h3 className="text-lg font-semibold mb-4 flex-none">最近活动</h3>
                     <div className="space-y-3 overflow-y-auto flex-1 custom-scrollbar pr-2">
-                        {[
-                            { action: '上传了新点位', user: 'admin@example.com', time: '2 分钟前' },
-                            { action: '用户注册', user: 'test@gmail.com', time: '15 分钟前' },
-                            { action: '下载了点位包', user: 'user@qq.com', time: '1 小时前' },
-                            { action: '审核通过点位', user: 'admin@example.com', time: '2 小时前' },
-                            { action: '新投稿待审核', user: 'player@val.gg', time: '3 小时前' },
-                            { action: '点位被下载', user: 'gamer@steam.com', time: '4 小时前' },
-                            { action: '用户修改资料', user: 'user123@qq.com', time: '5 小时前' },
-                            { action: '系统备份完成', user: 'system', time: '6 小时前' },
-                            { action: '清理缓存', user: 'system', time: '7 小时前' },
-                            { action: '更新隐私政策', user: 'admin@example.com', time: '8 小时前' },
-                        ].map((activity, index) => (
+                        {activities.map((activity) => (
                             <div
-                                key={index}
+                                key={activity.id}
                                 className="flex items-start gap-3 py-3 border-b border-white/5 last:border-0"
                             >
                                 <div className="w-8 h-8 bg-[#ff4655]/20 rounded-full flex items-center justify-center shrink-0">
@@ -160,6 +162,12 @@ function DashboardPage() {
                                 </div>
                             </div>
                         ))}
+                        {activities.length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+                                <Icon name="Activity" size={32} className="mb-2 opacity-20" />
+                                <span className="text-sm">暂无最新活动</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -97,22 +97,28 @@ function AdminLayout({ currentPage, onPageChange, onLogout, adminInfo, setAlertM
                         ))}
                     </nav>
 
-                    {/* 底部链接 */}
-                    <div className="p-4 border-t border-white/5">
-                        <div className="flex flex-col gap-2 text-xs text-gray-500">
-                            <a
-                                href="/user.html"
-                                className="hover:text-white transition-colors"
-                            >
-                                → 返回个人库
-                            </a>
-                            <a
-                                href="/"
-                                className="hover:text-white transition-colors"
-                            >
-                                → 查看共享库
-                            </a>
-                        </div>
+                    {/* 底部功能区 */}
+                    <div className="p-4 border-t border-white/5 space-y-2">
+                        <a
+                            href="/user.html"
+                            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs text-gray-500 hover:text-white hover:bg-white/5 transition-all group"
+                        >
+                            <div className="w-6 h-6 rounded bg-white/5 flex items-center justify-center group-hover:bg-[#ff4655]/20 group-hover:text-[#ff4655] transition-colors">
+                                <Icon name="User" size={14} />
+                            </div>
+                            <span className="font-medium">返回个人库</span>
+                            <Icon name="ArrowUpRight" size={12} className="ml-auto opacity-0 group-hover:opacity-40 transition-opacity" />
+                        </a>
+                        <a
+                            href="/"
+                            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs text-gray-500 hover:text-white hover:bg-white/5 transition-all group"
+                        >
+                            <div className="w-6 h-6 rounded bg-white/5 flex items-center justify-center group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
+                                <Icon name="Globe" size={14} />
+                            </div>
+                            <span className="font-medium">查看共享库</span>
+                            <Icon name="ArrowUpRight" size={12} className="ml-auto opacity-0 group-hover:opacity-40 transition-opacity" />
+                        </a>
                     </div>
                 </div>
 

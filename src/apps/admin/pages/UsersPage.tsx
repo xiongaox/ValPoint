@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/Icon';
 import UserAvatar from '../../../components/UserAvatar';
-import { supabase } from '../../../supabaseClient';
+import { adminSupabase } from '../../../supabaseClient';
 import UserEditModal, { UserProfile } from '../components/UserEditModal';
 
 /**
@@ -51,7 +51,7 @@ function UsersPage() {
             // 获取管理员 (Pinned)
             let adminUsers: UserProfile[] = [];
             if (currentPage === 1) {
-                let adminQuery = supabase
+                let adminQuery = adminSupabase
                     .from('user_profiles')
                     .select('*')
                     .in('role', ['admin', 'super_admin']);
@@ -84,7 +84,7 @@ function UsersPage() {
             }
 
             // 2. 获取普通用户 (Paginated)
-            let userQuery = supabase
+            let userQuery = adminSupabase
                 .from('user_profiles')
                 .select('*', { count: 'exact' })
                 .not('role', 'in', '("admin","super_admin")'); // 排除管理员
@@ -166,7 +166,7 @@ function UsersPage() {
     const handleSaveUser = async (userId: string, data: Partial<UserProfile>) => {
         setIsSubmitting(true);
         try {
-            const { error } = await supabase
+            const { error } = await adminSupabase
                 .from('user_profiles')
                 .update({
                     nickname: data.nickname,
@@ -201,7 +201,7 @@ function UsersPage() {
     const handleToggleBan = async (user: UserProfile) => {
         const newBanStatus = !user.is_banned;
         try {
-            const { error } = await supabase
+            const { error } = await adminSupabase
                 .from('user_profiles')
                 .update({
                     is_banned: newBanStatus,
@@ -228,7 +228,7 @@ function UsersPage() {
         setIsDeleting(true);
         try {
             // 调用 RPC 函数完全删除用户
-            const { error } = await supabase.rpc('delete_user_completely', {
+            const { error } = await adminSupabase.rpc('delete_user_completely', {
                 target_user_id: deletingUser.id
             });
 

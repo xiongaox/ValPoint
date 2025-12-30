@@ -111,10 +111,10 @@ function AdminLoginPage({ onLogin, setAlertMessage }: AdminLoginPageProps) {
             console.log('[Admin Login] 环境变量不匹配，尝试 Supabase Auth...');
 
             // 方式2: Supabase Auth 登录
-            const { supabase } = await import('../../../supabaseClient');
+            const { adminSupabase } = await import('../../../supabaseClient');
 
             console.log('[Admin Login] 调用 signInWithPassword...');
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            const { data: authData, error: authError } = await adminSupabase.auth.signInWithPassword({
                 email: account.trim(),
                 password: password,
             });
@@ -132,7 +132,7 @@ function AdminLoginPage({ onLogin, setAlertMessage }: AdminLoginPageProps) {
 
             // 检查用户角色和获取完整 profile
             console.log('[Admin Login] 查询 user_profiles...');
-            const { data: profile, error: profileError } = await supabase
+            const { data: profile, error: profileError } = await adminSupabase
                 .from('user_profiles')
                 .select('role, nickname, avatar')
                 .eq('id', authData.user.id)
@@ -143,7 +143,7 @@ function AdminLoginPage({ onLogin, setAlertMessage }: AdminLoginPageProps) {
             if (profileError || !profile) {
                 console.log('[Admin Login] ✗ 获取用户信息失败:', profileError);
                 setError('获取用户信息失败');
-                await supabase.auth.signOut();
+                await adminSupabase.auth.signOut();
                 setIsSubmitting(false);
                 return;
             }
@@ -153,7 +153,7 @@ function AdminLoginPage({ onLogin, setAlertMessage }: AdminLoginPageProps) {
             if (profile.role !== 'admin' && profile.role !== 'super_admin') {
                 console.log('[Admin Login] ✗ 权限不足');
                 setError('您没有管理员权限');
-                await supabase.auth.signOut();
+                await adminSupabase.auth.signOut();
                 setIsSubmitting(false);
                 return;
             }

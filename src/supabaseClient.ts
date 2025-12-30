@@ -4,6 +4,7 @@
  * 职责：
  * - 初始化主库 (Main DB) 和同步库 (Share DB) 的客户端实例
  * - 管理环境变量 (VITE_SUPABASE_*) 的读取与验证
+ * - 为 Admin 后台创建独立的 Auth session
  */
 import { createClient } from '@supabase/supabase-js';
 
@@ -24,5 +25,17 @@ if (!shareUrl || !shareAnonKey) {
   throw new Error('请在环境变量中设置 VITE_SUPABASE_SHARE_URL 和 VITE_SUPABASE_SHARE_ANON_KEY，或使用主库变量兜底');
 }
 
+// 主库客户端 - 用于个人库和共享库
 export const supabase = createClient(url, anonKey);
+
+// 同步库客户端
 export const shareSupabase = createClient(shareUrl, shareAnonKey);
+
+// Admin 后台专用客户端 - 使用独立的 storageKey 隔离 session
+export const adminSupabase = createClient(url, anonKey, {
+  auth: {
+    storageKey: 'sb-admin-auth-token',
+    storage: window.localStorage,
+  },
+});
+

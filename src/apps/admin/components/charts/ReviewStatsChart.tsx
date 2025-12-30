@@ -8,7 +8,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
-import { supabase } from '../../../../supabaseClient';
+import { adminSupabase } from '../../../../supabaseClient';
 
 interface ReviewStats {
     week_label: string;
@@ -23,7 +23,7 @@ export default function ReviewStatsChart() {
     useEffect(() => {
         async function fetchReviewStats() {
             try {
-                const { data: stats, error } = await supabase.rpc('get_weekly_review_stats');
+                const { data: stats, error } = await adminSupabase.rpc('get_weekly_review_stats');
                 if (error) throw error;
                 // Rename keys to match chart dataKey if needed, or just use raw
                 // RPC returns: week_label, approved_count, rejected_count

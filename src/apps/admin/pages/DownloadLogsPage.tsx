@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/Icon';
 import UserAvatar from '../../../components/UserAvatar';
-import { supabase } from '../../../supabaseClient';
+import { adminSupabase } from '../../../supabaseClient';
 import { MAP_TRANSLATIONS } from '../../../constants/maps';
 
 interface DownloadLog {
@@ -67,7 +67,7 @@ function DownloadLogsPage() {
             const to = from + PAGE_SIZE - 1;
             const startDate = getDateRange(dateRange);
 
-            const { data, error, count } = await supabase
+            const { data, error, count } = await adminSupabase
                 .from('download_logs')
                 .select('*', { count: 'exact' })
                 .gte('created_at', startDate)
@@ -97,19 +97,19 @@ function DownloadLogsPage() {
             const monthStart = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString();
 
             // 今日下载
-            const { count: todayCount } = await supabase
+            const { count: todayCount } = await adminSupabase
                 .from('download_logs')
                 .select('*', { count: 'exact', head: true })
                 .gte('created_at', todayStart);
 
             // 本周下载
-            const { count: weekCount } = await supabase
+            const { count: weekCount } = await adminSupabase
                 .from('download_logs')
                 .select('*', { count: 'exact', head: true })
                 .gte('created_at', weekStart);
 
             // 本月下载
-            const { count: monthCount } = await supabase
+            const { count: monthCount } = await adminSupabase
                 .from('download_logs')
                 .select('*', { count: 'exact', head: true })
                 .gte('created_at', monthStart);

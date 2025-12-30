@@ -9,7 +9,7 @@
 import React, { useState } from 'react';
 import '../../styles/fonts.css';
 import '../../index.css';
-import { supabase } from '../../supabaseClient';
+import { adminSupabase } from '../../supabaseClient';
 import AdminLayout from './components/AdminLayout';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
@@ -51,7 +51,7 @@ function AdminApp() {
     React.useEffect(() => {
         const checkSession = async () => {
             if (adminInfo?.userId) {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await adminSupabase.auth.getSession();
                 if (!session) {
                     // 会话已过期
                     handleLogout();

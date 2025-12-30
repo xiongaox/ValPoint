@@ -10,7 +10,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Icon from '../../../components/Icon';
 import { parseZipMetadata, adminUploadLineup, AdminUploadProgress } from '../../../lib/adminUpload';
 import { useEmailAuth } from '../../../hooks/useEmailAuth';
-import { supabase } from '../../../supabaseClient';
+import { adminSupabase } from '../../../supabaseClient';
 import { ImageBedConfig } from '../../../types/imageBed';
 import { MAP_TRANSLATIONS } from '../../../constants/maps';
 
@@ -45,7 +45,7 @@ const LineupUploadPage: React.FC<LineupUploadPageProps> = ({ setAlertMessage }) 
     // 加载图床配置
     useEffect(() => {
         const loadConfig = async () => {
-            const { data } = await supabase
+            const { data } = await adminSupabase
                 .from('system_settings')
                 .select('value')
                 .eq('key', 'image_bed_config')

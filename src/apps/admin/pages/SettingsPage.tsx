@@ -145,6 +145,7 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
 
 
     const handleSave = async () => {
+
         setIsSaving(true);
         const result = await updateSystemSettings({
             official_oss_config: ossConfig,
@@ -153,6 +154,7 @@ function SettingsPage({ isSuperAdmin }: SettingsPageProps) {
             daily_download_limit: settings.dailyDownloadLimit,
             author_links: authorLinks,
         });
+
 
         if (result.success) {
             alert('设置已保存');

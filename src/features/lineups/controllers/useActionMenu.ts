@@ -69,8 +69,9 @@ export function useActionMenu({
       const multiConfigStr = localStorage.getItem('valpoint_imagebed_configs');
       if (multiConfigStr) {
         const multiConfigs = JSON.parse(multiConfigStr);
-        // 使用当前 provider 的配置，如果没有则使用默认
-        const currentProvider = imageBedConfig.provider || defaultImageBedConfig.provider;
+        // 优先使用上次保存的 provider，而不是当前 state 中的（刷新时 state 是默认值）
+        const lastProvider = localStorage.getItem('valpoint_imagebed_last_provider');
+        const currentProvider = lastProvider || defaultImageBedConfig.provider;
         const savedConfig = multiConfigs[currentProvider];
         if (savedConfig) {
           setImageBedConfig(normalizeImageBedConfig(savedConfig));
@@ -87,6 +88,7 @@ export function useActionMenu({
         // 迁移到新格式
         const multiConfigs = { [oldConfig.provider]: oldConfig };
         localStorage.setItem('valpoint_imagebed_configs', JSON.stringify(multiConfigs));
+        localStorage.setItem('valpoint_imagebed_last_provider', oldConfig.provider);
         localStorage.removeItem('valpoint_imagebed_config');
       }
     } catch (e) {
@@ -127,8 +129,8 @@ export function useActionMenu({
 
       // 保存回 localStorage
       localStorage.setItem('valpoint_imagebed_configs', JSON.stringify(multiConfigs));
-
-      console.log('[useActionMenu] saved config for provider:', normalized.provider);
+      // 保存上次使用的 provider，以便刷新后恢复
+      localStorage.setItem('valpoint_imagebed_last_provider', normalized.provider);
     } catch (e) {
       console.error(e);
     }

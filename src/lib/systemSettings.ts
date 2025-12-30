@@ -5,7 +5,7 @@
  * - 管理应用级的全局开关（投稿功能开关、每日限额、官方图床配置等）
  * - 为频繁读取的配置提供带 TTL 的内存缓存，降低数据库负载
  */
-import { supabase } from '../supabaseClient';
+import { adminSupabase } from '../supabaseClient';
 import { ImageBedConfig } from '../types/imageBed';
 import { AuthorLinks } from '../types/authorLinks';
 
@@ -47,7 +47,7 @@ export async function getSystemSettings(): Promise<SystemSettings | null> {
         return cachedSettings;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
         .from('system_settings')
         .select('*')
         .eq('id', SETTINGS_ID)
@@ -59,7 +59,7 @@ export async function getSystemSettings(): Promise<SystemSettings | null> {
         return cachedSettings; // 返回旧缓存
     }
 
-    console.log('[SystemSettings] Loaded:', data?.author_links ? 'has author_links' : 'NO author_links');
+
 
     cachedSettings = data;
     cacheTimestamp = now;
@@ -80,17 +80,32 @@ export async function updateSystemSettings(
         | 'author_links'
     >>
 ): Promise<{ success: boolean; error?: string }> {
-    const { error } = await supabase
+    const payload = {
+        ...updates,
+        updated_at: new Date().toISOString(),
+    };
+
+
+    const { data, error } = await adminSupabase
         .from('system_settings')
-        .update({
-            ...updates,
-            updated_at: new Date().toISOString(),
-        })
-        .eq('id', SETTINGS_ID);
+        .update(payload)
+        .eq('id', SETTINGS_ID)
+        .select();
+
+
 
     if (error) {
         console.error('Failed to update system settings:', error);
         return { success: false, error: error.message };
+    }
+
+    // 检查是否因 RLS 策略阻止而未更新任何行
+    if (!data || data.length === 0) {
+        console.error('RLS policy blocked the update - no rows affected');
+        return {
+            success: false,
+            error: '权限不足：您没有修改系统设置的权限。请确认您是管理员角色。'
+        };
     }
 
     // 清除缓存，下次读取时会重新获取

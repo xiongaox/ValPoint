@@ -9,7 +9,7 @@ import {
     ResponsiveContainer,
     Tooltip
 } from 'recharts';
-import { supabase } from '../../../../supabaseClient';
+import { adminSupabase } from '../../../../supabaseClient';
 
 interface StorageStats {
     totalBytes: number;
@@ -36,7 +36,7 @@ export default function StorageChart() {
     useEffect(() => {
         async function fetchStorageStats() {
             try {
-                const { data, error } = await supabase.rpc('get_storage_stats');
+                const { data, error } = await adminSupabase.rpc('get_storage_stats');
                 if (error) throw error;
                 setStats(data as StorageStats);
             } catch (error) {

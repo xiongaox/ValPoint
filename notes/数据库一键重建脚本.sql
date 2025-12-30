@@ -373,11 +373,22 @@ ON CONFLICT (id) DO UPDATE SET
     file_size_limit = EXCLUDED.file_size_limit,
     allowed_mime_types = EXCLUDED.allowed_mime_types;
 
--- 已移除未使用的 lineup-images 桶配置
+-- Storage RLS 策略 (用于 submissions 存储桶)
+-- 注意: Supabase 默认启用 storage.objects 的 RLS，必须创建策略才能访问
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+CREATE POLICY "Public Access" ON storage.objects 
+FOR SELECT USING (bucket_id = 'submissions');
 
--- Storage RLS 策略 (仅作为 SQL 记录，建议在 Dashboard 确认)
--- CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'submissions');
--- CREATE POLICY "Auth Upload" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'submissions');
+DROP POLICY IF EXISTS "Auth Upload" ON storage.objects;
+CREATE POLICY "Auth Upload" ON storage.objects 
+FOR INSERT TO authenticated 
+WITH CHECK (bucket_id = 'submissions');
+
+-- 管理员可以删除临时图片
+DROP POLICY IF EXISTS "Admin Delete" ON storage.objects;
+CREATE POLICY "Admin Delete" ON storage.objects 
+FOR DELETE TO authenticated 
+USING (bucket_id = 'submissions' AND public.is_admin());
 
 -- ==========================================
 -- 7. 索引优化 (大幅增强查询性能)

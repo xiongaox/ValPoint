@@ -9,8 +9,8 @@
 import React, { useState } from 'react';
 import Icon, { IconName } from '../../../components/Icon';
 import { AdminPage, AdminInfo } from '../AdminApp';
-import UserProfileModal from '../../shared/components/UserProfileModal';
 import UserAvatar from '../../../components/UserAvatar';
+import AdminProfileModal from './AdminProfileModal';
 
 interface AdminLayoutProps {
     currentPage: AdminPage;
@@ -39,7 +39,6 @@ const NAV_ITEMS: { id: AdminPage; label: string; icon: IconName }[] = [
 function AdminLayout({ currentPage, onPageChange, onLogout, adminInfo, setAlertMessage, children }: AdminLayoutProps) {
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const [avatarError, setAvatarError] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
 
     // 内部 alertMessage handler（如果父组件没提供）
@@ -50,21 +49,13 @@ function AdminLayout({ currentPage, onPageChange, onLogout, adminInfo, setAlertM
         setIsLoggingOut(true);
         // 如果是 Supabase 登录，需要登出
         if (adminInfo.userId) {
-            const { supabase } = await import('../../../supabaseClient');
-            await supabase.auth.signOut();
+            const { adminSupabase } = await import('../../../supabaseClient');
+            await adminSupabase.auth.signOut();
         }
         onLogout?.();
         setIsLoggingOut(false);
         setShowUserMenu(false);
     };
-
-    // 是否显示头像图片
-    const showAvatarImage = adminInfo.avatar && !avatarError;
-
-    // 头像 URL（如果是文件名则添加 /agents/ 前缀）
-    const avatarSrc = adminInfo.avatar
-        ? (adminInfo.avatar.startsWith('http') ? adminInfo.avatar : `/agents/${adminInfo.avatar}`)
-        : null;
 
     // 角色显示文本
     const roleLabel = adminInfo.isSuperAdmin ? '超级管理员' : '管理员';
@@ -203,7 +194,6 @@ function AdminLayout({ currentPage, onPageChange, onLogout, adminInfo, setAlertM
                                                         <Icon name="User" size={16} />
                                                         个人资料
                                                     </button>
-                                                    {/* 分隔线 */}
                                                     <div className="border-t border-white/10 my-1" />
                                                 </>
                                             )}
@@ -240,16 +230,15 @@ function AdminLayout({ currentPage, onPageChange, onLogout, adminInfo, setAlertM
                 </div>
             </div>
 
-            {/* 个人资料弹窗 */}
-            {
-                adminInfo.userId && (
-                    <UserProfileModal
-                        isOpen={showProfileModal}
-                        onClose={() => setShowProfileModal(false)}
-                        setAlertMessage={handleAlertMessage}
-                    />
-                )
-            }
+            {/* 管理员个人资料弹窗 */}
+            {adminInfo.userId && (
+                <AdminProfileModal
+                    isOpen={showProfileModal}
+                    onClose={() => setShowProfileModal(false)}
+                    adminEmail={adminInfo.account}
+                    setAlertMessage={handleAlertMessage}
+                />
+            )}
         </>);
 }
 

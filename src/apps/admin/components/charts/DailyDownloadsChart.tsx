@@ -11,7 +11,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import { supabase } from '../../../../supabaseClient';
+import { adminSupabase } from '../../../../supabaseClient';
 import { format, parseISO } from 'date-fns';
 
 interface DownloadTrend {
@@ -26,7 +26,7 @@ export default function DailyDownloadsChart() {
     useEffect(() => {
         async function fetchTrends() {
             try {
-                const { data: trends, error } = await supabase.rpc('get_daily_download_trends');
+                const { data: trends, error } = await adminSupabase.rpc('get_daily_download_trends');
                 if (error) throw error;
 
                 // Format dates for display (e.g., "12/29")

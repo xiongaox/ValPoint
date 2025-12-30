@@ -6,7 +6,7 @@
  * - 批准时自动将图片从临时存储迁移到官方 OSS
  * - 联动更新共享库数据并清理临时资源
  */
-import { supabase, shareSupabase } from '../supabaseClient';
+import { supabase, shareSupabase, adminSupabase } from '../supabaseClient';
 import { LineupSubmission } from '../types/submission';
 import { ImageBedConfig } from '../types/imageBed';
 import { transferImage } from './imageBed';
@@ -14,7 +14,7 @@ import { TABLE } from '../services/tables';
 
 /** 获取所有待审投稿 */
 export async function getPendingSubmissions(): Promise<LineupSubmission[]> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
         .from('lineup_submissions')
         .select('*')
         .eq('status', 'pending')
@@ -29,7 +29,7 @@ export async function getPendingSubmissions(): Promise<LineupSubmission[]> {
 
 /** 获取所有投稿（包括已审核的） */
 export async function getAllSubmissions(): Promise<LineupSubmission[]> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
         .from('lineup_submissions')
         .select('*')
         .order('created_at', { ascending: false });
@@ -114,10 +114,12 @@ export async function approveSubmission(
             land_img: migratedUrls.land_img || submission.land_img,
             land_desc: submission.land_desc,
             source_link: submission.source_link,
-            user_id: submission.submitter_email || `user_${submission.submitter_id.substring(0, 8)}`,
+            author_name: submission.author_name,
+            author_avatar: submission.author_avatar,
+            author_uid: submission.submitter_email || `user_${submission.submitter_id.substring(0, 8)}`,
         };
 
-        const { error: insertError } = await shareSupabase
+        const { error: insertError } = await adminSupabase
             .from(TABLE.shared)
             .insert(sharedLineup);
 
@@ -126,7 +128,7 @@ export async function approveSubmission(
         }
 
         // 3. 更新投稿状态
-        const { error: updateError } = await supabase
+        const { error: updateError } = await adminSupabase
             .from('lineup_submissions')
             .update({
                 status: 'approved',
@@ -160,7 +162,7 @@ export async function rejectSubmission(
 ): Promise<{ success: boolean; error?: string }> {
     try {
         // 1. 获取投稿信息用于后续清理
-        const { data: submission, error: fetchError } = await supabase
+        const { data: submission, error: fetchError } = await adminSupabase
             .from('lineup_submissions')
             .select('*')
             .eq('id', submissionId)
@@ -171,7 +173,7 @@ export async function rejectSubmission(
         }
 
         // 2. 更新投稿状态
-        const { error } = await supabase
+        const { error } = await adminSupabase
             .from('lineup_submissions')
             .update({
                 status: 'rejected',
@@ -204,10 +206,10 @@ export async function deleteSubmissionImages(submission: LineupSubmission): Prom
     const basePath = `${submission.submitter_id}/${submission.id}`;
 
     try {
-        const { data: files } = await supabase.storage.from(bucket).list(basePath);
+        const { data: files } = await adminSupabase.storage.from(bucket).list(basePath);
         if (files && files.length > 0) {
             const paths = files.map((f) => `${basePath}/${f.name}`);
-            await supabase.storage.from(bucket).remove(paths);
+            await adminSupabase.storage.from(bucket).remove(paths);
         }
     } catch (error) {
         console.error('删除临时文件失败:', error);
@@ -231,7 +233,7 @@ export interface SharedLineup {
 
 /** 获取共享库所有点位 */
 export async function getSharedLineups(): Promise<SharedLineup[]> {
-    const { data, error } = await shareSupabase
+    const { data, error } = await adminSupabase
         .from(TABLE.shared)
         .select('*')
         .order('created_at', { ascending: false });
@@ -245,7 +247,7 @@ export async function getSharedLineups(): Promise<SharedLineup[]> {
 
 /** 删除共享库点位 */
 export async function deleteSharedLineup(id: string): Promise<{ success: boolean; error?: string }> {
-    const { error } = await shareSupabase
+    const { error } = await adminSupabase
         .from(TABLE.shared)
         .delete()
         .eq('id', id);

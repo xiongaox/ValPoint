@@ -8,6 +8,7 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/Icon';
+import AlertModal from '../../../components/AlertModal';
 import UserAvatar from '../../../components/UserAvatar';
 import { adminSupabase } from '../../../supabaseClient';
 import UserEditModal, { UserProfile } from '../components/UserEditModal';
@@ -471,37 +472,17 @@ function UsersPage() {
 
             {/* 删除确认弹窗 */}
             {deletingUser && (
-                <div className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="w-full max-w-sm bg-[#1f2326] border border-white/10 rounded-xl shadow-2xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
-                                <Icon name="AlertTriangle" size={20} className="text-red-400" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-white">确认删除</h3>
-                        </div>
-                        <p className="text-gray-400 text-sm mb-6">
-                            确定要永久删除用户 <span className="text-white font-medium">{deletingUser.email}</span> 吗？
-                            <span className="text-red-400">此操作不可撤销，用户账户将被完全删除。</span>
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setDeletingUser(null)}
-                                disabled={isDeleting}
-                                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg transition-colors disabled:opacity-50"
-                            >
-                                取消
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                disabled={isDeleting}
-                                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {isDeleting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                                确认删除
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <AlertModal
+                    variant="danger"
+                    title="确认删除"
+                    subtitle="安全操作"
+                    message={`确定要永久删除用户 ${deletingUser.email} 吗？此操作不可撤销，用户账户将被完全删除。`}
+                    onClose={() => setDeletingUser(null)}
+                    actionLabel={isDeleting ? '删除中...' : '确认删除'}
+                    onAction={handleDelete}
+                    secondaryLabel="取消"
+                    onSecondary={() => setDeletingUser(null)}
+                />
             )}
 
             {/* 提示消息 */}

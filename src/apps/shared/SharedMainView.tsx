@@ -111,8 +111,9 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
             }
             // 从数据库配置获取
             const settings = await getSystemSettings();
-            if (settings?.personal_library_url) {
-                setPersonalLibraryUrl(settings.personal_library_url);
+            if (settings) {
+                // 默认使用相对路径
+                setPersonalLibraryUrl('/user.html');
             } else {
                 // 默认使用相对路径
                 setPersonalLibraryUrl('/user.html');
@@ -455,7 +456,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
             <MobileLineupList
                 isOpen={isMobileLineupListOpen}
                 onClose={() => setIsMobileLineupListOpen(false)}
-                lineups={controller.filteredLineups}
+                lineups={mobileFilteredLineups}
                 selectedLineupId={controller.selectedLineupId}
                 onSelectLineup={controller.setSelectedLineupId}
                 isLoading={controller.isLoading}
@@ -476,7 +477,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 isSavingShared={controller.isDownloading}
             />
 
-            {/* 共享者筛选弹窗 */}
+            {/* 共享者筛选弹窗 - 桌面端 */}
             <SharedFilterModal
                 isOpen={controller.isFilterModalOpen}
                 contributors={controller.contributors}

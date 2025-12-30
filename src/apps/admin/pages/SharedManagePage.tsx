@@ -12,6 +12,7 @@
  */
 import React, { useEffect, useState, useMemo } from 'react';
 import Icon from '../../../components/Icon';
+import AlertModal from '../../../components/AlertModal';
 import Select from '../../../components/Select';
 import { getSharedLineups, deleteSharedLineup, deleteSharedLineups, SharedLineup } from '../../../lib/reviewService';
 import { MAP_TRANSLATIONS } from '../../../constants/maps';
@@ -374,45 +375,21 @@ const SharedManagePage: React.FC = () => {
 
             {/* 删除确认弹窗 */}
             {deleteConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#1f2326] rounded-xl p-6 w-full max-w-md border border-white/10 shadow-2xl">
-                        <div className="flex items-center gap-3 mb-4 text-red-500">
-                            <Icon name="AlertTriangle" size={24} />
-                            <h3 className="text-lg font-bold text-white">确认删除</h3>
-                        </div>
-                        <p className="text-gray-400 mb-6">
-                            {deleteConfirm.type === 'batch'
-                                ? `确定要删除选中的 ${deleteConfirm.ids.length} 个点位吗？`
-                                : '确定要删除这个点位吗？'
-                            }
-                            <br />
-                            <span className="text-red-400 text-sm mt-2 block">此操作不可撤销，删除后将无法恢复。</span>
-                        </p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => setDeleteConfirm(null)}
-                                disabled={isDeleting}
-                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors bg-white/5 rounded-lg border border-white/5 hover:border-white/20"
-                            >
-                                取消
-                            </button>
-                            <button
-                                onClick={executeDelete}
-                                disabled={isDeleting}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {isDeleting ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        删除中...
-                                    </>
-                                ) : (
-                                    '确认删除'
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <AlertModal
+                    variant="danger"
+                    title="确认删除"
+                    subtitle="安全操作"
+                    message={
+                        deleteConfirm.type === 'batch'
+                            ? `确定要删除选中的 ${deleteConfirm.ids.length} 个点位吗？此操作不可撤销。`
+                            : '确定要删除这个点位吗？此操作不可撤销。'
+                    }
+                    onClose={() => setDeleteConfirm(null)}
+                    actionLabel={isDeleting ? '删除中...' : '确认删除'}
+                    onAction={executeDelete}
+                    secondaryLabel="取消"
+                    onSecondary={() => setDeleteConfirm(null)}
+                />
             )}
 
 

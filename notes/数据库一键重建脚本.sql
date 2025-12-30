@@ -205,8 +205,6 @@ CREATE TABLE IF NOT EXISTS public.user_daily_downloads (
 -- 3.6 系统设置表
 CREATE TABLE IF NOT EXISTS public.system_settings (
     id UUID PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
-    personal_library_url TEXT DEFAULT '',
-    shared_library_url TEXT DEFAULT '',
     official_oss_config JSONB,
     submission_enabled BOOLEAN DEFAULT true,
     daily_submission_limit INTEGER DEFAULT 10,

@@ -12,8 +12,6 @@ import { AuthorLinks } from '../types/authorLinks';
 /** 系统设置类型 */
 export interface SystemSettings {
     id: string;
-    personal_library_url: string;
-    shared_library_url: string;
     // 投稿相关
     official_oss_config: ImageBedConfig | null;
     submission_enabled: boolean;
@@ -71,8 +69,6 @@ export async function getSystemSettings(): Promise<SystemSettings | null> {
  */
 export async function updateSystemSettings(
     updates: Partial<Pick<SystemSettings,
-        | 'personal_library_url'
-        | 'shared_library_url'
         | 'official_oss_config'
         | 'submission_enabled'
         | 'daily_submission_limit'

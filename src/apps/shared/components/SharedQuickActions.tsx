@@ -16,6 +16,7 @@ type Props = {
     onToggle: () => void;
     onChangePassword: () => void;
     onUserProfile: () => void;
+    saveProgress?: number;
 };
 
 const ActionButton = ({ onClick, icon, title, color = "bg-[#2a2f38]" }: { onClick: () => void, icon: IconName, title: string, color?: string }) => (
@@ -38,6 +39,7 @@ const SharedQuickActions: React.FC<Props> = ({
     onToggle,
     onChangePassword,
     onUserProfile,
+    saveProgress,
 }) => {
     const { user } = useEmailAuth();
 
@@ -54,14 +56,48 @@ const SharedQuickActions: React.FC<Props> = ({
                         </>
                     )}
 
-                    <button
-                        onClick={onToggle}
-                        className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg border border-white/10 transition-all duration-300 z-40 ${isOpen ? 'bg-[#2a2f38] rotate-90' : 'bg-[#ff4655] hover:bg-[#d93a49] shadow-red-900/40'
-                            }`}
-                        title="快捷功能"
-                    >
-                        <Icon name={isOpen ? 'X' : 'Menu'} size={22} />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {typeof saveProgress === 'number' && saveProgress > 0 && saveProgress < 100 && (
+                            <div className="w-12 h-12 relative flex items-center justify-center animate-in fade-in zoom-in duration-300">
+                                {/* 背景环 */}
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="24"
+                                        cy="24"
+                                        r="20"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                        className="text-gray-700"
+                                    />
+                                    {/* 进度环 */}
+                                    <circle
+                                        cx="24"
+                                        cy="24"
+                                        r="20"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                        strokeDasharray={125.6}
+                                        strokeDashoffset={125.6 - (125.6 * saveProgress) / 100}
+                                        className="text-[#ff4655] transition-all duration-300 ease-out"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                {/* 中间文字 */}
+                                <span className="absolute text-[10px] font-bold text-white">{saveProgress}%</span>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={onToggle}
+                            className={`w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg border border-white/10 transition-all duration-300 z-40 ${isOpen ? 'bg-[#2a2f38] rotate-90' : 'bg-[#ff4655] hover:bg-[#d93a49] shadow-red-900/40'
+                                }`}
+                            title="快捷功能"
+                        >
+                            <Icon name={isOpen ? 'X' : 'Menu'} size={22} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

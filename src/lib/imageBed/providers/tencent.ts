@@ -28,8 +28,8 @@ const createCosClient = (config: ImageBedConfig) => {
   });
 };
 
-const buildObjectKey = (basePath: string | undefined) => {
-  return buildSecureObjectKey(basePath);
+const buildObjectKey = (basePath: string | undefined, extension?: string) => {
+  return buildSecureObjectKey(basePath, extension);
 };
 
 const buildPublicUrl = (config: ImageBedConfig, objectKey: string) => {
@@ -111,7 +111,7 @@ const uploadBlobToCos = async (
   }
 
   const cos = createCosClient(config);
-  const objectKey = buildObjectKey(config.path);
+  const objectKey = buildObjectKey(config.path, options.extensionHint);
 
   const fullBucket = bucket.includes(appId) ? bucket : `${bucket}-${appId}`;
 

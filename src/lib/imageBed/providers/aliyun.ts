@@ -19,8 +19,8 @@ import {
   downloadImageBlob,
 } from '../utils';
 
-const buildObjectKey = (basePath: string | undefined) => {
-  return buildSecureObjectKey(basePath);
+const buildObjectKey = (basePath: string | undefined, extension?: string) => {
+  return buildSecureObjectKey(basePath, extension);
 };
 
 const createOssClient = (config: ImageBedConfig) => {
@@ -85,7 +85,7 @@ const uploadBlobToOss = async (
   options: UploadOptions = {},
 ): Promise<UploadResult> => {
   const client = createOssClient(config);
-  const objectKey = buildObjectKey(config.basePath || config.path);
+  const objectKey = buildObjectKey(config.basePath || config.path, options.extensionHint);
   const result = await uploadWithRetry(client, objectKey, blob, options.onProgress);
   const finalKey = (result as any).name || objectKey;
   const url = buildPublicUrl(config, finalKey);

@@ -19,15 +19,18 @@ import SubmitLineupModal from './SubmitLineupModal';
 import { useSharedController } from './useSharedController';
 import { getSystemSettings } from '../../lib/systemSettings';
 import AuthorLinksBar from '../../components/AuthorLinksBar';
-
 import LibrarySwitchButton from '../../components/LibrarySwitchButton';
+
+
+
 import SharedQuickActions from './components/SharedQuickActions';
 import CompactUserCard from '../../components/CompactUserCard';
 import UserAvatar from '../../components/UserAvatar';
 import ChangePasswordModal from '../../components/ChangePasswordModal';
 import UserProfileModal from './components/UserProfileModal';
 import ChangelogModal from '../../components/ChangelogModal';
-import { SubscriptionModal } from './components/SubscriptionModal';
+
+import AlertModal from '../../components/AlertModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
@@ -66,7 +69,8 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
     const [isChangelogOpen, setIsChangelogOpen] = useState(false);
-    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+
+
 
     const [personalLibraryUrl, setPersonalLibraryUrl] = useState<string>('');
 
@@ -139,6 +143,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     setIsPreviewModalOpen={() => { }}
                     getMapDisplayName={controller.getMapDisplayName}
                     openChangelog={() => setIsChangelogOpen(true)}
+                    onReset={controller.handleReset}
                 />
             )}
 
@@ -167,9 +172,9 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             {user && (
                                 <LibrarySwitchButton
                                     currentLibrary="shared"
-                                    onSharedClick={() => setIsSubscriptionModalOpen(true)}
                                 />
                             )}
+
 
 
 
@@ -198,6 +203,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                     setIsQuickActionsOpen(false);
                                     setIsProfileModalOpen(true);
                                 }}
+                                saveProgress={controller.saveProgressAverage}
                             />
                         )}
                     </>
@@ -213,13 +219,13 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                 >
                                     个人库
                                 </a>
-                                <button
-                                    onClick={() => setIsSubscriptionModalOpen(true)}
+
+                                <div
                                     className={`px-4 h-[32px] flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${controller.currentSubscription.id === 'local' ? 'bg-[#17b890] text-white' : 'bg-[#ff4655] text-white'
                                         }`}
                                 >
                                     共享库
-                                </button>
+                                </div>
                             </div>
                         </div>
 
@@ -231,7 +237,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                         className="w-[32px] h-[32px] flex items-center justify-center rounded-lg overflow-hidden hover:bg-white/10 transition-colors"
                                         title="个人中心"
                                     >
-                                        <UserAvatar email={user?.email || ''} size={32} bordered={false} />
+                                        <UserAvatar email={user?.email || ''} size={32} bordered={false} avatarUrl={profile?.avatar} />
                                     </button>
                                     <button
                                         onClick={onSignOut}
@@ -420,6 +426,8 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 getMapDisplayName={controller.getMapDisplayName}
                 getMapEnglishName={controller.getMapEnglishName}
                 isGuest={!user}
+                handleSaveToPersonal={controller.handleSaveToPersonal}
+                isSavingToPersonal={controller.viewingLineup ? controller.savingLineupIds.has(controller.viewingLineup.id) : false}
                 handleCopyShared={(lineup: any) => {
                     if (lineup) controller.handleDownload(lineup.id);
                 }}
@@ -486,20 +494,26 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                 onClose={() => setIsChangelogOpen(false)}
             />
 
-            <SubscriptionModal
-                isOpen={isSubscriptionModalOpen}
-                onClose={() => setIsSubscriptionModalOpen(false)}
-                subscriptions={controller.subscriptions}
-                currentSubscription={controller.currentSubscription}
-                onSetSubscription={(sub) => {
-                    controller.setSubscription(sub);
-                    setIsSubscriptionModalOpen(false);
-                }}
-                onAddSubscription={controller.addSubscription}
-                onRemoveSubscription={controller.removeSubscription}
-                onUpdateSubscription={controller.updateSubscription}
-                onReorderSubscription={controller.reorderSubscription}
 
+
+            <AlertModal
+                title="需配置图床"
+                message={controller.isConfigConfirmOpen ? '为了保证数据的长期可用性，保存点位前必须配置个人图床。\n\n系统不再支持直接引用原作者的图片链接。\n请先完成配置。' : null}
+                variant="default"
+                actionLabel="去配置"
+                onAction={() => {
+                    const currentUrl = new URL(window.location.href);
+                    // 强制确保 URL 包含当前选中的点位 ID
+                    if (controller.selectedLineupId || controller.viewingLineup?.id) {
+                        const targetId = controller.selectedLineupId || controller.viewingLineup?.id;
+                        if (targetId) currentUrl.searchParams.set('lineup', targetId);
+                    }
+                    const returnUrl = encodeURIComponent(currentUrl.toString());
+                    window.location.href = `/user.html?open=image_config&return_to=${returnUrl}`;
+                }}
+                secondaryLabel="取消"
+                onSecondary={controller.handleCancelSave}
+                onClose={controller.handleCancelSave}
             />
         </div>
     );

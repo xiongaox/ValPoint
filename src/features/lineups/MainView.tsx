@@ -44,6 +44,7 @@ type LeftProps = {
   setIsPreviewModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
   openChangelog: () => void;
+  onReset?: () => void;
 };
 
 type MapProps = {
@@ -119,9 +120,10 @@ type Props = {
   user: User | null;
   onSignOut: () => void;
   onOpenProfile: () => void;
+  userAvatarUrl?: string | null;
 };
 
-const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quickActions, right, hideSharedButton, hideAuthorLinks, user, onSignOut, onOpenProfile }) => {
+const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quickActions, right, hideSharedButton, hideAuthorLinks, user, onSignOut, onOpenProfile, userAvatarUrl }) => {
   const isMobile = useIsMobile();
   const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
   const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
@@ -152,6 +154,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           setIsPreviewModalOpen={left.setIsPreviewModalOpen}
           getMapDisplayName={left.getMapDisplayName}
           openChangelog={left.openChangelog}
+          onReset={left.onReset}
         />
       )}
 
@@ -234,7 +237,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
                   className="w-[32px] h-[32px] flex items-center justify-center rounded-lg overflow-hidden hover:bg-white/10 transition-colors"
                   title="个人中心"
                 >
-                  <UserAvatar email={user?.email || ''} size={32} bordered={false} />
+                  <UserAvatar email={user?.email || ''} size={32} bordered={false} avatarUrl={userAvatarUrl} />
                 </button>
                 <button
                   onClick={onSignOut}

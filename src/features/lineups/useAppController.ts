@@ -61,6 +61,72 @@ export function useAppController() {
     selectedMap,
     selectedSide,
   });
+
+  // URL State Initialization & Sync
+  const [hasInitializedMap, setHasInitializedMap] = useState(false);
+  const [hasInitializedAgent, setHasInitializedAgent] = useState(false);
+
+  // 1. Initialize Map from URL
+  useEffect(() => {
+    if (maps.length > 0 && !hasInitializedMap) {
+      const params = new URLSearchParams(window.location.search);
+      const mapName = params.get('map');
+      if (mapName) {
+        const targetMap = maps.find(m => m.displayName === mapName);
+        if (targetMap) setSelectedMap(targetMap);
+      } else {
+        // Default to first map if not set? 
+        // useValorantData might already default to first map.
+        // If generic default is applied, we don't need to force it unless we want strict URL sync.
+      }
+      setHasInitializedMap(true);
+    }
+  }, [maps, hasInitializedMap, setSelectedMap]);
+
+  // 2. Initialize Agent from URL
+  useEffect(() => {
+    if (agents.length > 0 && !hasInitializedAgent) {
+      const params = new URLSearchParams(window.location.search);
+      const agentName = params.get('agent');
+      if (agentName) {
+        const targetAgent = agents.find(a => a.displayName === agentName);
+        if (targetAgent) setSelectedAgent(targetAgent);
+      }
+      setHasInitializedAgent(true);
+    }
+  }, [agents, hasInitializedAgent, setSelectedAgent]);
+
+  // 3. Sync State to URL
+  useEffect(() => {
+    if (!hasInitializedMap || !hasInitializedAgent) return;
+
+    const params = new URLSearchParams(window.location.search);
+    let changed = false;
+
+    if (selectedMap && params.get('map') !== selectedMap.displayName) {
+      params.set('map', selectedMap.displayName);
+      changed = true;
+    }
+
+    if (selectedAgent && params.get('agent') !== selectedAgent.displayName) {
+      params.set('agent', selectedAgent.displayName);
+      changed = true;
+    }
+
+    if (selectedLineupId && params.get('lineup') !== selectedLineupId) {
+      params.set('lineup', selectedLineupId);
+      changed = true;
+    } else if (!selectedLineupId && params.has('lineup')) {
+      params.delete('lineup');
+      changed = true;
+    }
+
+    if (changed) {
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [selectedMap, selectedAgent, selectedLineupId, hasInitializedMap, hasInitializedAgent]);
+
   const { user, signOut } = useEmailAuth();
   const userId = user?.id || null;
   const { profile, isLoading: profileLoading } = useUserProfile();
@@ -84,6 +150,21 @@ export function useAppController() {
   const handleResetUserId = () => { };
   const handleConfirmUserAuth = async () => { };
   const { lineups, setLineups, fetchLineups } = useLineups(mapNameZhToEn);
+
+  // Restore Lineup from URL (Deep Link)
+  const hasRestoredLineup = React.useRef(false);
+  const initialLineupId = React.useRef<string | null>(new URLSearchParams(window.location.search).get('lineup'));
+
+  useEffect(() => {
+    if (lineups.length > 0 && initialLineupId.current && !hasRestoredLineup.current && !selectedLineupId) {
+      const target = lineups.find(l => l.id === initialLineupId.current);
+      if (target) {
+        setSelectedLineupId(target.id);
+        setViewingLineup(target);
+        hasRestoredLineup.current = true;
+      }
+    }
+  }, [lineups, selectedLineupId, setSelectedLineupId, setViewingLineup]);
   const { pinnedLineupIds, togglePinnedLineup, orderedLineups } = usePinnedLineups({
     userId,
     lineups,
@@ -94,6 +175,7 @@ export function useAppController() {
   });
   const { saveNewLineup, updateLineup, deleteLineup, clearLineups, clearLineupsByAgent } = useLineupActions();
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
 
   const { agentCounts, filteredLineups, isFlipped, mapLineups, allMapLineups } = useLineupFiltering({
     lineups: orderedLineups,
@@ -118,6 +200,17 @@ export function useAppController() {
       setSelectedAgent(null);
     }
   }, [agents, setSelectedMap, setSelectedAgent, setSelectedSide]);
+
+  const handleReset = useCallback(() => {
+    if (maps.length > 0) setSelectedMap(maps[0]);
+    if (agents.length > 0) setSelectedAgent(agents[0]);
+    else setSelectedAgent(null);
+    setSelectedAbilityIndex(null);
+    setSelectedSide('all');
+    setSelectedLineupId(null);
+    setViewingLineup(null);
+    setSearchQuery('');
+  }, [maps, agents, setSelectedMap, setSelectedAgent, setSelectedAbilityIndex, setSelectedSide, setSelectedLineupId, setViewingLineup, setSearchQuery]);
 
   useAppLifecycle({
     userId,
@@ -231,6 +324,21 @@ export function useAppController() {
     handleClearAll,
     setIsChangePasswordOpen: modal.setIsChangePasswordOpen,
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('open') === 'image_config') {
+      setIsImageConfigOpen(true);
+      const ret = params.get('return_to');
+      if (ret) setReturnUrl(decodeURIComponent(ret));
+    }
+  }, [setIsImageConfigOpen]);
+
+  useEffect(() => {
+    if (!isImageConfigOpen && returnUrl) {
+      window.location.href = returnUrl;
+    }
+  }, [isImageConfigOpen, returnUrl]);
 
   const { onSaveShared, isSavingShared, pendingTransfers } = useShareController({
     lineups,
@@ -406,6 +514,8 @@ export function useAppController() {
     onSignOut: signOut,
     onOpenProfile: () => setIsProfileModalOpen(true),
     canBatchDownload: profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.can_batch_download,
+    onReset: handleReset,
+    userAvatarUrl: profile?.avatar,
   });
 
   const modalProps = buildModalProps({

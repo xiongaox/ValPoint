@@ -41,7 +41,7 @@ const CompactUserCard: React.FC<CompactUserCardProps> = ({
                     <>
                         <div className="relative shrink-0">
                             <div className="rounded-xl overflow-hidden border border-white/20 shadow-inner group-hover:border-[#ff4655]/50 transition-colors duration-300">
-                                <UserAvatar email={user.email || ''} size={36} bordered={false} />
+                                <UserAvatar email={user.email || ''} size={36} bordered={false} avatarUrl={profile?.avatar} />
                             </div>
                             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#0f1923] rounded-full flex items-center justify-center">
                                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />

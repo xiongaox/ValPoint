@@ -30,6 +30,7 @@ type Props = {
   setIsPreviewModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
   openChangelog: () => void;
+  onReset?: () => void;
 };
 
 const LeftPanel: React.FC<Props> = ({
@@ -47,6 +48,7 @@ const LeftPanel: React.FC<Props> = ({
   setIsPreviewModalOpen,
   getMapDisplayName,
   openChangelog,
+  onReset,
 }) => {
   const handleAgentClick = (agent: AgentData) => {
     if (selectedAgent?.uuid === agent.uuid) {
@@ -75,6 +77,16 @@ const LeftPanel: React.FC<Props> = ({
         <div>
           <div className="flex justify-between items-center mb-2">
             <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">当前地图 (Map)</label>
+            {onReset && (
+              <button
+                onClick={onReset}
+                className="text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors px-2 py-0.5 rounded hover:bg-white/10"
+                title="重置为初始状态"
+              >
+                <Icon name="RotateCcw" size={12} />
+                刷新页面
+              </button>
+            )}
           </div>
           {selectedMap && (
             <div

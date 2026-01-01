@@ -17,6 +17,7 @@ interface UserAvatarProps {
     className?: string;
     bordered?: boolean;
     borderColor?: 'default' | 'red' | 'white';
+    avatarUrl?: string | null;
 }
 
 const getInitialCache = () => {
@@ -64,13 +65,14 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     size = 40,
     className = '',
     bordered = true,
-    borderColor = 'default'
+    borderColor = 'default',
+    avatarUrl
 }) => {
     const normalizedEmail = useMemo(() => (email || '').toLowerCase(), [email]);
 
     const defaultAvatar = useMemo(() => getAvatarByEmail(normalizedEmail), [normalizedEmail]);
-    const [avatar, setAvatar] = useState<string>(defaultAvatar);
-    const [loading, setLoading] = useState(true);
+    const [avatar, setAvatar] = useState<string>(avatarUrl || defaultAvatar);
+    const [loading, setLoading] = useState(!avatarUrl);
     const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
@@ -84,6 +86,12 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     }, []);
 
     useEffect(() => {
+        if (avatarUrl) {
+            setAvatar(avatarUrl);
+            setLoading(false);
+            return;
+        }
+
         const cached = avatarCache.get(normalizedEmail);
         if (cached) {
             setAvatar(cached);

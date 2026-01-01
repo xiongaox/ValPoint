@@ -24,6 +24,8 @@ const ViewerModal = ({
   isGuest,
   handleCopyShared = undefined,
   isSavingShared = false,
+  handleSaveToPersonal = undefined,
+  isSavingToPersonal = false,
   onSubmitLineup, // 说明：投稿回调。
   isAdmin = true, // 说明：是否管理员，默认 true 不显示投稿按钮。
 }: any) => {
@@ -169,9 +171,28 @@ const ViewerModal = ({
                   onClick={() => handleCopyShared(viewingLineup)}
                   disabled={isSavingShared}
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 text-sm text-emerald-300 hover:border-emerald-400 hover:text-emerald-200 transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
-                  title="下载点位"
+                  title="下载点位包"
                 >
-                  <Icon name="Download" size={14} /> {isSavingShared ? '下载中...' : '下载点位'}
+                  <Icon name="Download" size={14} /> {isSavingShared ? '下载中...' : '下载'}
+                </button>
+              )}
+              {handleSaveToPersonal && !isMobile && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const started = await handleSaveToPersonal(viewingLineup);
+                    if (started && typeof started === 'boolean') {
+                      onClose();
+                    }
+                  }}
+                  disabled={isSavingToPersonal}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap ${isSavingToPersonal
+                    ? 'bg-blue-500/50 cursor-not-allowed disabled:opacity-60'
+                    : 'border border-yellow-500/50 bg-yellow-500/10 text-yellow-300 hover:border-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20'
+                    }`}
+                  title="保存到个人库"
+                >
+                  <Icon name="Save" size={14} /> {isSavingToPersonal ? '保存中...' : '保存'}
                 </button>
               )}
               {!isMobile && (

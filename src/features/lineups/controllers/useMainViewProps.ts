@@ -78,6 +78,8 @@ type Params = {
   onSignOut: () => void;
   onOpenProfile: () => void;
   canBatchDownload?: boolean;
+  onReset?: () => void;
+  userAvatarUrl?: string | null;
 };
 
 export function buildMainViewProps(params: Params): React.ComponentProps<typeof MainView> {
@@ -105,6 +107,7 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       setIsPreviewModalOpen: params.setIsPreviewModalOpen,
       getMapDisplayName: params.getMapDisplayName,
       openChangelog: params.openChangelog,
+      onReset: params.onReset,
     },
     map: {
       activeTab: params.activeTab,
@@ -170,5 +173,6 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
     user: params.user,
     onSignOut: params.onSignOut,
     onOpenProfile: params.onOpenProfile,
+    userAvatarUrl: params.userAvatarUrl,
   };
 }

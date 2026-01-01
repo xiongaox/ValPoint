@@ -91,6 +91,28 @@ export function useActionMenu({
     } catch (e) {
       console.error(e);
     }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'valpoint_imagebed_configs' || e.key === 'valpoint_imagebed_last_provider') {
+        try {
+          const multiConfigStr = localStorage.getItem('valpoint_imagebed_configs');
+          if (multiConfigStr) {
+            const multiConfigs = JSON.parse(multiConfigStr);
+            const lastProvider = localStorage.getItem('valpoint_imagebed_last_provider');
+            const currentProvider = lastProvider || defaultImageBedConfig.provider;
+            const savedConfig = multiConfigs[currentProvider];
+            if (savedConfig) {
+              setImageBedConfig(normalizeImageBedConfig(savedConfig));
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleImageBedConfig = () => {

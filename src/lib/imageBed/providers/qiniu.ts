@@ -39,8 +39,8 @@ const generateUploadToken = (accessKey: string, secretKey: string, bucket: strin
   return `${accessKey}:${encodedSign}:${encodedPutPolicy}`;
 };
 
-const buildObjectKey = (basePath: string | undefined) => {
-  return buildSecureObjectKey(basePath);
+const buildObjectKey = (basePath: string | undefined, extension?: string) => {
+  return buildSecureObjectKey(basePath, extension);
 };
 
 const buildPublicUrl = (config: ImageBedConfig, objectKey: string) => {
@@ -85,7 +85,7 @@ const uploadBlobToQiniu = async (
     throw error;
   }
 
-  const objectKey = buildObjectKey(config.path);
+  const objectKey = buildObjectKey(config.path, options.extensionHint);
 
   console.log('[qiniu] generating upload token', { bucket, objectKey });
 

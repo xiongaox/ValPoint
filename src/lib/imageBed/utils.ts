@@ -41,9 +41,13 @@ export const generateUUID = (): string => {
   return crypto.randomUUID().replace(/-/g, '');
 };
 
-export const buildSecureObjectKey = (basePath: string | undefined): string => {
+export const buildSecureObjectKey = (basePath: string | undefined, extension?: string): string => {
   const prefix = trimSlashes(basePath || '');
-  const fileName = generateUUID();
+  let fileName = generateUUID();
+
+  if (extension) {
+    fileName = `${fileName}.${extension.replace(/^\./, '')}`; // 确保不重复点号
+  }
 
   if (prefix) {
     return `${prefix}/${fileName}`;

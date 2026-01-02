@@ -2,13 +2,30 @@
     "buildCommand": "npm run build:all",
     "outputDirectory": "dist",
     "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
         {
             "source": "/valpoint.json",
             "destination": "/api/valpoint"
         },
         {
-            "source": "/:path((?!wiki|api|assets|_next).*)",
+            "source": "/wiki",
+            "destination": "/wiki/index.html"
+        },
+        {
+            "source": "/user.html",
+            "destination": "/user.html"
+        },
+        {
+            "source": "/admin.html",
+            "destination": "/admin.html"
+        },
+        {
+            "source": "/",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/((?!wiki|api|assets|_next|\\.well-known).*)",
             "destination": "/index.html"
         }
     ],

@@ -17,8 +17,9 @@
 
 <div align="center" style="margin-top:16px;">
   <a href="http://valpoint.cn">🌐 官网</a> &nbsp;|&nbsp;
-  <a href="https://valpoint.vercel.app">🔗 备用1</a> &nbsp;|&nbsp;
-  <a href="https://valpoint.pages.dev">🔗 备用2</a> &nbsp;|&nbsp;
+  <a href="valpoint.cff1f4ee.er.aliyun-esa.net">🔗 备用1【阿里云ESA】</a> &nbsp;|&nbsp;
+  <a href="https://valpoint.vercel.app">🔗 备用2【Vercel】</a> &nbsp;|&nbsp;
+  <a href="https://valpoint.xiongaox.workers.dev">🔗 备用3【Cloudflare】</a> &nbsp;|&nbsp;
   <a href="http://valpoint.cn/wiki/">📖 查看文档</a>
 </div>
 

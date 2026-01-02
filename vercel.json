@@ -13,16 +13,8 @@
             "destination": "/wiki/index.html"
         },
         {
-            "source": "/user.html",
-            "destination": "/user.html"
-        },
-        {
-            "source": "/admin.html",
-            "destination": "/admin.html"
-        },
-        {
-            "source": "/",
-            "destination": "/index.html"
+            "source": "/wiki/",
+            "destination": "/wiki/index.html"
         },
         {
             "source": "/((?!wiki|api|assets|_next|\\.well-known).*)",

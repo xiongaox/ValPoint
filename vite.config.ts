@@ -27,7 +27,6 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'), // 共享库 (默认首页)
         personal: resolve(__dirname, 'user.html'), // 个人库
         admin: resolve(__dirname, 'admin.html'),
-        wiki: resolve(__dirname, 'wiki.html'), // Wiki 文档入口
         notFound: resolve(__dirname, '404.html'), // 404 页面
       },
     },

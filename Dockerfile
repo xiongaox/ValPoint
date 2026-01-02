@@ -12,7 +12,7 @@ COPY . .
 
 # Build unified MPA application
 # Outputs to dist/ with index.html (shared), user.html (personal), admin.html, 404.html
-RUN npm run build
+RUN npm run build:all
 
 # Production Stage
 FROM nginx:alpine

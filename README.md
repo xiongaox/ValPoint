@@ -16,20 +16,18 @@
 </div>
 
 <div align="center" style="margin-top:16px;">
-  <a href="http://valpoint.cn">🌐 官网</a> &nbsp;|&nbsp;
-  <a href="valpoint.cff1f4ee.er.aliyun-esa.net">🔗 备用1【阿里云ESA】</a> &nbsp;|&nbsp;
+  <a href="https://valpoint.cn">🌐 官网</a> &nbsp;|&nbsp;
+  <a href="https://valpoint.cff1f4ee.er.aliyun-esa.net">🔗 备用1【阿里云ESA】</a> &nbsp;|&nbsp;
   <a href="https://valpoint.vercel.app">🔗 备用2【Vercel】</a> &nbsp;|&nbsp;
   <a href="https://valpoint.xiongaox.workers.dev">🔗 备用3【Cloudflare】</a> &nbsp;|&nbsp;
-  <a href="http://valpoint.cn/wiki/">📖 查看文档</a>
+  <a href="https://valpoint.cn/wiki/">📖 查看文档</a>
 </div>
 
----
 
 🎯 **ValPoint** 是一个专为 Valorant 玩家打造的点位管理与分享平台。支持多地图标注、技能点位收藏、视频来源追踪、作者信息自动获取等功能，让你的游戏技巧管理更加高效。
 
 ![banner](docs/public/plate/banner.jpg)
 
----
 
 ## ✨ 功能特性
 
@@ -61,7 +59,6 @@
 - **批量导入**：支持导入 ZIP 格式的点位包
 - **移动端适配**：手机端可流畅浏览点位
 
----
 
 ## 🛠️ 技术栈
 
@@ -73,11 +70,10 @@
 | **图床** | 阿里云 OSS / 腾讯云 COS / 七牛云 Kodo |
 | **部署** | Docker / Vercel / Cloudflare Pages |
 
----
 
 ## 🚀 快速开始
 
-> 📖 完整教程请查阅 [在线文档](http://valpoint.cn/wiki/guide/快速开始)
+> 📖 完整教程请查阅 [在线文档](https://valpoint.cn/wiki/guide/快速开始)
 
 ```bash
 # 克隆项目
@@ -94,8 +90,6 @@ cp .env.example .env
 # 启动开发服务器
 npm run dev
 ```
-
----
 
 ## 📁 项目结构
 
@@ -119,7 +113,6 @@ ValPoint/
 └── nginx.conf                # Nginx 配置
 ```
 
----
 
 ## 🚢 部署方式
 
@@ -162,17 +155,15 @@ networks:
 docker compose up -d
 ```
 
-> 📖 详细教程请查阅 [部署指南](http://valpoint.cn/wiki/guide/部署指南)
+> 📖 详细教程请查阅 [部署指南](https://valpoint.cn/wiki/guide/部署指南)
 
----
 
 ## 📖 文档导航
 
-**用户指南：** [使用流程](http://valpoint.cn/wiki/guide/使用流程) · [个人库详解](http://valpoint.cn/wiki/guide/个人库功能详解) · [共享库详解](http://valpoint.cn/wiki/guide/共享库功能详解) · [后台详解](http://valpoint.cn/wiki/guide/后台详解) · [图床配置](http://valpoint.cn/wiki/guide/图床配置) · [数据库建表](http://valpoint.cn/wiki/guide/数据库建表)
+**用户指南：** [使用流程](https://valpoint.cn/wiki/guide/使用流程) · [个人库详解](https://valpoint.cn/wiki/guide/个人库功能详解) · [共享库详解](https://valpoint.cn/wiki/guide/共享库功能详解) · [后台详解](https://valpoint.cn/wiki/guide/后台详解) · [图床配置](https://valpoint.cn/wiki/guide/图床配置) · [数据库建表](https://valpoint.cn/wiki/guide/数据库建表)
 
-**开发文档：** [项目概览](http://valpoint.cn/wiki/dev/项目概览) · [技术架构](http://valpoint.cn/wiki/dev/技术架构) · [开发规范](http://valpoint.cn/wiki/dev/开发规范) · [作者信息解析](http://valpoint.cn/wiki/dev/作者信息解析)
+**开发文档：** [项目概览](https://valpoint.cn/wiki/dev/项目概览) · [技术架构](https://valpoint.cn/wiki/dev/技术架构) · [开发规范](https://valpoint.cn/wiki/dev/开发规范) · [作者信息解析](https://valpoint.cn/wiki/dev/作者信息解析)
 
----
 
 ## 🗺️ 未来计划
 
@@ -180,9 +171,8 @@ docker compose up -d
 - ⬜ 基于 SQLite 的本地 Docker 版本
 - ⬜ 云存储同步（WebDAV / S3）
 
-> 📖 详情请查阅 [未来计划](http://valpoint.cn/wiki/guide/未来计划)
+> 📖 详情请查阅 [未来计划](https://valpoint.cn/wiki/guide/未来计划)
 
----
 
 ## 🤝 贡献指南
 
@@ -194,13 +184,10 @@ docker compose up -d
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 开启 Pull Request
 
----
 
 ## 📄 许可证
 
 MIT License
-
----
 
 ## 🙏 致谢
 

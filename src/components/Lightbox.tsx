@@ -21,17 +21,19 @@ type Props = {
 const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   const isMobile = useIsMobile();
 
-  const { src, list, index } = useMemo(() => {
+  const { src, list, index, desc, descList } = useMemo(() => {
     if (!viewingImage) {
-      return { src: '', list: [], index: 0 };
+      return { src: '', list: [], index: 0, desc: '', descList: [] };
     }
     if (typeof viewingImage === 'string') {
-      return { src: viewingImage, list: [viewingImage], index: 0 };
+      return { src: viewingImage, list: [viewingImage], index: 0, desc: '', descList: [] };
     }
     return {
       src: viewingImage?.src,
       list: Array.isArray(viewingImage?.list) ? viewingImage.list.filter(Boolean) : [],
       index: typeof viewingImage?.index === 'number' ? viewingImage.index : 0,
+      desc: viewingImage?.desc || '',
+      descList: Array.isArray(viewingImage?.descList) ? viewingImage.descList : [],
     };
   }, [viewingImage]);
 
@@ -47,13 +49,15 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
 
   const goPrev = useCallback(() => {
     if (!hasList) return;
-    setViewingImage({ src: list[getPrevIndex()], list, index: getPrevIndex() });
-  }, [hasList, getPrevIndex, list, setViewingImage]);
+    const newIndex = getPrevIndex();
+    setViewingImage({ src: list[newIndex], list, index: newIndex, desc: descList[newIndex] || '', descList });
+  }, [hasList, getPrevIndex, list, setViewingImage, descList]);
 
   const goNext = useCallback(() => {
     if (!hasList) return;
-    setViewingImage({ src: list[getNextIndex()], list, index: getNextIndex() });
-  }, [hasList, getNextIndex, list, setViewingImage]);
+    const newIndex = getNextIndex();
+    setViewingImage({ src: list[newIndex], list, index: newIndex, desc: descList[newIndex] || '', descList });
+  }, [hasList, getNextIndex, list, setViewingImage, descList]);
 
   const close = useCallback(() => {
     setViewingImage(null);
@@ -98,6 +102,17 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   const MAX_SCALE = 3;
 
   const [showHint, setShowHint] = useState(false);
+
+  // 说明：描述文字样式状态
+  const [textStyleOpen, setTextStyleOpen] = useState(false);
+  const [textStyle, setTextStyle] = useState({
+    position: 20, // 距离顶部百分比
+    fontSize: 48, // 字体大小 px
+    color: '#ff0000', // 字体颜色
+    strokeColor: '#ffffff', // 描边颜色
+    strokeWidth: 4, // 描边粗细
+    shadow: true, // 是否显示阴影
+  });
 
   useEffect(() => {
     if (isMobile && viewingImage) {
@@ -371,6 +386,57 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
               transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
             }}
           />
+          {/* 说明：描述文字叠加层 */}
+          {desc && (
+            <div
+              className="absolute left-1/2 pointer-events-none"
+              style={{
+                top: `${textStyle.position}%`,
+                transform: `translate(-50%, -50%) scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
+                transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
+              }}
+            >
+              <span
+                className="font-black tracking-wide whitespace-nowrap"
+                style={{
+                  fontSize: `${isMobile ? textStyle.fontSize * 0.6 : textStyle.fontSize}px`,
+                  color: textStyle.color,
+                  textShadow: (() => {
+                    const baseW = textStyle.strokeWidth;
+                    const w = isMobile ? baseW * 0.6 : baseW; // 移动端描边也等比缩小
+                    const c = textStyle.strokeColor;
+                    const half = w * 0.7; // 对角线方向用略小的值实现圆角效果
+                    const shadows = [
+                      // 8个方向实现圆角描边
+                      `0 -${w}px 0 ${c}`,       // 上
+                      `0 ${w}px 0 ${c}`,        // 下
+                      `-${w}px 0 0 ${c}`,       // 左
+                      `${w}px 0 0 ${c}`,        // 右
+                      `-${half}px -${half}px 0 ${c}`, // 左上
+                      `${half}px -${half}px 0 ${c}`,  // 右上
+                      `-${half}px ${half}px 0 ${c}`,  // 左下
+                      `${half}px ${half}px 0 ${c}`,   // 右下
+                      // 增加更多层实现更平滑的圆角
+                      `-${w}px -${half}px 0 ${c}`,
+                      `${w}px -${half}px 0 ${c}`,
+                      `-${w}px ${half}px 0 ${c}`,
+                      `${w}px ${half}px 0 ${c}`,
+                      `-${half}px -${w}px 0 ${c}`,
+                      `${half}px -${w}px 0 ${c}`,
+                      `-${half}px ${w}px 0 ${c}`,
+                      `${half}px ${w}px 0 ${c}`,
+                    ];
+                    if (textStyle.shadow) {
+                      shadows.push('0 0 12px rgba(0,0,0,0.8)');
+                    }
+                    return shadows.join(', ');
+                  })(),
+                }}
+              >
+                {desc}
+              </span>
+            </div>
+          )}
         </div>
 
         {nextSrc && (
@@ -413,7 +479,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
                 <button
                   key={thumbSrc + idx}
                   className={`w-16 h-10 rounded overflow-hidden border shrink-0 ${idx === currentIndex ? 'border-[#ff4655]' : 'border-white/15'} bg-black/40 hover:border-[#ff4655] transition-colors`}
-                  onClick={(e) => { e.stopPropagation(); setViewingImage({ src: thumbSrc, list, index: idx }); }}
+                  onClick={(e) => { e.stopPropagation(); setViewingImage({ src: thumbSrc, list, index: idx, desc: descList[idx] || '', descList }); }}
                 >
                   <img src={thumbSrc} className="w-full h-full object-cover" />
                 </button>
@@ -447,6 +513,126 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       >
         <Icon name="X" size={28} />
       </button>
+
+      {/* 说明：文字样式按钮 - 在关闭按钮下方 */}
+      {desc && (
+        <div className="absolute top-[88px] right-6 z-50">
+          <button
+            className={`w-12 h-12 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/40 rounded-full text-emerald-400 transition-all backdrop-blur-md border border-emerald-500/40 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
+            onClick={(e) => { e.stopPropagation(); setTextStyleOpen(!textStyleOpen); }}
+            title="文字样式"
+          >
+            <Icon name="Type" size={24} />
+          </button>
+
+          {/* 说明：样式控制弹窗 */}
+          {textStyleOpen && (
+            <div
+              className="absolute top-0 right-14 w-72 bg-black/90 backdrop-blur-md rounded-xl border border-white/15 p-4 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-white font-bold text-sm">描述文字样式</span>
+                <button
+                  className="text-gray-400 hover:text-white transition-colors"
+                  onClick={() => setTextStyleOpen(false)}
+                >
+                  <Icon name="X" size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* 位置 */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400">位置（距顶部）</span>
+                    <span className="text-white font-mono">{textStyle.position}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    value={textStyle.position}
+                    onChange={(e) => setTextStyle(prev => ({ ...prev, position: parseInt(e.target.value) }))}
+                    className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                  />
+                </div>
+
+                {/* 字体大小 */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400">字体大小</span>
+                    <span className="text-white font-mono">{textStyle.fontSize}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="16"
+                    max="72"
+                    value={textStyle.fontSize}
+                    onChange={(e) => setTextStyle(prev => ({ ...prev, fontSize: parseInt(e.target.value) }))}
+                    className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                  />
+                </div>
+
+                {/* 颜色 */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 space-y-1">
+                    <span className="text-gray-400 text-xs">字体颜色</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={textStyle.color}
+                        onChange={(e) => setTextStyle(prev => ({ ...prev, color: e.target.value }))}
+                        className="w-8 h-8 rounded cursor-pointer border border-white/20"
+                      />
+                      <span className="text-white text-xs font-mono">{textStyle.color}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <span className="text-gray-400 text-xs">描边颜色</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={textStyle.strokeColor}
+                        onChange={(e) => setTextStyle(prev => ({ ...prev, strokeColor: e.target.value }))}
+                        className="w-8 h-8 rounded cursor-pointer border border-white/20"
+                      />
+                      <span className="text-white text-xs font-mono">{textStyle.strokeColor}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 描边粗细 */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-400">描边粗细</span>
+                    <span className="text-white font-mono">{textStyle.strokeWidth}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="6"
+                    value={textStyle.strokeWidth}
+                    onChange={(e) => setTextStyle(prev => ({ ...prev, strokeWidth: parseInt(e.target.value) }))}
+                    className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                  />
+                </div>
+
+                {/* 阴影开关 */}
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-xs">文字阴影</span>
+                  <button
+                    className={`w-10 h-5 rounded-full transition-colors ${textStyle.shadow ? 'bg-emerald-500' : 'bg-white/20'}`}
+                    onClick={() => setTextStyle(prev => ({ ...prev, shadow: !prev.shadow }))}
+                  >
+                    <div className={`w-4 h-4 bg-white rounded-full transition-transform ${textStyle.shadow ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div
         className={`fixed bottom-24 left-0 right-0 flex justify-center pointer-events-none transition-opacity duration-500 z-30 ${showHint ? 'opacity-100' : 'opacity-0'}`}

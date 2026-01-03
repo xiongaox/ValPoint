@@ -61,10 +61,18 @@ const ViewerModal = ({
 
   if (!viewingLineup) return null;
 
-  // 移动端作者名称截断处理
-  const truncateName = (name: string, maxLength: number = 5) => {
-    if (!isMobile || !name || name.length <= maxLength) return name;
-    return name.slice(0, maxLength) + '...';
+  // 作者名称清理与截断处理
+  const truncateName = (name: string, maxLength?: number) => {
+    if (!name) return name;
+    // 移除零宽字符和特殊空白
+    let cleaned = name
+      .replace(/[\u200B-\u200D\uFEFF\u3164\u115F\u1160\u2800-\u28FF]/g, '') // 零宽字符
+      .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]+$/g, '') // 末尾特殊空格
+      .trim();
+    // 根据设备类型设置默认截断长度
+    const limit = maxLength ?? (isMobile ? 5 : 16);
+    if (cleaned.length <= limit) return cleaned;
+    return cleaned.slice(0, limit) + '...';
   };
 
   const imageItems = [
@@ -74,7 +82,9 @@ const ViewerModal = ({
     { src: viewingLineup.aim2Img, desc: viewingLineup.aim2Desc, label: '瞄点 2 (Aim)' },
     { src: viewingLineup.landImg, desc: viewingLineup.landDesc, label: '落点 (Land)' },
   ];
-  const imageList = imageItems.filter((item) => item.src).map((item) => item.src);
+  const filteredItems = imageItems.filter((item) => item.src);
+  const imageList = filteredItems.map((item) => item.src);
+  const descList = filteredItems.map((item) => item.desc || '');
 
   return (
     <div
@@ -228,6 +238,8 @@ const ViewerModal = ({
                         src: item.src,
                         list: imageList,
                         index: imageList.indexOf(item.src),
+                        desc: item.desc || '',
+                        descList,
                       })
                     }
                   >

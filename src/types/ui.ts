@@ -7,4 +7,4 @@
  * - 集中管理跨模块共享的类型定义。
  */
 
-export type LightboxImage = string | { src: string; list?: string[]; index?: number };
+export type LightboxImage = string | { src: string; list?: string[]; index?: number; desc?: string; descList?: string[] };

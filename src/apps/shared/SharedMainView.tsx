@@ -230,7 +230,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                     <Icon name="Github" size={20} />
                                 </a>
                                 <a
-                                    href="https://valpoint.xaox.cc/"
+                                    href="/wiki/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-gray-400 hover:text-white transition-colors"

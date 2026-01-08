@@ -129,7 +129,7 @@ async function main() {
 
     const commits = commitsOutput.split('\n').filter(Boolean);
     const commitCount = commits.length;
-    const newVersion = incrementPatch(latestTag);
+    let newVersion = incrementPatch(latestTag);
 
     // 获取最新的 commit 信息
     const latestCommit = commits[commits.length - 1];
@@ -144,6 +144,12 @@ async function main() {
     }
     console.log(`${colors.yellow}${newVersion}${colors.reset} <- HEAD (${latestHash}) ${latestMsg}`);
     console.log('--------------------------------------\n');
+
+    const customVersion = await askQuestion(`确认发布版本 ${newVersion}? (直接回车保持，或输入新版本号如 v2.2.0): `);
+    if (customVersion) {
+        newVersion = customVersion;
+        console.log(`${colors.green}>> 已切换至版本: ${newVersion}${colors.reset}\n`);
+    }
 
     if (isPreview) {
         console.log(`${colors.cyan}预览结束。运行 npm run release 开始正式发版。${colors.reset}`);

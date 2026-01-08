@@ -191,7 +191,7 @@ async function main() {
 
     console.log(`\n${colors.cyan}正在推送标签到 GitHub...${colors.reset}`);
     try {
-        runCommand(`git push origin --tags`, false, 'inherit');
+        runCommand(`git push origin "${newVersion}"`, false, 'inherit');
         console.log(`\n${colors.green}✓ 发版成功！${colors.reset}`);
         if (buildDocker) {
             console.log(`GitHub Actions 应该已开始构建 Docker 镜像。`);

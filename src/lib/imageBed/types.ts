@@ -9,7 +9,7 @@
 
 import { ImageBedConfig, ImageBedProvider } from '../../types/imageBed';
 
-export type ImageBedFieldType = 'text' | 'select' | 'switch';
+export type ImageBedFieldType = 'text' | 'select' | 'switch' | 'password';
 
 export type ImageBedField = {
   key: keyof ImageBedConfig;

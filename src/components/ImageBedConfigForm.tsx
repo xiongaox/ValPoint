@@ -267,6 +267,7 @@ const Field: React.FC<FieldProps> = ({ field, value, onChange }) => {
     const isSelect = type === 'select';
     const displayValue = typeof value === 'boolean' ? value : value || '';
     const [isSelectOpen, setIsSelectOpen] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const selectRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -343,12 +344,24 @@ const Field: React.FC<FieldProps> = ({ field, value, onChange }) => {
                     )}
                 </div>
             ) : (
-                <input
-                    value={displayValue as string}
-                    placeholder={placeholder}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[#ff4655] outline-none transition-colors"
-                />
+                <div className="relative">
+                    <input
+                        type={field.type === 'password' && !isPasswordVisible ? 'password' : 'text'}
+                        value={displayValue as string}
+                        placeholder={placeholder}
+                        onChange={(e) => onChange(e.target.value)}
+                        className={`w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[#ff4655] outline-none transition-colors ${field.type === 'password' ? 'pr-10' : ''}`}
+                    />
+                    {field.type === 'password' && (
+                        <button
+                            type="button"
+                            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                        >
+                            <Icon name={isPasswordVisible ? 'EyeOff' : 'Eye'} size={16} />
+                        </button>
+                    )}
+                </div>
             )}
             {field.helper && <span className="text-[11px] text-gray-500">{field.helper}</span>}
         </label>

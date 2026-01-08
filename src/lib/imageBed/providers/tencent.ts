@@ -141,8 +141,8 @@ export const tencentDefinition: ImageBedProviderDefinition = {
   },
   fields: [
     { key: '_configName', label: '配置名称', required: true, placeholder: '用于区分不同图床配置' },
-    { key: 'secretId', label: 'secretId', required: true },
-    { key: 'secretKey', label: 'secretKey', required: true },
+    { key: 'secretId', label: 'secretId', required: true, type: 'password' },
+    { key: 'secretKey', label: 'secretKey', required: true, type: 'password' },
     { key: 'bucket', label: '存储桶名', required: true, placeholder: '不含 appId 后缀' },
     { key: 'appId', label: 'appId', required: true, placeholder: '例如：1250000000' },
     { key: 'area', label: '存储区域', required: true, placeholder: '如：ap-guangzhou' },

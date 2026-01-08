@@ -111,8 +111,8 @@ export const aliyunDefinition: ImageBedProviderDefinition = {
   },
   fields: [
     { key: '_configName', label: '配置名称', required: true, placeholder: '用于区分不同图床配置' },
-    { key: 'accessKeyId', label: 'accessKeyId', required: true },
-    { key: 'accessKeySecret', label: 'accessKeySecret', required: true },
+    { key: 'accessKeyId', label: 'accessKeyId', required: true, type: 'password' },
+    { key: 'accessKeySecret', label: 'accessKeySecret', required: true, type: 'password' },
     { key: 'bucket', label: '存储空间名', required: true },
     { key: 'area', label: '存储区域代号', required: true, placeholder: '如：oss-cn-hangzhou' },
     { key: 'path', label: '自定义存储路径', placeholder: '如：img/' },

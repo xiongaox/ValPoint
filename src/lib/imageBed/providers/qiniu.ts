@@ -154,8 +154,8 @@ export const qiniuDefinition: ImageBedProviderDefinition = {
   },
   fields: [
     { key: '_configName', label: '配置名称', required: true, placeholder: '用于区分不同图床配置' },
-    { key: 'accessKey', label: 'accessKey', required: true },
-    { key: 'secretKey', label: 'secretKey', required: true },
+    { key: 'accessKey', label: 'accessKey', required: true, type: 'password' },
+    { key: 'secretKey', label: 'secretKey', required: true, type: 'password' },
     { key: 'bucket', label: '存储空间名', required: true },
     { key: 'url', label: '访问网址', required: true, placeholder: 'https://your-domain.com' },
     { key: 'area', label: '存储区域', required: true, placeholder: '如：z0 (华东)' },

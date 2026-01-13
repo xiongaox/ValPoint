@@ -11,6 +11,37 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-01-09',
+    items: [
+      '【优化】准备发布 v2.2.0 版本',
+      '【新增】发版脚本支持手动指定发布版本号',
+      '【新增】图床敏感字段显隐切换与 Release 清理脚本',
+    ],
+  },
+  {
+    date: '2026-01-07',
+    items: ['【新增】全链路支持点位创建者 ID (creator_id) 存储与显示'],
+  },
+  {
+    date: '2026-01-04',
+    items: [
+      '【BUG】修复移动端 Wiki 链接指向错误',
+      '【优化】调整移动端布局并修复相关显示问题',
+    ],
+  },
+  {
+    date: '2026-01-03',
+    items: [
+      '【优化】Lightbox 描述样式、作者名称展示与抖音解析逻辑',
+      '【BUG】修复生产环境切换个人库时地图不居中的问题',
+      '【优化】优化文档格式与 README 内容准确性',
+      '【优化】二维码配置改为环境变量并优化多平台部署流程',
+      '【BUG】修复 Docker/Vercel Wiki 路由与构建问题，移除多余 wiki.html',
+      '【优化】更新多平台部署文档与备用访问地址',
+      '【优化】调整发版 tag 脚本',
+    ],
+  },
+  {
     date: '2026-01-02',
     items: [
       '【优化】重构 Wiki 文档结构与内容',
@@ -45,15 +76,6 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '【优化】优化图床配置文档，新增本地上传说明',
       '【BUG】修复 SQL 语法错误问题',
       '【优化】移除未使用的数据库列',
-    ],
-  },
-  {
-    date: '2025-12-29',
-    items: [
-      '【优化】优化八字图表显示效果',
-      '【新增】新增八字神煞动态计算（天乙贵人、太极贵人、文昌等）',
-      '【BUG】修复弹窗点击外部关闭问题',
-      '【优化】移除个人信息更新提示弹窗',
     ],
   },
   {

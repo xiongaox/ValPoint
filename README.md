@@ -120,34 +120,8 @@ ValPoint 是一个专业的《无畏契约/瓦罗兰特》点位分享与管理�
 
 3. **构建生产镜像**
    ```bash
-   docker build -t valpoint_local .
+   docker build -t valpoint_s .
    ```
-
-### 🐳 发布到 Docker Hub
-
-我们提供了一个自动化脚本来简化发布流程：
-
-1. **登录 Docker Hub**
-   ```powershell
-   docker login
-   ```
-
-2. **运行发布脚本**
-   ```powershell
-   ./scripts/publish_docker.ps1
-   ```
-
-   **Linux / macOS 用户:**
-   ```bash
-   chmod +x ./scripts/publish_docker.sh
-   ./scripts/publish_docker.sh
-   ```
-
-   脚本会自动：
-   - 读取 `package.json` 版本号
-   - 构建镜像
-   - 打上 `latest` 和版本号标签
-   - 推送到您指定的 Docker Hub 仓库
 
 ## 📝 版本历史
 

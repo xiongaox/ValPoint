@@ -105,7 +105,6 @@ type Props = {
   isImportModalOpen: boolean;
   onImportClose: () => void;
   onImportSuccess: (payload: LineupDbPayload) => Promise<BaseLineup>;
-  onOpenImageConfig: () => void;
   fetchLineups: (userId: string) => void;
   lineups: BaseLineup[];
   isBatchDownloadModalOpen: boolean;
@@ -192,7 +191,6 @@ const AppModals: React.FC<Props> = ({
   isImportModalOpen,
   onImportClose,
   onImportSuccess,
-  onOpenImageConfig,
   fetchLineups,
   lineups,
   isBatchDownloadModalOpen,
@@ -328,11 +326,8 @@ const AppModals: React.FC<Props> = ({
       <ImportLineupModal
         isOpen={isImportModalOpen}
         onClose={onImportClose}
-        imageBedConfig={imageBedConfig}
         userId={userId}
-        lineups={lineups}
         onImportSuccess={onImportSuccess}
-        onOpenImageConfig={onOpenImageConfig}
         setAlertMessage={(msg) => setAlertMessage(msg)}
         fetchLineups={fetchLineups}
       />

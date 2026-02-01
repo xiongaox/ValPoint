@@ -31,12 +31,12 @@ const MapPickerModal = ({ isOpen, maps, selectedMap, setSelectedMap, setIsMapMod
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto pb-4">
-          {maps.map((m) => {
+          {maps.map((m, idx) => {
             const preview = m.listViewIcon || m.displayIcon;
             const isSelected = selectedMap?.uuid === m.uuid;
             return (
               <div
-                key={m.uuid}
+                key={m.uuid || `map-${idx}`}
                 onClick={() => {
                   setSelectedMap(m);
                   handleClose();

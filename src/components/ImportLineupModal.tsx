@@ -1,32 +1,16 @@
 /**
- * ImportLineupModal - Import点位弹窗
- *
- * 职责：
- * - 渲染Import点位弹窗内容与操作区域。
- * - 处理打开/关闭、确认/取消等交互。
- * - 与表单校验或数据提交逻辑联动。
+ * ImportLineupModal - 导入点位 Modal
+ * 职责：处理点位 ZIP 包的批量选择、解析与导入。
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import Icon from './Icon';
-import { importLineupFromZip, ImportProgress, ImportResult, parseZipMetadata, ZipMetadata } from '../lib/lineupImport';
-import { ImageBedConfig } from '../types/imageBed';
-import { LineupDbPayload, BaseLineup } from '../types/lineup';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { importLineupFromZip, parseZipMetadata, ZipMetadata, ImportResult } from '../lib/lineupImport';
+import { LineupDbPayload, BaseLineup } from '../types/lineup';
 
-type Props = {
-    isOpen: boolean;
-    onClose: () => void;
-    imageBedConfig: ImageBedConfig;
-    userId: string | null;
-    lineups: BaseLineup[];
-    onImportSuccess: (payload: LineupDbPayload) => Promise<BaseLineup>;
-    onOpenImageConfig: () => void;
-    setAlertMessage: (msg: string) => void;
-    fetchLineups: (userId: string) => void;
-};
-
-const MAX_FILES = 10;
+const MAX_FILES = 20;
 
 type PendingFile = {
     file: File;
@@ -34,14 +18,20 @@ type PendingFile = {
     error?: string;
 };
 
+type Props = {
+    isOpen: boolean;
+    onClose: () => void;
+    userId: string | null;
+    onImportSuccess: (payload: LineupDbPayload) => Promise<BaseLineup>;
+    setAlertMessage: (msg: string) => void;
+    fetchLineups: (userId: string) => void;
+};
+
 const ImportLineupModal: React.FC<Props> = ({
     isOpen,
     onClose,
-    imageBedConfig,
     userId,
-    lineups,
     onImportSuccess,
-    onOpenImageConfig,
     setAlertMessage,
     fetchLineups,
 }) => {
@@ -60,34 +50,28 @@ const ImportLineupModal: React.FC<Props> = ({
             return;
         }
 
-        const toAdd = files.slice(0, remaining);
         const newPending: PendingFile[] = [];
 
-        for (const file of toAdd) {
+        for (const file of files.slice(0, remaining)) {
             if (pendingFiles.some(p => p.file.name === file.name)) continue;
 
             try {
                 const metadata = await parseZipMetadata(file);
                 newPending.push({ file, metadata });
             } catch (error) {
-                newPending.push({ file, metadata: null, error: '无法解析文件' });
+                newPending.push({ file, metadata: null, error: '格式不规范' });
             }
         }
 
         setPendingFiles(prev => [...prev, ...newPending]);
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
     }, [pendingFiles, setAlertMessage]);
 
     const handleRemoveFile = (index: number) => {
         setPendingFiles(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleClickSelect = () => {
-        fileInputRef.current?.click();
-    };
+    const handleClickSelect = () => fileInputRef.current?.click();
 
     const handleStartImport = useCallback(async () => {
         if (!userId) {
@@ -95,11 +79,8 @@ const ImportLineupModal: React.FC<Props> = ({
             return;
         }
 
-        const validFiles = pendingFiles.filter(p => p.metadata && !p.error);
-        if (validFiles.length === 0) {
-            setAlertMessage('没有可导入的文件');
-            return;
-        }
+        const validFiles = pendingFiles.filter(p => !p.error);
+        if (validFiles.length === 0) return;
 
         setIsImporting(true);
         setProgress({ current: 0, total: validFiles.length, status: '准备导入...' });
@@ -112,7 +93,7 @@ const ImportLineupModal: React.FC<Props> = ({
             setProgress({ current: i + 1, total: validFiles.length, status: `正在导入: ${metadata?.title || file.name}` });
 
             try {
-                const result: ImportResult = await importLineupFromZip(file, imageBedConfig, userId, lineups);
+                const result: ImportResult = await importLineupFromZip(file, userId);
 
                 if (result.success && result.payload) {
                     await onImportSuccess(result.payload);
@@ -130,15 +111,9 @@ const ImportLineupModal: React.FC<Props> = ({
         setIsImporting(false);
         setProgress(null);
         setPendingFiles([]);
-
-        if (failCount === 0) {
-            setAlertMessage(`成功导入 ${successCount} 个点位`);
-        } else {
-            setAlertMessage(`成功 ${successCount} 个，失败 ${failCount} 个`);
-        }
-
+        setAlertMessage(`导入完成！成功: ${successCount}${failCount > 0 ? `, 失败: ${failCount}` : ''}`);
         onClose();
-    }, [userId, pendingFiles, imageBedConfig, onImportSuccess, fetchLineups, setAlertMessage, onClose]);
+    }, [userId, pendingFiles, onImportSuccess, fetchLineups, setAlertMessage, onClose]);
 
     const handleClose = () => {
         if (isImporting) return;
@@ -151,154 +126,144 @@ const ImportLineupModal: React.FC<Props> = ({
 
     if (!isOpen) return null;
 
-    const isConfigured = imageBedConfig?.provider && (
-        (imageBedConfig.provider === 'aliyun' && imageBedConfig.accessKeyId && imageBedConfig.accessKeySecret) ||
-        (imageBedConfig.provider === 'tencent' && imageBedConfig.secretId && imageBedConfig.secretKey) ||
-        (imageBedConfig.provider === 'qiniu' && imageBedConfig.accessKey && imageBedConfig.accessKeySecret)
-    );
-
-    const validFilesCount = pendingFiles.filter(p => p.metadata && !p.error).length;
+    const validFilesCount = pendingFiles.filter(p => !p.error).length;
 
     return (
         <div
-            className="fixed inset-0 z-[1400] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+            onClick={handleClose}
         >
-            <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#181b1f]/95 shadow-2xl shadow-black/50 overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#1c2028]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#ff4655]/15 border border-[#ff4655]/35 flex items-center justify-center text-[#ff4655]">
-                            <Icon name="Download" size={18} />
+            <div
+                className="w-full max-w-2xl bg-[#1c2028] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-white/10">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#ff4655]/10 border border-[#ff4655]/20 flex items-center justify-center text-[#ff4655]">
+                            <Icon name="Download" size={24} />
                         </div>
-                        <div className="leading-tight">
-                            <div className="text-xl font-bold text-white">导入点位</div>
-                            <div className="text-xs text-gray-500">支持批量导入，最多 {MAX_FILES} 个</div>
+                        <div>
+                            <h2 className="text-xl font-bold text-white">批量导入点位 (ZIP)</h2>
+                            <p className="text-sm text-gray-400">选择符合命名的 ZIP 点位包进行导入</p>
                         </div>
                     </div>
                     <button
                         onClick={handleClose}
-                        disabled={isImporting}
-                        className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors disabled:opacity-50"
-                        aria-label="关闭"
+                        className="p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-white transition-colors"
                     >
-                        <Icon name="X" size={16} />
+                        <Icon name="X" size={24} />
                     </button>
                 </div>
 
-                <div className="p-5 space-y-4 bg-[#181b1f] max-h-[60vh] overflow-y-auto">
-                    {!isConfigured ? (
-                        <div className="text-center py-6">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                                <Icon name="AlertTriangle" size={32} className="text-amber-400" />
-                            </div>
-                            <p className="text-white font-semibold mb-2">未配置图床</p>
-                            <p className="text-gray-400 text-sm mb-4">导入点位需要将图片上传至图床，请先完成配置</p>
-                            <button
-                                onClick={() => { onOpenImageConfig(); handleClose(); }}
-                                className="px-5 py-2 rounded-lg bg-[#ff4655] hover:bg-[#d93a49] text-white font-semibold text-sm transition-colors flex items-center gap-2 mx-auto shadow-md shadow-red-900/30"
-                            >
-                                <Icon name="Settings" size={16} />
-                                配置图床
-                            </button>
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    {/* Upload Area */}
+                    <div
+                        onClick={handleClickSelect}
+                        className="group relative border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 bg-white/[0.02] hover:bg-white/[0.04] hover:border-[#ff4655]/30 transition-all cursor-pointer"
+                    >
+                        <input
+                            type="file"
+                            multiple
+                            accept=".zip"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFilesSelect}
+                        />
+                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-gray-400 group-hover:bg-[#ff4655]/10 group-hover:text-[#ff4655] transition-colors">
+                            <Icon name="Plus" size={32} />
                         </div>
-                    ) : isImporting ? (
-                        <div className="text-center py-6">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#ff4655]/10 border border-[#ff4655]/30 flex items-center justify-center animate-pulse">
-                                <Icon name="Loader" size={32} className="text-[#ff4655] animate-spin" />
-                            </div>
-                            <p className="text-white font-semibold mb-2">
-                                正在导入 ({progress?.current}/{progress?.total})
-                            </p>
-                            <p className="text-gray-400 text-sm">{progress?.status}</p>
+                        <div className="text-center">
+                            <p className="text-white font-bold">点击或拖拽 ZIP 文件到此处</p>
+                            <p className="text-sm text-gray-500 mt-1">支持批量选择，单次最多 {MAX_FILES} 个</p>
                         </div>
-                    ) : (
-                        <>
-                            {pendingFiles.length > 0 && (
-                                <div className="space-y-2">
-                                    {pendingFiles.map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className={`flex items-center gap-3 p-3 rounded-lg border ${item.error ? 'border-red-500/30 bg-red-500/5' : 'border-white/10 bg-white/5'
-                                                }`}
-                                        >
-                                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                                                <Icon name={item.error ? 'AlertCircle' : 'FileArchive'} size={16} className={item.error ? 'text-red-400' : 'text-gray-400'} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm text-white truncate">{item.metadata?.title || item.file.name}</p>
-                                                <p className="text-xs text-gray-500 truncate">
-                                                    {item.error || (item.metadata ? `${item.metadata.mapName} · ${item.metadata.agentName}` : item.file.name)}
-                                                </p>
-                                            </div>
-                                            <button
-                                                onClick={() => handleRemoveFile(index)}
-                                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                            >
-                                                <Icon name="X" size={14} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                    </div>
 
-                            {pendingFiles.length < MAX_FILES && (
-                                <div className="py-2">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept=".zip"
-                                        multiple
-                                        onChange={handleFilesSelect}
-                                        className="hidden"
-                                    />
+                    {/* Pending List */}
+                    {pendingFiles.length > 0 && (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">待导入列表 ({pendingFiles.length})</h3>
+                                <button
+                                    onClick={() => setPendingFiles([])}
+                                    className="text-xs text-[#ff4655] hover:underline"
+                                >
+                                    清空全部
+                                </button>
+                            </div>
+                            <div className="grid gap-2">
+                                {pendingFiles.map((item, idx) => (
                                     <div
-                                        onClick={handleClickSelect}
-                                        className={`border-2 border-dashed rounded-xl cursor-pointer hover:border-[#ff4655]/50 hover:bg-[#ff4655]/5 transition-all group ${pendingFiles.length > 0 ? 'border-white/5 p-4' : 'border-white/10 p-8'
-                                            }`}
+                                        key={idx}
+                                        className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group hover:border-white/10 transition-colors"
                                     >
-                                        <div className={`flex items-center justify-center gap-3 ${pendingFiles.length > 0 ? '' : 'flex-col'}`}>
-                                            <div className={`rounded-full bg-white/5 border border-white/10 group-hover:bg-[#ff4655]/10 group-hover:border-[#ff4655]/30 flex items-center justify-center transition-colors ${pendingFiles.length > 0 ? 'w-10 h-10' : 'w-16 h-16 mb-2'
-                                                }`}>
-                                                <Icon name="Plus" size={pendingFiles.length > 0 ? 20 : 32} className="text-gray-500 group-hover:text-[#ff4655] transition-colors" />
-                                            </div>
-                                            <div className={pendingFiles.length > 0 ? '' : 'text-center'}>
-                                                <p className="text-white font-semibold text-sm">
-                                                    {pendingFiles.length > 0 ? '添加更多文件' : '点击选择 ZIP 文件'}
-                                                </p>
-                                                {pendingFiles.length === 0 && (
-                                                    <p className="text-gray-500 text-xs mt-1">支持批量选择，最多 {MAX_FILES} 个</p>
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <Icon
+                                                name={item.error ? "AlertCircle" : "FileCode"}
+                                                size={18}
+                                                className={item.error ? "text-amber-500" : "text-[#ff4655]"}
+                                            />
+                                            <div className="min-w-0">
+                                                <p className="text-sm text-white font-medium truncate">{item.file.name}</p>
+                                                {item.error ? (
+                                                    <p className="text-[11px] text-amber-500 uppercase font-bold">{item.error}</p>
+                                                ) : (
+                                                    <p className="text-[11px] text-emerald-500 uppercase font-bold">准备就绪</p>
                                                 )}
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => handleRemoveFile(idx)}
+                                            className="p-1 text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            <Icon name="Trash2" size={16} />
+                                        </button>
                                     </div>
-                                </div>
-                            )}
-                        </>
+                                ))}
+                            </div>
+                        </div>
                     )}
                 </div>
 
-                <div className="px-5 py-4 border-t border-white/10 bg-[#1c2028] flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                        {pendingFiles.length > 0 ? `已选择 ${validFilesCount} 个有效文件` : '提示：导入后图片会上传至您配置的图床'}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleClose}
-                            disabled={isImporting}
-                            className="px-4 py-2 rounded-lg border border-white/15 text-sm text-gray-200 hover:border-white/40 hover:bg-white/5 transition-colors disabled:opacity-50"
-                        >
-                            取消
-                        </button>
-                        {pendingFiles.length > 0 && isConfigured && (
-                            <button
-                                onClick={handleStartImport}
-                                disabled={isImporting || validFilesCount === 0}
-                                className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center gap-2 shadow-md shadow-emerald-900/30 disabled:opacity-50"
-                            >
-                                <Icon name="Upload" size={16} />
-                                开始导入 ({validFilesCount})
-                            </button>
-                        )}
-                    </div>
+                {/* Footer */}
+                <div className="p-6 border-t border-white/10 bg-[#1c2028]">
+                    {progress ? (
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-400">{progress.status}</span>
+                                <span className="text-white font-bold">{Math.round((progress.current / progress.total) * 100)}%</span>
+                            </div>
+                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-[#ff4655] transition-all duration-300"
+                                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-500">
+                                {validFilesCount > 0 ? `已选择 ${validFilesCount} 个有效点位` : '请先选择有效的点位包'}
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleClose}
+                                    className="px-6 py-2.5 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-colors"
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    onClick={handleStartImport}
+                                    disabled={validFilesCount === 0 || isImporting}
+                                    className="px-8 py-2.5 rounded-xl bg-[#ff4655] text-white font-bold hover:bg-[#ff4655]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-[#ff4655]/20 flex items-center gap-2"
+                                >
+                                    {isImporting && <Icon name="Loader" size={18} className="animate-spin" />}
+                                    开始导入
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

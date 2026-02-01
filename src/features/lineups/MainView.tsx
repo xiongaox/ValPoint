@@ -297,6 +297,13 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               >
                 <Icon name="List" size={20} className="text-white" />
               </button>
+              <button
+                onClick={right.onOpenImportModal}
+                className="w-[46px] h-[46px] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl border border-white/10"
+                title="批量导入 ZIP 点位包"
+              >
+                <Icon name="Download" size={20} className="text-white rotate-180" />
+              </button>
             </div>
 
             <div className="absolute bottom-8 left-3 right-3 z-10 flex items-center justify-between gap-2">

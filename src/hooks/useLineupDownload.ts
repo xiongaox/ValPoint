@@ -1,10 +1,11 @@
 /**
- * useLineupDownload - 占位模块（本地版本）
- * 本地化版本的下载功能（简化）
+ * useLineupDownload - 点位下载/导出 Hook
+ * 职责：调用后端 ZIP 导出接口，生成标准命名的压缩包。
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { BaseLineup } from '../types/lineup';
+import { exportLineupZipApi } from '../services/lineups';
 
 interface UseLineupDownloadOptions {
     lineups: BaseLineup[];
@@ -12,6 +13,8 @@ interface UseLineupDownloadOptions {
 }
 
 export function useLineupDownload({ lineups, setAlertMessage }: UseLineupDownloadOptions) {
+    const [isDownloading, setIsDownloading] = useState(false);
+
     const handleDownload = useCallback(async (id: string) => {
         const lineup = lineups.find(l => l.id === id);
         if (!lineup) {
@@ -19,16 +22,22 @@ export function useLineupDownload({ lineups, setAlertMessage }: UseLineupDownloa
             return;
         }
 
-        // 简单的下载逻辑：打开图片链接
-        if (lineup.standImg) {
-            window.open(lineup.standImg, '_blank');
-        } else {
-            setAlertMessage('该点位没有图片');
+        setIsDownloading(true);
+        try {
+            // 生成下载文件名预览（实际由后端 Content-Disposition 处理，但前端传递一个默认值）
+            // 格式：地图_英雄_技能_标题.zip
+            const fileName = `${lineup.mapName}_${lineup.agentName}_${lineup.title}.zip`;
+            await exportLineupZipApi(id, fileName);
+        } catch (error) {
+            console.error('Download failed:', error);
+            setAlertMessage('导出失败，请检查后端服务是否正常');
+        } finally {
+            setIsDownloading(false);
         }
     }, [lineups, setAlertMessage]);
 
     return {
         handleDownload,
-        isDownloading: false,
+        isDownloading,
     };
 }

@@ -200,7 +200,6 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     isImportModalOpen: params.isImportModalOpen,
     onImportClose: () => params.setIsImportModalOpen(false),
     onImportSuccess: params.saveNewLineup,
-    onOpenImageConfig: () => params.setIsImageConfigOpen(true),
     fetchLineups: params.fetchLineups,
     lineups: params.lineups,
     isBatchDownloadModalOpen: params.isBatchDownloadModalOpen,

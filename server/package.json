@@ -8,6 +8,7 @@
         "dev": "node --watch index.js"
     },
     "dependencies": {
+        "adm-zip": "^0.5.16",
         "better-sqlite3": "^11.0.0",
         "express": "^4.21.0",
         "multer": "^1.4.5-lts.1",

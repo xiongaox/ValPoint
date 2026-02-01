@@ -192,3 +192,54 @@ export async function uploadImageApi(
 
   return response.json();
 }
+
+/**
+ * 上传 ZIP 点位包
+ */
+export async function uploadZipApi(file: File): Promise<{
+  success: boolean;
+  metadata: {
+    mapName: string;
+    agentName: string;
+    slot: string;
+    title: string;
+    side: string;
+    agent_pos?: { lat: number; lng: number };
+    skill_pos?: { lat: number; lng: number };
+    ability_index?: number;
+  };
+  paths: Record<string, string>;
+}> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE}/upload/zip`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'ZIP 上传失败');
+  }
+
+  return response.json();
+}
+
+/**
+ * 导出点位为 ZIP
+ */
+export async function exportLineupZipApi(id: string, fileName: string) {
+  const response = await fetch(`${API_BASE}/lineups/${id}/export`);
+  if (!response.ok) throw new Error('导出失败');
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}

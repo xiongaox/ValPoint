@@ -1,216 +1,143 @@
 /**
- * lineupImport - 点位Import
- *
- * 职责：
- * - 承载点位Import相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * lineupImport - 点位导入逻辑 (本地化版本)
+ * 职责：调用后端接口解析 ZIP 文件，并构建点位数据入库。
  */
 
-import { unzipSync, strFromU8 } from 'fflate';
-import { uploadImage } from './imageBed';
-import { ImageBedConfig } from '../types/imageBed';
-import { LineupDbPayload, LineupPosition, LineupSide, BaseLineup } from '../types/lineup';
-import { generateUniqueTitle } from '../features/lineups/lineupHelpers';
-
-type LineupImageField = 'stand_img' | 'stand2_img' | 'aim_img' | 'aim2_img' | 'land_img';
-
-type LineupJsonPayload = {
-    id: string;
-    user_id: string | null;
-    title: string;
-    map_name: string;
-    agent_name: string;
-    agent_icon?: string | null;
-    skill_icon?: string | null;
-    side: string;
-    ability_index: number | null;
-    agent_pos: LineupPosition | null;
-    skill_pos: LineupPosition | null;
-    stand_img?: string | null;
-    stand_desc?: string | null;
-    stand2_img?: string | null;
-    stand2_desc?: string | null;
-    aim_img?: string | null;
-    aim_desc?: string | null;
-    aim2_img?: string | null;
-    aim2_desc?: string | null;
-    land_img?: string | null;
-    land_desc?: string | null;
-    source_link?: string | null;
-    cloned_from?: string | null;
-    author_name?: string | null;
-    author_avatar?: string | null;
-    author_uid?: string | null;
-    creator_id?: string | null;
-};
-
-export type ImportProgress = {
-    status: 'reading' | 'uploading' | 'done' | 'error';
-    currentImage?: string;
-    uploadedCount: number;
-    totalImages: number;
-    errorMessage?: string;
-};
-
-export type ImportResult = {
-    success: boolean;
-    payload?: LineupDbPayload;
-    errorMessage?: string;
-    failedImages: LineupImageField[];
-};
+import { uploadZipApi } from '../services/lineups';
+import { LineupDbPayload, LineupSide } from '../types/lineup';
+import { LOCAL_AGENTS } from '../data/localAgents';
 
 export type ZipMetadata = {
     title: string;
     mapName: string;
     agentName: string;
     side: string;
+    slot: string;
+    agent_pos?: { lat: number; lng: number };
+    skill_pos?: { lat: number; lng: number };
+    ability_index?: number;
 };
 
+export type ImportResult = {
+    success: boolean;
+    payload?: LineupDbPayload;
+    errorMessage?: string;
+};
 
+/**
+ * 将槽位字符串 (如 "技能Q") 映射为前端索引
+ */
+function mapSlotToIndex(slot: string): number | null {
+    if (!slot) return null;
+    if (slot.includes('Q')) return 0;
+    if (slot.includes('E')) return 1;
+    if (slot.includes('C')) return 2;
+    if (slot.includes('X')) return 3;
+    return null;
+}
+
+/**
+ * 尝试从文件名解析基本元数据 (用于预览)
+ */
 export const parseZipMetadata = async (zipFile: File): Promise<ZipMetadata> => {
-    const arrayBuffer = await zipFile.arrayBuffer();
-    const zipData = new Uint8Array(arrayBuffer);
-    const unzipped = unzipSync(zipData);
+    const zipName = zipFile.name.replace(/\.zip$/i, '');
+    const parts = zipName.split('_');
 
-    const jsonFileName = Object.keys(unzipped).find((name) => name.endsWith('.json'));
-    if (!jsonFileName) {
-        throw new Error('ZIP 文件中未找到 JSON 元数据');
+    if (parts.length < 4) {
+        throw new Error('文件名格式不规范 (需为: 地图_英雄_技能_标题.zip)');
     }
 
-    const jsonContent = strFromU8(unzipped[jsonFileName]);
-    const jsonPayload: LineupJsonPayload = JSON.parse(jsonContent);
-
+    const title = parts.slice(3).join('_');
     return {
-        title: jsonPayload.title,
-        mapName: jsonPayload.map_name,
-        agentName: jsonPayload.agent_name,
-        side: jsonPayload.side,
+        title,
+        mapName: parts[0],
+        agentName: parts[1],
+        side: title.startsWith('防守') ? 'defense' : 'attack',
+        slot: parts[2] || 'Ability'
     };
 };
 
-const imageSlots: { field: LineupImageField; fileName: string }[] = [
-    { field: 'stand_img', fileName: '站位图.webp' },
-    { field: 'stand2_img', fileName: '站位图2.webp' },
-    { field: 'aim_img', fileName: '瞄点图.webp' },
-    { field: 'aim2_img', fileName: '瞄点图2.webp' },
-    { field: 'land_img', fileName: '技能落点图.webp' },
-];
-
-const isValidImageBedConfig = (config: ImageBedConfig): boolean => {
-    if (!config?.provider) return false;
-    if (config.provider === 'aliyun') {
-        return !!(config.accessKeyId && config.accessKeySecret && config.bucket && config.area);
-    }
-    if (config.provider === 'tencent') {
-        return !!(config.secretId && config.secretKey && config.bucket && config.area);
-    }
-    if (config.provider === 'qiniu') {
-        return !!(config.accessKey && config.accessKeySecret && config.bucket && config.url);
-    }
-    return false;
-};
-
+/**
+ * 从 ZIP 文件执行导入
+ */
 export const importLineupFromZip = async (
     zipFile: File,
-    config: ImageBedConfig,
-    userId: string,
-    existingLineups: BaseLineup[],
-    onProgress?: (progress: ImportProgress) => void,
+    userId: string
 ): Promise<ImportResult> => {
-    const failedImages: LineupImageField[] = [];
-
-    if (!isValidImageBedConfig(config)) {
-        return {
-            success: false,
-            errorMessage: '请先配置图床，才能导入点位',
-            failedImages: [],
-        };
-    }
-
     try {
-        onProgress?.({ status: 'reading', uploadedCount: 0, totalImages: 0 });
-        const arrayBuffer = await zipFile.arrayBuffer();
-        const zipData = new Uint8Array(arrayBuffer);
-        const unzipped = unzipSync(zipData);
+        const result = await uploadZipApi(zipFile);
 
-        const jsonFileName = Object.keys(unzipped).find((name) => name.endsWith('.json'));
-        if (!jsonFileName) {
-            return { success: false, errorMessage: 'ZIP 文件中未找到 JSON 元数据', failedImages: [] };
+        if (!result.success) {
+            return { success: false, errorMessage: '服务器处理失败' };
         }
 
-        const jsonContent = strFromU8(unzipped[jsonFileName]);
-        const jsonPayload: LineupJsonPayload = JSON.parse(jsonContent);
+        const { metadata, paths } = result;
 
-        const imagesToUpload: { field: LineupImageField; data: Uint8Array }[] = [];
-        for (const slot of imageSlots) {
-            const imagePath = `images/${slot.fileName}`;
-            if (unzipped[imagePath]) {
-                imagesToUpload.push({ field: slot.field, data: unzipped[imagePath] });
-            }
-        }
+        // 英雄名称映射 (处理中英文兼容)
+        const agentNameMap: Record<string, string> = {
+            'Phoenix': '不死鸟',
+            'Jett': '捷风',
+            'Sova': '猎枭',
+            'Sage': '贤者',
+            'Cypher': '零',
+            'Killjoy': '奇乐',
+            'Raze': '雷兹',
+            'Viper': '蝰蛇',
+            'Brimstone': '炼狱',
+            'Omen': '幽影',
+            'Breach': '铁臂',
+            'Reyna': '芮娜',
+            'Skye': '斯凯',
+            'Yoru': '夜露',
+            'Astra': '星礈',
+            'KAY/O': 'K/O',
+            'Chamber': '尚勃勒',
+            'Neon': '霓虹',
+            'Fade': '黑梦',
+            'Harbor': '海神',
+            'Gekko': '盖可',
+            'Deadlock': '钢锁',
+            'Iso': '壹决',
+            'Clove': '暮蝶',
+            'Vyse': '维斯',
+            'Teafox': '钛狐'
+        };
 
-        const uploadedUrls: Partial<Record<LineupImageField, string>> = {};
-        const totalImages = imagesToUpload.length;
+        const finalAgentName = agentNameMap[metadata.agentName] || metadata.agentName;
+        const agent = LOCAL_AGENTS.find(a => a.displayName === finalAgentName);
+        const agentIcon = agent?.displayIcon || null;
 
-        for (let i = 0; i < imagesToUpload.length; i++) {
-            const { field, data } = imagesToUpload[i];
-            onProgress?.({
-                status: 'uploading',
-                currentImage: field,
-                uploadedCount: i,
-                totalImages,
-            });
+        // 优先使用后端解析的 ability_index，否则使用槽位映射
+        const abilityIndex = metadata.ability_index !== undefined
+            ? metadata.ability_index
+            : mapSlotToIndex(metadata.slot);
 
-            try {
-                const arrayBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
-                const blob = new Blob([arrayBuffer], { type: 'image/webp' });
-                const file = new File([blob], `${field}.webp`, { type: 'image/webp' });
-                const result = await uploadImage(file, config);
-                uploadedUrls[field] = result.url;
-            } catch (error) {
-                console.error(`Failed to upload ${field}:`, error);
-                failedImages.push(field);
-            }
-        }
-
-        const uniqueTitle = generateUniqueTitle(jsonPayload.title, existingLineups, jsonPayload.agent_name);
+        // 构建数据库负载
         const payload: LineupDbPayload = {
-            title: uniqueTitle,
-            map_name: jsonPayload.map_name,
-            agent_name: jsonPayload.agent_name,
-            agent_icon: jsonPayload.agent_icon ?? null,
-            skill_icon: jsonPayload.skill_icon ?? null,
-            side: jsonPayload.side as LineupSide,
-            ability_index: jsonPayload.ability_index,
-            agent_pos: jsonPayload.agent_pos,
-            skill_pos: jsonPayload.skill_pos,
-            stand_img: uploadedUrls.stand_img ?? jsonPayload.stand_img ?? null,
-            stand_desc: jsonPayload.stand_desc ?? null,
-            stand2_img: uploadedUrls.stand2_img ?? jsonPayload.stand2_img ?? null,
-            stand2_desc: jsonPayload.stand2_desc ?? null,
-            aim_img: uploadedUrls.aim_img ?? jsonPayload.aim_img ?? null,
-            aim_desc: jsonPayload.aim_desc ?? null,
-            aim2_img: uploadedUrls.aim2_img ?? jsonPayload.aim2_img ?? null,
-            aim2_desc: jsonPayload.aim2_desc ?? null,
-            land_img: uploadedUrls.land_img ?? jsonPayload.land_img ?? null,
-            land_desc: jsonPayload.land_desc ?? null,
-            source_link: jsonPayload.source_link ?? null,
-            author_name: jsonPayload.author_name ?? null,
-            author_avatar: jsonPayload.author_avatar ?? null,
-            author_uid: jsonPayload.author_uid ?? null,
-            creator_id: jsonPayload.creator_id ?? null,
+            title: metadata.title,
+            map_name: metadata.mapName,
+            agent_name: metadata.agentName,
+            agent_icon: agentIcon,
+            skill_icon: null, // 将在保存时或后续解析
+            side: metadata.side as LineupSide,
+            ability_index: abilityIndex,
+            agent_pos: metadata.agent_pos || { lat: 0, lng: 0 },
+            skill_pos: metadata.skill_pos || { lat: 0, lng: 0 },
+            // 图片路径使用后端返回的规范化路径
+            stand_img: paths.stand_img || null,
+            stand2_img: paths.stand2_img || null,
+            aim_img: paths.aim_img || null,
+            aim2_img: paths.aim2_img || null,
+            land_img: paths.land_img || null,
             user_id: userId,
-            cloned_from: jsonPayload.id, // 说明：使用原始 ID 作为 cloned_from。
             created_at: new Date().toISOString(),
         };
 
-        onProgress?.({ status: 'done', uploadedCount: totalImages, totalImages });
-
-        return { success: true, payload, failedImages };
+        return { success: true, payload };
     } catch (error) {
-        const message = error instanceof Error ? error.message : '导入失败';
-        onProgress?.({ status: 'error', uploadedCount: 0, totalImages: 0, errorMessage: message });
-        return { success: false, errorMessage: message, failedImages };
+        return {
+            success: false,
+            errorMessage: error instanceof Error ? error.message : '未知错误'
+        };
     }
 };

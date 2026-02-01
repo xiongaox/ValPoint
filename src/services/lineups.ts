@@ -229,15 +229,29 @@ export async function uploadZipApi(file: File): Promise<{
 /**
  * 导出点位为 ZIP
  */
-export async function exportLineupZipApi(id: string, fileName: string) {
-  const response = await fetch(`${API_BASE}/lineups/${id}/export`);
+export async function exportLineupZipApi(id: string, fileName: string, nickname?: string) {
+  const query = nickname ? `?nickname=${encodeURIComponent(nickname)}` : '';
+  const response = await fetch(`${API_BASE}/lineups/${id}/export${query}`);
   if (!response.ok) throw new Error('导出失败');
 
   const blob = await response.blob();
+  const contentDisposition = response.headers.get('Content-Disposition');
+  let finalFileName = fileName;
+
+  if (contentDisposition) {
+    const filenameStarMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (filenameStarMatch) {
+      finalFileName = decodeURIComponent(filenameStarMatch[1]);
+    } else {
+      const filenameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+      if (filenameMatch) finalFileName = filenameMatch[1];
+    }
+  }
+
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = fileName;
+  a.download = finalFileName;
   document.body.appendChild(a);
   a.click();
   window.URL.revokeObjectURL(url);

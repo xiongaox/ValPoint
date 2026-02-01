@@ -17,6 +17,15 @@ import db from '../db.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 获取外部技能图标映射
+const abilityOverridesPath = path.resolve(__dirname, '../../src/data/ability_overrides.json');
+let abilityOverrides = {};
+try {
+    abilityOverrides = JSON.parse(fs.readFileSync(abilityOverridesPath, 'utf8'));
+} catch (e) {
+    console.warn('[Export] Failed to load ability_overrides.json');
+}
+
 const router = express.Router();
 
 /**
@@ -256,6 +265,7 @@ router.delete('/:id', (req, res) => {
 router.get('/:id/export', (req, res) => {
     try {
         const { id } = req.params;
+        const { nickname } = req.query; // 从查询参数中获取本地昵称
         const row = db.prepare('SELECT * FROM lineups WHERE id = ?').get(id);
 
         if (!row) {
@@ -267,46 +277,116 @@ router.get('/:id/export', (req, res) => {
         // 1. 查找图片并添加到 ZIP
         // 图片路径在数据库中是 "data/images/亚海悬城/猎枭/..."
         // 需要找到服务器上的实际物理路径
-        const baseDir = path.resolve(process.cwd()); // 项目根目录
+        // __dirname = .../server/routes
+        // projectRoot = .../
+        const baseDir = path.resolve(__dirname, '../../');
 
         const imageFields = [
-            { field: 'stand_img', zipName: '站位.webp' },
-            { field: 'stand2_img', zipName: '站位2.webp' },
-            { field: 'aim_img', zipName: '瞄点.webp' },
-            { field: 'aim2_img', zipName: '瞄点2.webp' },
-            { field: 'land_img', zipName: '落位.webp' }
+            { field: 'stand_img', zipName: '站位图.webp' },
+            { field: 'stand2_img', zipName: '站位图2.webp' },
+            { field: 'aim_img', zipName: '瞄点图.webp' },
+            { field: 'aim2_img', zipName: '瞄点图2.webp' },
+            { field: 'land_img', zipName: '技能落点图.webp' }
         ];
+
+        console.log('[Export] Base Dir:', baseDir);
+        let slot = '通用';
+        const abiIdx = row.ability_index;
+        if (abiIdx !== null && abiIdx !== undefined) {
+            // 对齐标准：0:C, 1:Q, 2:E, 3:X
+            const slotMap = ['技能C', '技能Q', '技能E', '技能X'];
+            slot = slotMap[abiIdx] || '技能';
+        }
+
+        // 地图名称映射
+        const MAP_TRANSLATIONS = {
+            'Ascent': "亚海悬城", 'Bind': "源工重镇", 'Breeze': "微风岛屿", 'Fracture': "裂变峡谷",
+            'Haven': "隐世修所", 'Icebox': "森寒冬港", 'Lotus': "莲华古城", 'Pearl:': "深海明珠",
+            'Split': "霓虹町", 'Sunset': "日落之城", 'Abyss': "幽邃地窟", 'Corrode': "盐海矿镇",
+            'ascent': "亚海悬城", 'bind': "源工重镇", 'breeze': "微风岛屿", 'fracture': "裂变峡谷",
+            'haven': "隐世修所", 'icebox': "森寒冬港", 'lotus': "莲华古城", 'pearl': "深海明珠",
+            'split': "霓虹町", 'sunset': "日落之城", 'abyss': "幽邃地窟", 'corrode': "盐海矿镇"
+        };
+        const rawMapName = row.map_name ? row.map_name.trim() : '';
+        const mapNameZh = MAP_TRANSLATIONS[rawMapName] || rawMapName;
+
+        // 处理文件名中的非法字符
+        const safeTitle = (row.title || '点位').replace(/[\\/:*?"<>|]/g, '_');
+        const baseName = `${mapNameZh}_${row.agent_name}_${slot}_${safeTitle}`;
+        const zipFileName = `${baseName}.zip`;
+        const jsonFileName = `${baseName}.json`;
+        console.log(`[Export] map_name: ${row.map_name} -> ${mapNameZh}`);
+        console.log(`[Export] baseName: ${baseName}`);
+        console.log(`[Export] Provided Nickname: ${nickname || 'NONE'}`);
 
         for (const item of imageFields) {
             const relPath = row[item.field];
             if (relPath) {
-                const fullPath = path.join(baseDir, relPath);
-                if (fs.existsSync(fullPath)) {
-                    zip.addLocalFile(fullPath, '', item.zipName);
+                // 去除开头的斜杠，确保 path.join 正确拼接
+                const safeRelPath = relPath.startsWith('/') ? relPath.slice(1) : relPath;
+                const fullPath = path.join(baseDir, safeRelPath);
+
+                const exists = fs.existsSync(fullPath);
+                if (exists) {
+                    zip.addLocalFile(fullPath, 'images', item.zipName);
                 }
             }
         }
 
-        // 2. 生成规范文件名
-        // 格式：地图_英雄_技能_标题.zip
-        // 技能解析：需要获取对应的槽位
-        let slot = '通用';
-        const abiIdx = row.ability_index;
-        if (abiIdx !== null && abiIdx !== undefined) {
-            // 这里简单映射。前端通常映射为：0=Q, 1=E, 2=C, 3=X (参考 localAgents 顺序)
-            // 但其实数据库已经存了对应的技能名称，不过用户希望用技能Q/E/C/X代替
-            // 我们在导出的 ZIP 文件名中尽量体现槽位
-            // 注意：由于数据库没存原始槽位 ID，我们尝试从其它地方获取或根据索引推断
-            const slotMap = ['技能Q', '技能E', '技能C', '技能X'];
-            slot = slotMap[abiIdx] || '技能';
+        // 3. 生成元数据并添加到 ZIP
+        // 图标计算逻辑
+        const agentIcon = `/agents/${row.agent_name}.png`;
+
+        // 获取外部技能图标外链
+        let skillIcon = `/abilities/${row.agent_name}-${slot.replace('技能', '')}.png`; // 默认本地兜底
+        const agentOverride = abilityOverrides[row.agent_name];
+        if (agentOverride && agentOverride.iconUrl) {
+            const slotKeys = ['Ability1', 'Ability2', 'Grenade', 'Ultimate']; // C, Q, E, X
+            const key = slotKeys[abiIdx];
+            if (key && agentOverride.iconUrl[key]) {
+                skillIcon = agentOverride.iconUrl[key];
+            }
         }
 
-        const zipFileName = `${row.map_name}_${row.agent_name}_${slot}_${row.title}.zip`;
+        const metadata = {
+            id: row.id,
+            user_id: row.user_id || "",
+            title: row.title,
+            map_name: row.map_name, // 回归英文名 (Ascent)
+            agent_name: row.agent_name,
+            agent_icon: agentIcon,
+            skill_icon: skillIcon, // 使用腾讯官网或外部链接
+            side: row.side,
+            ability_index: row.ability_index,
+            agent_pos: row.agent_pos ? JSON.parse(row.agent_pos) : null,
+            skill_pos: row.skill_pos ? JSON.parse(row.skill_pos) : null,
+            stand_img: row.stand_img ? `images/站位图.webp` : "",
+            stand_desc: row.stand_desc || "",
+            stand2_img: row.stand2_img ? `images/站位图2.webp` : "",
+            stand2_desc: row.stand2_desc || "",
+            aim_img: row.aim_img ? `images/瞄点图.webp` : "",
+            aim_desc: row.aim_desc || "",
+            aim2_img: row.aim2_img ? `images/瞄点图2.webp` : "",
+            aim2_desc: row.aim2_desc || "",
+            land_img: row.land_img ? `images/技能落点图.webp` : "",
+            land_desc: row.land_desc || "",
+            source_link: row.source_link || "",
+            cloned_from: row.cloned_from || null,
+            author_name: row.author_name || null,
+            author_avatar: row.author_avatar || null,
+            author_uid: nickname || row.author_uid || "VALPOINT",
+            creator_id: row.creator_id || null,
+            created_at: row.created_at,
+            updated_at: row.updated_at
+        };
+        zip.addFile(jsonFileName, Buffer.from(JSON.stringify(metadata, null, 2)));
 
         // 3. 发送文件
         const buffer = zip.toBuffer();
         res.set('Content-Type', 'application/zip');
-        res.set('Content-Disposition', `attachment; filename="${encodeURIComponent(zipFileName)}"`);
+        // 使用标准的 RFC 5987 编码处理非 ASCII 字符
+        const encodedFileName = encodeURIComponent(zipFileName).replace(/['()]/g, escape).replace(/\*/g, '%2A');
+        res.set('Content-Disposition', `attachment; filename="${encodedFileName}"; filename*=UTF-8''${encodedFileName}`);
         res.send(buffer);
 
     } catch (error) {

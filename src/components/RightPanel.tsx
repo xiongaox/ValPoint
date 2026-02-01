@@ -305,7 +305,10 @@ const RightPanel: React.FC<Props> = ({
                               </button>
                             )}
                             <button
-                              onClick={(e) => handleDownload(l.id, e)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(l.id, e);
+                              }}
                               className="text-gray-600 hover:text-emerald-400 p-1 rounded hover:bg-white/5 transition-colors"
                               title="下载"
                             >

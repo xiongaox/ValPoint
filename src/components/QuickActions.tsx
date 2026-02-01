@@ -90,23 +90,9 @@ const QuickActions: React.FC<Props> = ({
                 <ActionButton onClick={onPendingSubmissions} icon="Clock" title="待审点位" />
               )}
 
-              {isAdmin && onSyncToShared && (
-                <ActionButton onClick={onSyncToShared} icon="Share2" title="同步到共享库" />
-              )}
-
               {onBatchDownload && canBatchDownload && (
                 <ActionButton onClick={onBatchDownload} icon="Download" title="批量下载" />
               )}
-
-              <ActionButton onClick={onAdvancedSettings} icon="SlidersHorizontal" title="高级设置" />
-
-              <ActionButton onClick={onChangePassword} icon="Key" title="修改密码" />
-
-              {onPngSettings && (
-                <ActionButton onClick={onPngSettings} icon="FileImage" title="PNG转换" />
-              )}
-
-              <ActionButton onClick={onImageBedConfig} icon="Image" title="图床配置" />
             </>
           )}
 

@@ -11,7 +11,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from '../../../components/Icon';
 import { updateAvatarCache } from '../../../components/UserAvatar';
 import { useUserProfile } from '../../../hooks/useUserProfile';
-import { useEmailAuth } from '../../../hooks/useEmailAuth';
+
 import { useEscapeClose } from '../../../hooks/useEscapeClose';
 import {
     PlayerCardAvatar,
@@ -27,12 +27,10 @@ type Props = {
 };
 
 const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage }) => {
-    const { user } = useEmailAuth();
     const { profile, updateProfile, isLoading: isProfileLoading } = useUserProfile();
     const [nickname, setNickname] = useState('');
-    const defaultAvatar = user?.email ? getPlayerCardByEmail(user.email) : getDefaultPlayerCardAvatar();
+    const defaultAvatar = getDefaultPlayerCardAvatar();
     const [currentAvatar, setCurrentAvatar] = useState(defaultAvatar);
-    const [pendingId, setPendingId] = useState<string | null>(null); // 说明：待补填的 ID。
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
 
@@ -62,24 +60,12 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
         return () => observer.disconnect();
     }, [isAvatarPickerOpen, isLoadingCards, playerCards.length, visibleCount]);
 
-    const generateId = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let res = '';
-        for (let i = 0; i < 8; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
-        return res;
-    };
-
     useEffect(() => {
+
         if (isOpen && profile) {
             setNickname(profile.nickname || '');
             setCurrentAvatar(profile.avatar || defaultAvatar);
             setIsAvatarPickerOpen(false);
-
-            if (!profile.custom_id) {
-                setPendingId(generateId());
-            } else {
-                setPendingId(null);
-            }
         }
     }, [isOpen, profile]);
 
@@ -114,22 +100,11 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
             avatar: currentAvatar
         };
 
-        if (pendingId) {
-            updateData.custom_id = pendingId;
-            if (!nickname) updateData.nickname = pendingId;
-        }
-
-        if (nickname === 'VALPOINT') {
-            updateData.custom_id = 'VALPOINT';
-        }
-
         const { success, error } = await updateProfile(updateData);
         setIsSubmitting(false);
 
         if (success) {
-            if (user?.email) {
-                updateAvatarCache(user.email, currentAvatar);
-            }
+            // Note: removed updateAvatarCache since we don't have user email anymore and local mode might not need it or handles it differently
             setAlertMessage('个人信息已更新');
             onClose();
         } else {
@@ -169,7 +144,7 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
                             title="点击更换头像"
                         >
                             <img
-                                src={currentAvatar.startsWith('http') ? currentAvatar : `/agents/${currentAvatar}`}
+                                src={currentAvatar.startsWith('http') || currentAvatar.startsWith('/') ? currentAvatar : `/agents/${currentAvatar}`}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
                             />
@@ -183,26 +158,38 @@ const UserProfileModal: React.FC<Props> = ({ isOpen, onClose, setAlertMessage })
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="text-sm text-gray-400">用户昵称</label>
-                            <span className="text-xs text-gray-500">
-                                关联邮箱: <span className="text-gray-300">{user?.email}</span>
+                            <span className="text-xs text-gray-500 font-mono">
+                                {nickname.length}/8 (仅限大写英文字母与数字)
                             </span>
                         </div>
-                        <input
-                            type="text"
-                            value={nickname}
-                            onChange={(e) => {
-                                const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                                if (val.length <= 8) {
-                                    setNickname(val);
-                                }
-                            }}
-                            placeholder="设置一个响亮的代号"
-                            className="w-full bg-[#0f131a] border border-white/10 rounded-lg px-3 py-2 text-base text-white focus:border-[#ff4655] outline-none transition-colors font-mono tracking-wide"
-                            maxLength={8}
-                        />
-                        <div className="flex justify-between text-xs text-gray-600">
-                            <span>ID: {profile?.custom_id || pendingId || '未分配'}</span>
-                            <span>{nickname.length}/8 (仅限大写英文字母与数字)</span>
+                        <div className="relative group">
+                            <input
+                                type="text"
+                                value={nickname}
+                                onChange={(e) => {
+                                    const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                                    if (val.length <= 8) {
+                                        setNickname(val);
+                                    }
+                                }}
+                                placeholder="设置一个响亮的代号"
+                                className="w-full bg-[#0f131a] border border-white/10 rounded-lg pl-3 pr-10 py-2 text-base text-white focus:border-[#ff4655] outline-none transition-colors font-mono tracking-wide"
+                                maxLength={8}
+                            />
+                            <button
+                                onClick={() => {
+                                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                                    let result = '';
+                                    for (let i = 0; i < 8; i++) {
+                                        result += chars.charAt(Math.floor(Math.random() * chars.length));
+                                    }
+                                    setNickname(result);
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-[#ff4655] hover:bg-[#ff4655]/10 rounded-md transition-all active:scale-95"
+                                title="随机代号"
+                            >
+                                <Icon name="RefreshCcw" size={14} />
+                            </button>
                         </div>
                     </div>
 

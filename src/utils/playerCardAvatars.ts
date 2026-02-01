@@ -18,7 +18,7 @@ let loadingPromise: Promise<PlayerCardAvatar[]> | null = null;
 
 const OSS_BASE_URL = import.meta.env.VITE_OSS_PLAYERCARDS_BASE_URL || '';
 
-const LOCAL_JSON_PATH = '/data/playercards_cn.json';
+const LOCAL_JSON_PATH = '/avatars/index.json';
 
 const VALORANT_API_URL = 'https://valorant-api.com/v1/playercards?language=zh-CN';
 
@@ -39,7 +39,12 @@ async function fetchFromLocalJSON(): Promise<PlayerCardAvatar[] | null> {
     try {
         const response = await fetch(LOCAL_JSON_PATH);
         if (!response.ok) return null;
-        return await response.json();
+        const data = await response.json();
+        return data.map((item: any) => ({
+            uuid: String(item.id),
+            name: item.name,
+            url: item.url
+        }));
     } catch {
         return null;
     }

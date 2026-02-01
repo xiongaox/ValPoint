@@ -1,23 +1,18 @@
-version: '3.8'
-
 services:
   valpoint:
-    image: valpoint_s
+    image: xiongaox7806/valpoint_s:latest
     container_name: valpoint
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
-      - "3210:3210"
+      - "3209:3209"
     volumes:
       - valpoint_data:/data
     environment:
       - NODE_ENV=production
-      - PORT=3210
+      - PORT=3209
       - DATA_DIR=/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3210/api/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3209/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

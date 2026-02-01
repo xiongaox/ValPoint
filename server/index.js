@@ -39,7 +39,9 @@ app.use((req, res, next) => {
 });
 
 // 静态文件服务
-app.use('/data', express.static(path.join(__dirname, '../data')));
+// Docker 环境下 DATA_DIR=/data，本地开发时使用 ../data
+const dataDir = process.env.DATA_DIR || path.join(__dirname, '../data');
+app.use('/data', express.static(dataDir));
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // API 路由

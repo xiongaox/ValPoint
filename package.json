@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:all": "node scripts/build-all.js",
     "preview": "vite preview",
     "server": "cd server && node index.js",
     "server:dev": "cd server && node --watch index.js",

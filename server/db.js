@@ -58,6 +58,8 @@ export function initDatabase() {
             source_link TEXT,
             author_name TEXT,
             author_avatar TEXT,
+            author_uid TEXT,
+            creator_id TEXT,
             created_at TEXT DEFAULT (datetime('now')),
             updated_at TEXT DEFAULT (datetime('now'))
         )

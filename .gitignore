@@ -11,6 +11,7 @@ coverage
 docs/.obsidian/workspace.json
 .vscode
 supabase/cloud
+data
 
 # VitePress
 docs/.vitepress/cache

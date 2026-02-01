@@ -29,7 +29,7 @@ const ViewerModal = ({
   onSubmitLineup, // 说明：投稿回调。
   isAdmin = true, // 说明：是否管理员，默认 true 不显示投稿按钮。
 }: any) => {
-  const [authorInfo, setAuthorInfo] = useState<{ name: string; avatar: string; uid?: string } | null>(null);
+  const [authorInfo, setAuthorInfo] = useState<{ username: string; avatar: string; uid?: string } | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
   const isMobile = useIsMobile();
 
@@ -42,11 +42,12 @@ const ViewerModal = ({
       return;
     }
 
-    if (viewingLineup?.authorName && viewingLineup?.authorAvatar) {
+    // 只有当名字、头像、UID 三者皆有时，才跳过自动获取
+    if (viewingLineup?.authorName && viewingLineup?.authorAvatar && viewingLineup?.authorUid) {
       setAuthorInfo({
-        name: viewingLineup.authorName,
+        username: viewingLineup.authorName,
         avatar: viewingLineup.authorAvatar,
-        uid: viewingLineup.authorUid || undefined,
+        uid: viewingLineup.authorUid,
       });
       return;
     }
@@ -54,7 +55,13 @@ const ViewerModal = ({
     setIsLoadingAuthor(true);
     fetchAuthorInfo(viewingLineup.sourceLink)
       .then((info) => {
-        if (info) setAuthorInfo(info);
+        if (info) {
+          setAuthorInfo({
+            username: info.username,
+            avatar: info.avatar,
+            uid: info.uid
+          });
+        }
       })
       .finally(() => setIsLoadingAuthor(false));
   }, [viewingLineup]);
@@ -136,13 +143,13 @@ const ViewerModal = ({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white hover:border-[#ff4655] hover:text-[#ff4655] transition-colors whitespace-nowrap"
                   >
-                    <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.name} referrerPolicy="no-referrer" />
-                    <span>{truncateName(authorInfo.name)}</span>
+                    <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.username} referrerPolicy="no-referrer" />
+                    <span>{truncateName(authorInfo.username)}</span>
                   </a>
                 ) : (
                   <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-white whitespace-nowrap">
-                    <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.name} referrerPolicy="no-referrer" />
-                    <span>{truncateName(authorInfo.name)}</span>
+                    <img src={authorInfo.avatar} className="w-5 h-5 rounded-full" alt={authorInfo.username} referrerPolicy="no-referrer" />
+                    <span>{truncateName(authorInfo.username)}</span>
                   </div>
                 )
               )}

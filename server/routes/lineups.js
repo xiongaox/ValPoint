@@ -105,12 +105,12 @@ router.post('/', (req, res) => {
                 id, title, map_name, agent_name, side, ability_index,
                 agent_pos, skill_pos, stand_img, stand_desc, stand2_img, stand2_desc,
                 aim_img, aim_desc, aim2_img, aim2_desc, land_img, land_desc,
-                source_link, author_name, author_avatar, created_at, updated_at
+                source_link, author_name, author_avatar, author_uid, creator_id, created_at, updated_at
             ) VALUES (
                 ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?
             )
         `);
 
@@ -136,6 +136,8 @@ router.post('/', (req, res) => {
             data.source_link || null,
             data.author_name || null,
             data.author_avatar || null,
+            data.author_uid || null,
+            data.creator_id || null,
             now,
             now
         );
@@ -170,7 +172,7 @@ router.put('/:id', (req, res) => {
             'title', 'map_name', 'agent_name', 'side', 'ability_index',
             'stand_img', 'stand_desc', 'stand2_img', 'stand2_desc',
             'aim_img', 'aim_desc', 'aim2_img', 'aim2_desc',
-            'land_img', 'land_desc', 'source_link', 'author_name', 'author_avatar'
+            'land_img', 'land_desc', 'source_link', 'author_name', 'author_avatar', 'author_uid', 'creator_id'
         ];
 
         for (const field of allowedFields) {
@@ -433,8 +435,8 @@ router.get('/:id/export', (req, res) => {
             cloned_from: row.cloned_from || null,
             author_name: row.author_name || null,
             author_avatar: row.author_avatar || null,
-            author_uid: nickname || row.author_uid || "VALPOINT",
-            creator_id: row.creator_id || null,
+            author_uid: row.author_uid || "VALPOINT",
+            creator_id: nickname || row.creator_id || null,
             created_at: row.created_at,
             updated_at: row.updated_at
         };

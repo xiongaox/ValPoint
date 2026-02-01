@@ -8,7 +8,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../supabaseClient';
 import { getAvatarByEmail } from '../utils/avatarUtils';
 
 interface UserAvatarProps {
@@ -114,27 +113,8 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
             setAvatar(cachedParams!);
         }
 
-        try {
-
-            const { data, error } = await supabase
-                .from('user_profiles')
-                .select('avatar')
-                .eq('email', normalizedEmail)
-                .single();
-
-            if (!error && data?.avatar) {
-                const currentCache = avatarCache.get(normalizedEmail);
-                if (data.avatar !== currentCache) {
-                    console.log('[UserAvatar] Avatar changed, updating:', data.avatar);
-                    setAvatar(data.avatar);
-                    updateAvatarCache(normalizedEmail, data.avatar);
-                }
-            }
-        } catch (err) {
-            console.error('获取用户头像失败:', err);
-        } finally {
-            setLoading(false);
-        }
+        // 本地版已移除完整的用户 Profile 实时同步，仅依缓存逻辑
+        setLoading(false);
     }, [normalizedEmail]);
 
     useEffect(() => {
@@ -145,36 +125,8 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
         };
         window.addEventListener('focus', onFocus);
 
-        if (!normalizedEmail) return () => {
-            window.removeEventListener('focus', onFocus);
-        };
-
-        const channel = supabase
-            .channel(`avatar-${normalizedEmail}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'user_profiles',
-                    filter: `email=eq.${normalizedEmail}`
-                },
-                (payload) => {
-                    const newAvatar = (payload.new as any).avatar;
-                    if (newAvatar) {
-                        const currentCache = avatarCache.get(normalizedEmail);
-                        if (newAvatar !== currentCache) {
-                            setAvatar(newAvatar);
-                            updateAvatarCache(normalizedEmail, newAvatar);
-                        }
-                    }
-                }
-            )
-            .subscribe();
-
         return () => {
             window.removeEventListener('focus', onFocus);
-            supabase.removeChannel(channel);
         };
     }, [fetchAvatar, normalizedEmail, refreshKey]);
 

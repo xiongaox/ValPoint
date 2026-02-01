@@ -201,12 +201,24 @@ export async function uploadZipApi(file: File): Promise<{
   metadata: {
     mapName: string;
     agentName: string;
+    agent_name?: string; // 支持后端翻译后的名称
     slot: string;
     title: string;
     side: string;
     agent_pos?: { lat: number; lng: number };
     skill_pos?: { lat: number; lng: number };
     ability_index?: number;
+    // 描述相关
+    stand_desc?: string;
+    stand2_desc?: string;
+    aim_desc?: string;
+    aim2_desc?: string;
+    land_desc?: string;
+    // 链接与作者
+    source_link?: string;
+    author_name?: string | null;
+    author_avatar?: string | null;
+    author_uid?: string | null;
   };
   paths: Record<string, string>;
 }> {

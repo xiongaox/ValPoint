@@ -78,7 +78,7 @@ const EditorModal = ({
         if (authorInfo) {
           setNewLineupData((prev) => ({
             ...prev,
-            authorName: authorInfo.name,
+            authorName: authorInfo.username,
             authorAvatar: authorInfo.avatar,
             authorUid: authorInfo.uid || '',
           }));
@@ -349,7 +349,7 @@ const EditorModal = ({
                         if (authorInfo) {
                           setNewLineupData((prev) => ({
                             ...prev,
-                            authorName: authorInfo.name,
+                            authorName: authorInfo.username,
                             authorAvatar: authorInfo.avatar,
                             authorUid: authorInfo.uid || '',
                           }));

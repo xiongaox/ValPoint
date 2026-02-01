@@ -213,6 +213,29 @@ router.post('/zip', upload.single('file'), async (req, res) => {
                 if (jsonData.agent_pos || jsonData.agentPos) metadata.agent_pos = jsonData.agent_pos || jsonData.agentPos;
                 if (jsonData.skill_pos || jsonData.skillPos) metadata.skill_pos = jsonData.skill_pos || jsonData.skillPos;
                 if (jsonData.ability_index !== undefined) metadata.ability_index = jsonData.ability_index;
+
+                // 显式提取描述、链接和作者信息 (支持驼峰与下划线兼容)
+                const fields = [
+                    'stand_desc', 'stand_desc', 'stand2_desc', 'stand2_desc',
+                    'aim_desc', 'aim_desc', 'aim2_desc', 'aim2_desc',
+                    'land_desc', 'land_desc', 'source_link', 'sourceLink',
+                    'author_name', 'authorName', 'author_avatar', 'authorAvatar',
+                    'author_uid', 'authorUid'
+                ];
+
+                // 站位描述
+                metadata.stand_desc = jsonData.stand_desc || jsonData.standDesc || "";
+                metadata.stand2_desc = jsonData.stand2_desc || jsonData.stand2Desc || "";
+                metadata.aim_desc = jsonData.aim_desc || jsonData.aimDesc || "";
+                metadata.aim2_desc = jsonData.aim2_desc || jsonData.aim2Desc || "";
+                metadata.land_desc = jsonData.land_desc || jsonData.landDesc || "";
+
+                // 链接与作者
+                metadata.source_link = jsonData.source_link || jsonData.sourceLink || "";
+                metadata.author_name = jsonData.author_name || jsonData.authorName || null;
+                metadata.author_avatar = jsonData.author_avatar || jsonData.authorAvatar || null;
+                metadata.author_uid = jsonData.author_uid || jsonData.authorUid || null;
+
             } catch (e) {
                 console.warn('JSON 解析失败，回退到文件名解析:', e);
             }

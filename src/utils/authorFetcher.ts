@@ -7,6 +7,7 @@ export interface AuthorInfo {
     username: string;
     avatar: string;
     user_home_url: string;
+    uid?: string;
     source: string;
 }
 

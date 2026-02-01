@@ -205,6 +205,65 @@ router.put('/:id', (req, res) => {
 });
 
 /**
+ * DELETE /api/lineups - 批量删除点位 (清空所有或按英雄清空)
+ * Query: ?agent=xxx
+ */
+router.delete('/', (req, res) => {
+    try {
+        const { agent } = req.query;
+        let sql = 'SELECT * FROM lineups WHERE 1=1';
+        const params = [];
+
+        if (agent) {
+            sql += ' AND agent_name = ?';
+            params.push(agent);
+        }
+
+        // 1. 获取符合条件的所有点位，以便清理物理文件
+        const rows = db.prepare(sql).all(...params);
+
+        if (rows.length > 0) {
+            const projectRoot = path.resolve(__dirname, '../../');
+            const IMAGES_DIR = path.resolve(projectRoot, 'data/images');
+
+            for (const row of rows) {
+                const possiblePaths = [row.stand_img, row.stand2_img, row.aim_img, row.aim2_img, row.land_img].filter(Boolean);
+                if (possiblePaths.length > 0) {
+                    const firstPath = possiblePaths[0];
+                    const relPath = firstPath.startsWith('/') ? firstPath.substring(1) : firstPath;
+                    const absolutePath = path.resolve(projectRoot, relPath);
+                    const targetDir = path.dirname(absolutePath);
+
+                    // 安全校验并删除点位整个文件夹
+                    if (targetDir.startsWith(IMAGES_DIR) && targetDir !== IMAGES_DIR) {
+                        try {
+                            if (fs.existsSync(targetDir)) {
+                                fs.rmSync(targetDir, { recursive: true, force: true });
+                            }
+                        } catch (e) {
+                            console.warn(`[Bulk Cleanup] Failed to delete: ${targetDir}`, e.message);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. 执行数据库批量删除
+        let deleteSql = 'DELETE FROM lineups WHERE 1=1';
+        if (agent) {
+            deleteSql += ' AND agent_name = ?';
+        }
+
+        const result = db.prepare(deleteSql).run(...params);
+
+        res.json({ success: true, count: result.changes });
+    } catch (error) {
+        console.error('批量清空点位失败:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
  * DELETE /api/lineups/:id - 删除点位 (同步清理磁盘图片)
  */
 router.delete('/:id', (req, res) => {

@@ -16,6 +16,17 @@ export type ZipMetadata = {
     agent_pos?: { lat: number; lng: number };
     skill_pos?: { lat: number; lng: number };
     ability_index?: number;
+    // 描述相关
+    stand_desc?: string;
+    stand2_desc?: string;
+    aim_desc?: string;
+    aim2_desc?: string;
+    land_desc?: string;
+    // 链接与作者
+    source_link?: string;
+    author_name?: string | null;
+    author_avatar?: string | null;
+    author_uid?: string | null;
 };
 
 export type ImportResult = {
@@ -116,7 +127,7 @@ export const importLineupFromZip = async (
         const payload: LineupDbPayload = {
             title: metadata.title,
             map_name: metadata.mapName,
-            agent_name: metadata.agentName,
+            agent_name: metadata.agent_name || metadata.agentName,
             agent_icon: agentIcon,
             skill_icon: null, // 将在保存时或后续解析
             side: metadata.side as LineupSide,
@@ -129,6 +140,17 @@ export const importLineupFromZip = async (
             aim_img: paths.aim_img || null,
             aim2_img: paths.aim2_img || null,
             land_img: paths.land_img || null,
+            // 描述信息
+            stand_desc: metadata.stand_desc || null,
+            stand2_desc: metadata.stand2_desc || null,
+            aim_desc: metadata.aim_desc || null,
+            aim2_desc: metadata.aim2_desc || null,
+            land_desc: metadata.land_desc || null,
+            // 作者与来源
+            source_link: metadata.source_link || null,
+            author_name: metadata.author_name || null,
+            author_avatar: metadata.author_avatar || null,
+            author_uid: metadata.author_uid || null,
             user_id: userId,
             created_at: new Date().toISOString(),
         };

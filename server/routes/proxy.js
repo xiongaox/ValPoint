@@ -89,6 +89,7 @@ async function handleBilibili(targetUrl) {
             username: owner.name,
             avatar: owner.face,
             user_home_url: `https://space.bilibili.com/${owner.mid}`,
+            uid: owner.mid.toString(),
             is_cover: false,
             source: "bilibili",
             cover_image: json.data.pic
@@ -146,6 +147,7 @@ async function handleDouyin(targetUrl) {
         username: nickname || "未提取到",
         avatar: avatar || "",
         user_home_url: sec_uid ? `https://www.douyin.com/user/${sec_uid}` : "",
+        uid: sec_uid || "",
         is_cover: false,
         source: "douyin"
     };

@@ -9,19 +9,39 @@
 
 import { MAP_TRANSLATIONS } from '../constants/maps';
 import { BaseLineup } from '../types/lineup';
+import { LOCAL_AGENTS } from '../data/localAgents';
+import { getAbilityIcon } from '../utils/abilityIcons';
 
 export const normalizeLineup = (raw: any, mapNameZhToEn: Record<string, string>): BaseLineup => {
   const pick = (a: any, b: any) => (a !== undefined ? a : b);
   const mapNameRaw = pick(raw.map_name, raw.mapName);
+
+  // 查找对应英雄数据以补充图标
+  const agentName = pick(raw.agent_name, raw.agentName);
+  const agent = LOCAL_AGENTS.find(
+    (a) => a.displayName === agentName || a.uuid === pick(raw.agent_id, raw.agentId)
+  );
+
+  // 获取技能图标
+  let skillIcon = pick(raw.skill_icon, raw.skillIcon);
+  const abilityIndex = pick(raw.ability_index, raw.abilityIndex);
+
+  if (!skillIcon && agent && typeof abilityIndex === 'number') {
+    skillIcon = getAbilityIcon(agent, abilityIndex);
+  }
+
   return {
     id: raw.id,
     title: pick(raw.title, ''),
-    mapName: mapNameZhToEn[mapNameRaw] || mapNameRaw,
-    agentName: pick(raw.agent_name, raw.agentName),
-    agentIcon: pick(raw.agent_icon, raw.agentIcon),
-    skillIcon: pick(raw.skill_icon, raw.skillIcon),
+    mapName: mapNameZhToEn[mapNameRaw] || mapNameRaw, // 英文名（用于ID/路径）
+    // 如果需要保留中文名展示，可能需要额外字段，或者 mapNameZhToEn 应该是 En->Zh? 
+    // 假设 mapNameZhToEn 是把中文转英文ID，这里 logic 似乎是：如果有映射用映射，否则用原值。
+
+    agentName: agentName,
+    agentIcon: pick(raw.agent_icon, raw.agentIcon) || agent?.displayIcon || null,
+    skillIcon: skillIcon,
     side: pick(raw.side, 'attack'),
-    abilityIndex: pick(raw.ability_index, raw.abilityIndex),
+    abilityIndex: abilityIndex,
     agentPos: pick(raw.agent_pos, raw.agentPos),
     skillPos: pick(raw.skill_pos, raw.skillPos),
     standImg: pick(raw.stand_img, raw.standImg),

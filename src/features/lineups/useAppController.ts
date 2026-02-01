@@ -535,6 +535,8 @@ export function useAppController() {
     isMapModalOpen: modal.isMapModalOpen,
     maps,
     selectedMap,
+    selectedAgent,
+    selectedAbilityIndex,
     setSelectedMap: handleSelectMap,
     setIsMapModalOpen: modal.setIsMapModalOpen,
     getMapDisplayName,

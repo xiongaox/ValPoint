@@ -256,11 +256,11 @@ const RightPanel: React.FC<Props> = ({
                     >
                       <div className="relative">
                         {l.agentIcon ? (
-                          <img src={l.agentIcon} className="w-10 h-10 rounded-full border border-white/10" />
+                          <img src={encodeURI(l.agentIcon)} className="w-10 h-10 rounded-full border border-white/10 object-cover" />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xs">{l.agentName?.[0]}</div>
+                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xs text-white/50">{l.agentName?.[0]}</div>
                         )}
-                        {l.skillIcon && <img src={l.skillIcon} className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1f2326] rounded-full p-0.5 border border-white/20" />}
+                        {l.skillIcon && <img src={encodeURI(l.skillIcon)} className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1f2326] rounded-full p-0.5 border border-white/20 object-contain" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between gap-2 items-center mb-1">

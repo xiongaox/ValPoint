@@ -9,7 +9,7 @@
 
 import React from 'react';
 import AppModals from '../AppModals';
-import { MapOption, NewLineupForm, SharedLineup, BaseLineup, LibraryMode, LineupDbPayload } from '../../../types/lineup';
+import { MapOption, NewLineupForm, SharedLineup, BaseLineup, LibraryMode, LineupDbPayload, AgentOption } from '../../../types/lineup';
 import { ImageBedConfig } from '../../../types/imageBed';
 import { ImageProcessingSettings } from '../../../types/imageProcessing';
 import { LightboxImage } from '../../../types/ui';
@@ -30,6 +30,8 @@ type Params = {
   isMapModalOpen: boolean;
   maps: MapOption[];
   selectedMap: MapOption | null;
+  selectedAgent: AgentOption | null;
+  selectedAbilityIndex: number | null;
   setSelectedMap: (v: MapOption | null) => void;
   setIsMapModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
@@ -125,6 +127,8 @@ export function buildModalProps(params: Params): React.ComponentProps<typeof App
     isMapModalOpen: params.isMapModalOpen,
     maps: params.maps,
     selectedMap: params.selectedMap,
+    selectedAgent: params.selectedAgent,
+    selectedAbilityIndex: params.selectedAbilityIndex,
     setSelectedMap: params.setSelectedMap,
     setIsMapModalOpen: params.setIsMapModalOpen,
     getMapDisplayName: params.getMapDisplayName,

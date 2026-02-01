@@ -25,7 +25,7 @@ import AuthModal from '../../components/AuthModal';
 import ChangelogModal from '../../components/ChangelogModal';
 import ImportLineupModal from '../../components/ImportLineupModal';
 import BatchDownloadModal from './components/BatchDownloadModal';
-import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm, LineupDbPayload } from '../../types/lineup';
+import { BaseLineup, SharedLineup, MapOption, LineupSide, NewLineupForm, LineupDbPayload, AgentOption } from '../../types/lineup';
 import { ImageBedConfig } from '../../types/imageBed';
 import { ImageProcessingSettings } from '../../types/imageProcessing';
 import { LightboxImage } from '../../types/ui';
@@ -45,6 +45,8 @@ type Props = {
   isMapModalOpen: boolean;
   maps: MapOption[];
   selectedMap: MapOption | null;
+  selectedAgent: AgentOption | null;
+  selectedAbilityIndex: number | null;
   setSelectedMap: (v: MapOption | null) => void;
   setIsMapModalOpen: (v: boolean) => void;
   getMapDisplayName: (name: string) => string;
@@ -130,6 +132,8 @@ const AppModals: React.FC<Props> = ({
   isMapModalOpen,
   maps,
   selectedMap,
+  selectedAgent,
+  selectedAbilityIndex,
   setSelectedMap,
   setIsMapModalOpen,
   getMapDisplayName,
@@ -299,6 +303,10 @@ const AppModals: React.FC<Props> = ({
         imageBedConfig={imageBedConfig}
         setAlertMessage={setAlertMessage}
         imageProcessingSettings={imageProcessingSettings}
+        selectedMap={selectedMap}
+        selectedAgent={selectedAgent}
+        selectedAbilityIndex={selectedAbilityIndex}
+        getMapDisplayName={getMapDisplayName}
       />
 
       <ViewerModal

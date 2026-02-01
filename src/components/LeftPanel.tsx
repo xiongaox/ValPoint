@@ -102,7 +102,7 @@ const LeftPanel: React.FC<Props> = ({
                       : undefined;
                 return (
                   <img
-                    src={mapImageSrc}
+                    src={mapImageSrc ? encodeURI(mapImageSrc) : undefined}
                     alt={selectedMap.displayName}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
@@ -137,7 +137,7 @@ const LeftPanel: React.FC<Props> = ({
                     }`}
                   title={agent.displayName}
                 >
-                  <img src={agent.displayIcon || undefined} alt={agent.displayName} className="w-full h-full object-cover" />
+                  <img src={agent.displayIcon ? encodeURI(agent.displayIcon) : undefined} alt={agent.displayName} className="w-full h-full object-cover" />
                   {activeTab === 'view' && <span className={`count-badge ${count > 0 ? 'count-has-data' : 'count-empty'}`}>{count}</span>}
                 </div>
               );
@@ -163,7 +163,7 @@ const LeftPanel: React.FC<Props> = ({
                         }`}
                       title={getAbilityTitle(selectedAgent, slotKey || '', ability.displayName || ability.name)}
                     >
-                      <img src={getAbilityIcon(selectedAgent, idx)} className="w-8 h-8 object-contain" />
+                      <img src={encodeURI(getAbilityIcon(selectedAgent, idx) || '')} className="w-8 h-8 object-contain" />
                       <span className="text-[10px] uppercase font-bold text-gray-500">技能：{['C', 'Q', 'E', 'X'][idx] || slotKey}</span>
                     </button>
                   );

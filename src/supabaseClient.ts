@@ -1,36 +1,52 @@
 /**
- * supabaseClient - supabaseClient
- *
- * 职责：
- * - 承载supabaseClient相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * Supabase 客户端占位文件
+ * 
+ * 本地化版本不使用 Supabase，此文件仅为兼容性保留。
+ * 所有实际的 API 调用已迁移到本地后端。
  */
 
-import { createClient } from '@supabase/supabase-js';
-
-const getEnv = (key: string) => {
-  return window.__ENV__?.[key] || import.meta.env[key];
+// 模拟 Supabase 客户端接口（用于兼容仍引用此模块的代码）
+export const supabase = {
+    from: () => ({
+        select: () => ({
+            eq: () => ({
+                order: () => Promise.resolve({ data: [], error: null }),
+                limit: () => Promise.resolve({ data: [], error: null }),
+                single: () => Promise.resolve({ data: null, error: null }),
+            }),
+            order: () => Promise.resolve({ data: [], error: null }),
+            single: () => Promise.resolve({ data: null, error: null }),
+        }),
+        insert: () => ({
+            select: () => ({ single: () => Promise.resolve({ data: null, error: null }) }),
+        }),
+        update: () => ({ eq: () => Promise.resolve({ error: null }) }),
+        delete: () => ({ eq: () => ({ eq: () => Promise.resolve({ error: null }) }) }),
+    }),
+    auth: {
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        signInWithPassword: (credentials: any) => Promise.resolve({ data: null, error: new Error('本地版本无需登录') }),
+        signOut: () => Promise.resolve({ error: null }),
+        updateUser: (attributes: any) => Promise.resolve({ data: { user: null }, error: new Error('本地版本不支持修改用户') }),
+        onAuthStateChange: (callback: any) => {
+            // 模拟未登录状态
+            setTimeout(() => callback('SIGNED_OUT', null), 0);
+            return { data: { subscription: { unsubscribe: () => { } } } };
+        },
+    },
+    storage: {
+        from: () => ({
+            upload: () => Promise.resolve({ data: null, error: new Error('请使用本地上传 API') }),
+            getPublicUrl: () => ({ data: { publicUrl: '' } }),
+        }),
+    },
+    functions: {
+        invoke: () => Promise.resolve({ data: null, error: new Error('请使用本地代理 API') }),
+    },
 };
 
-const url = getEnv('VITE_SUPABASE_URL');
+// Admin 版本使用相同的占位对象
+export const adminSupabase = supabase;
 
-// 兼容阿里云 ESA 200字符限制：优先使用完整 key，否则合并拆分的 key
-const anonKey = getEnv('VITE_SUPABASE_ANON_KEY')
-  || ((getEnv('VITE_SUPABASE_ANON_KEY_1') || '') + (getEnv('VITE_SUPABASE_ANON_KEY_2') || ''));
-
-if (!url || !anonKey) {
-  throw new Error('请在环境变量中设置 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY（或 KEY_1 + KEY_2）');
-}
-
-export const supabase = createClient(url, anonKey);
-
-// 共享库现统一使用主库配置
-export const shareSupabase = createClient(url, anonKey);
-
-export const adminSupabase = createClient(url, anonKey, {
-  auth: {
-    storageKey: 'sb-admin-auth-token',
-    storage: window.localStorage,
-  },
-});
+export default supabase;

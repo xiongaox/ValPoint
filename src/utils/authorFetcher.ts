@@ -1,137 +1,35 @@
 /**
- * authorFetcher - 作者Fetcher
- *
- * 职责：
- * - 提供作者Fetcher相关的纯函数工具。
- * - 封装常用转换或格式化逻辑。
- * - 降低重复代码并提升可复用性。
+ * authorFetcher - 占位模块（本地版本）
+ * 获取视频作者信息（调用本地 API）
  */
 
-export type AuthorInfo = {
-  name: string;
-  avatar: string;
-  uid?: string; // 说明：用户 ID。
-  homeUrl?: string; // 说明：用户主页链接。
-  coverImage?: string; // 说明：视频封面图。
-  isCover?: boolean; // 说明：用封面图代替头像。
-  source?: 'bilibili' | 'douyin'; // 说明：平台来源。
-};
-
-import { supabase } from '../supabaseClient';
-
-interface EdgeFunctionResponse {
-  status: 'success' | 'error';
-  data?: {
+export interface AuthorInfo {
     username: string;
     avatar: string;
     user_home_url: string;
-    is_cover: boolean;
-    source: 'bilibili' | 'douyin';
-    cover_image?: string;
-  };
-  message?: string;
-  error?: string;
+    source: string;
 }
 
-function looksLikeJwt(token: string): boolean {
-  const parts = token.split('.');
-  return parts.length === 3 && parts.every(Boolean);
-}
+/**
+ * 从 B站/抖音 视频链接获取作者信息
+ */
+export async function fetchAuthorInfo(url: string): Promise<AuthorInfo | null> {
+    try {
+        const response = await fetch('/api/proxy/author', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+        });
 
-async function getEdgeFunctionBearerToken(projectKey: string): Promise<string | null> {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    console.warn('获取 Supabase Session 失败，将回退到项目 Key:', error.message);
-  }
+        if (!response.ok) {
+            console.error('获取作者信息失败');
+            return null;
+        }
 
-  const accessToken = data.session?.access_token;
-  if (accessToken) return accessToken;
-
-  if (looksLikeJwt(projectKey)) return projectKey;
-
-  return null;
-}
-
-export async function fetchAuthorInfo(sourceLink: string): Promise<AuthorInfo | null> {
-  try {
-    const url = new URL(sourceLink);
-
-    if (!url.hostname.includes('bilibili.com') && !url.hostname.includes('douyin.com') && !url.hostname.includes('b23.tv')) {
-      return null;
+        const result = await response.json();
+        return result.data;
+    } catch (error) {
+        console.error('获取作者信息失败:', error);
+        return null;
     }
-
-    return await fetchAuthorViaEdgeFunction(sourceLink);
-  } catch (error) {
-    console.error('获取作者信息失败:', error);
-    return null;
-  }
-}
-
-async function fetchAuthorViaEdgeFunction(url: string): Promise<AuthorInfo | null> {
-  try {
-    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.error('Supabase 配置缺失');
-      return null;
-    }
-
-    const bearerToken = await getEdgeFunctionBearerToken(SUPABASE_ANON_KEY);
-
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/get-video-author`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        apikey: SUPABASE_ANON_KEY,
-        ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
-      },
-      body: JSON.stringify({ url }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Edge Function 错误 ${response.status}:`, errorText);
-      if (response.status === 401 && !bearerToken) {
-        console.error(
-          '当前未能生成有效的 Bearer Token（未登录且 VITE_SUPABASE_ANON_KEY 非 JWT）。请改用 Supabase anon JWT key（形如 xxx.yyy.zzz），或将 Edge Function 配置为 verify_jwt=false。',
-        );
-      }
-      return null;
-    }
-
-    const result: EdgeFunctionResponse = await response.json();
-
-    if (result.status === 'error' || result.error) {
-      console.error('获取作者信息失败:', result.message || result.error);
-      return null;
-    }
-
-    if (result.status === 'success' && result.data) {
-      let uid: string | undefined;
-
-      if (result.data.source === 'bilibili') {
-        const midMatch = result.data.user_home_url.match(/space\.bilibili\.com\/(\d+)/);
-        uid = midMatch ? midMatch[1] : undefined;
-      } else if (result.data.source === 'douyin') {
-        const secUidMatch = result.data.user_home_url.match(/\/user\/(MS4wLjABAAAA[A-Za-z0-9_\-]+)/);
-        uid = secUidMatch ? secUidMatch[1] : undefined;
-      }
-
-      return {
-        name: result.data.username,
-        avatar: result.data.avatar,
-        uid,
-        homeUrl: result.data.user_home_url,
-        coverImage: result.data.cover_image,
-        isCover: result.data.is_cover,
-        source: result.data.source,
-      };
-    }
-
-    return null;
-  } catch (error) {
-    console.error('调用 Edge Function 失败:', error);
-    return null;
-  }
 }

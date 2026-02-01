@@ -10,18 +10,26 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import Icon from './Icon';
-import { uploadImage } from '../lib/imageBed';
+import { uploadImageApi } from '../services/lineups';
 import { prepareClipboardImage } from '../lib/imageCompression';
 import { fetchAuthorInfo } from '../utils/authorFetcher';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 
 const fields = [
-  { k: 'stand', l: '站位图' },
-  { k: 'stand2', l: '站位图2', toggleKey: 'enableStand2' },
-  { k: 'aim', l: '瞄点图' },
-  { k: 'aim2', l: '瞄点图2', toggleKey: 'enableAim2' },
-  { k: 'land', l: '技能落点图' },
+  { k: 'stand', l: '站位图', label: '站位' },
+  { k: 'stand2', l: '站位图2', toggleKey: 'enableStand2', label: '站位2' },
+  { k: 'aim', l: '瞄点图', label: '瞄点' },
+  { k: 'aim2', l: '瞄点图2', toggleKey: 'enableAim2', label: '瞄点2' },
+  { k: 'land', l: '技能落点图', label: '落位' },
 ];
+
+const TYPE_MAP = {
+  stand: '站位',
+  stand2: '站位2',
+  aim: '瞄点',
+  aim2: '瞄点2',
+  land: '落位',
+};
 
 const EditorModal = ({
   isEditorOpen,
@@ -34,7 +42,12 @@ const EditorModal = ({
   setSelectedSide,
   imageBedConfig,
   setAlertMessage,
+
   imageProcessingSettings,
+  selectedMap,
+  selectedAgent,
+  selectedAbilityIndex,
+  getMapDisplayName,
 }) => {
   if (!isEditorOpen) return null;
   useEscapeClose(isEditorOpen, onClose);
@@ -144,32 +157,6 @@ const EditorModal = ({
       return;
     }
 
-    if (!imageBedConfig?.provider) {
-      setAlertMessage?.('Image hosting not configured. Please configure it first.');
-      return;
-    }
-
-    const provider = imageBedConfig.provider;
-    let missingFields: string[] = [];
-
-    console.log('[EditorModal] validating config', { provider, config: imageBedConfig });
-
-    if (provider === 'aliyun') {
-      missingFields = ['accessKeyId', 'accessKeySecret', 'bucket', 'area'].filter((k) => !imageBedConfig?.[k]);
-    } else if (provider === 'tencent') {
-      missingFields = ['secretId', 'secretKey', 'bucket', 'appId', 'area'].filter((k) => !imageBedConfig?.[k]);
-    } else if (provider === 'qiniu') {
-      missingFields = ['accessKey', 'secretKey', 'bucket', 'url', 'area'].filter((k) => !imageBedConfig?.[k]);
-    }
-
-    if (missingFields.length > 0) {
-      console.error('[EditorModal] missing required fields:', missingFields);
-      setAlertMessage?.(`Missing required config fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    console.log('[EditorModal] config validation passed');
-
     try {
       setUploadingField(fieldKey);
       console.log('[EditorModal] starting clipboard upload');
@@ -184,28 +171,42 @@ const EditorModal = ({
 
       const imgType = imgItem.types.find((t) => t.startsWith('image/')) || 'image/png';
       const blob = await imgItem.getType(imgType);
-      console.log('[EditorModal] image from clipboard', { type: imgType, size: blob.size });
 
       const fileForUpload = await prepareClipboardImage(blob, 'clipboard_' + Date.now(), imageProcessingSettings);
-      console.log('[EditorModal] image processed', { size: fileForUpload.size });
 
-      const result = await uploadImage(fileForUpload, imageBedConfig);
-      console.log('[EditorModal] upload success', { url: result.url });
+      const rawMapName = selectedMap?.displayName || newLineupData.mapId || 'unknown';
+      const mapName = getMapDisplayName ? getMapDisplayName(rawMapName) : rawMapName;
+      const agentName = selectedAgent?.displayName || newLineupData.agentId || 'unknown';
 
-      setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
+      let abilityName = 'general';
+      let abilitySlot = '';
+      if (selectedAgent && typeof selectedAbilityIndex === 'number') {
+        const abilities = selectedAgent.abilities || [];
+        const ability = abilities[selectedAbilityIndex];
+        if (ability) {
+          abilityName = ability.displayName || ability.name || 'skill';
+          const slotMap = { 'Ability1': 'Q', 'Ability2': 'E', 'Grenade': 'C', 'Ultimate': 'X' };
+          abilitySlot = slotMap[ability.slot] || '';
+        }
+      }
+
+      const result = await uploadImageApi(
+        fileForUpload,
+        fileForUpload.name,
+        mapName,
+        agentName,
+        TYPE_MAP[fieldKey] || fieldKey, // Pass Chinese label
+        abilityName,
+        newLineupData.title,
+        abilitySlot
+      );
+
+      console.log('[EditorModal] upload success', { path: result.path });
+
+      setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.path });
     } catch (e) {
       console.error('[EditorModal] upload error:', e);
-      if (e?.message?.includes('MISSING_CONFIG') || e?.message?.includes('Missing required config')) {
-        setAlertMessage?.('Image hosting config incomplete. Please check your settings.');
-      } else if (
-        e?.message === 'JPEG_CONVERSION_FAILED' ||
-        e?.message === 'IMAGE_LOAD_FAILED' ||
-        e?.message === 'CANVAS_CONTEXT_UNAVAILABLE'
-      ) {
-        setAlertMessage?.('Image processing failed. Please try another image.');
-      } else {
-        setAlertMessage?.(`Upload failed: ${e?.message || 'Unknown error'}`);
-      }
+      setAlertMessage?.(`Upload failed: ${e?.message || 'Unknown error'}`);
     } finally {
       setUploadingField(null);
     }
@@ -221,16 +222,38 @@ const EditorModal = ({
       return;
     }
 
-    if (!imageBedConfig?.provider) {
-      setAlertMessage?.('请先配置图床');
-      return;
-    }
-
     try {
       setUploadingField(fieldKey);
       const fileForUpload = await prepareClipboardImage(file, file.name, imageProcessingSettings);
-      const result = await uploadImage(fileForUpload, imageBedConfig);
-      setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.url });
+
+      const rawMapName = selectedMap?.displayName || newLineupData.mapId || 'unknown';
+      const mapName = getMapDisplayName ? getMapDisplayName(rawMapName) : rawMapName;
+      const agentName = selectedAgent?.displayName || newLineupData.agentId || 'unknown';
+
+      let abilityName = 'general';
+      let abilitySlot = '';
+      if (selectedAgent && typeof selectedAbilityIndex === 'number') {
+        const abilities = selectedAgent.abilities || [];
+        const ability = abilities[selectedAbilityIndex];
+        if (ability) {
+          abilityName = ability.displayName || ability.name || 'skill';
+          const slotMap = { 'Ability1': 'Q', 'Ability2': 'E', 'Grenade': 'C', 'Ultimate': 'X' };
+          abilitySlot = slotMap[ability.slot] || '';
+        }
+      }
+
+      const result = await uploadImageApi(
+        fileForUpload,
+        fileForUpload.name,
+        mapName,
+        agentName,
+        TYPE_MAP[fieldKey] || fieldKey, // Pass Chinese label
+        abilityName,
+        newLineupData.title,
+        abilitySlot
+      );
+
+      setNewLineupData({ ...newLineupData, [fieldKey + 'Img']: result.path });
     } catch (e) {
       console.error('[EditorModal] local upload error:', e);
       setAlertMessage?.(`上传失败: ${e?.message || '未知错误'}`);

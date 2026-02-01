@@ -1,20 +1,28 @@
+version: '3.8'
+
 services:
   valpoint:
-    image: xiongaox7806/valpoint-a:latest
-    container_name: valpoint-a
-    restart: always
+    image: valpoint_s
+    container_name: valpoint
     build:
       context: .
+      dockerfile: Dockerfile
     ports:
-      - "3208:3208" # Unified App (Map to 8080 to avoid local dev conflict)
+      - "3209:3209"
+    volumes:
+      - valpoint_data:/data
     environment:
       - NODE_ENV=production
-      # Supabase 配置（必填）
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
-    networks:
-      - valpoint-net
+      - PORT=3209
+      - DATA_DIR=/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3209/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
-networks:
-  valpoint-net:
-    driver: bridge
+volumes:
+  valpoint_data:
+    name: valpoint_data

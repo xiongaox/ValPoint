@@ -181,7 +181,7 @@ const LeafletMap: React.FC<Props> = ({
 
   const createIcon = (type: 'agent' | 'skill', imgUrl?: string) => {
     const content = imgUrl
-      ? `<div class="marker-icon-wrapper border-white"><img src="${imgUrl}" class="marker-img ${type === 'skill' ? 'marker-img-skill' : ''
+      ? `<div class="marker-icon-wrapper border-white"><img src="${encodeURI(imgUrl)}" class="marker-img ${type === 'skill' ? 'marker-img-skill' : ''
       }"/></div>`
       : `<div class="marker-icon-wrapper bg-[#ff4655] text-white font-bold text-xs flex items-center justify-center">${type === 'agent' ? 'A' : 'S'
       }</div>`;

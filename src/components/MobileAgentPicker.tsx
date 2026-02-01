@@ -72,11 +72,14 @@ function MobileAgentPicker({
                                         }`}
                                 >
                                     <img
-                                        src={agent.displayIcon || `/agents/${agent.displayName}.webp`}
+                                        src={encodeURI(agent.displayIcon || `/agents/${agent.displayName}.png`)}
                                         alt={agent.displayName}
                                         className="w-10 h-10 rounded-full object-cover"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = '/agents/default.webp';
+                                            const target = e.target as HTMLImageElement;
+                                            if (!target.src.includes('default')) {
+                                                target.src = '/agents/default.png';
+                                            }
                                         }}
                                     />
                                     <span className="text-xs text-white mt-1 truncate w-full text-center">

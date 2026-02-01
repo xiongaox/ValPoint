@@ -1,7 +1,7 @@
 {
   "name": "valpoint",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -9,39 +9,30 @@
     "build": "tsc && vite build",
     "build:all": "node scripts/build-all.js",
     "preview": "vite preview",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "release": "node scripts/auto_tag.js",
-    "release:preview": "node scripts/auto_tag.js --preview"
+    "server": "cd server && node index.js",
+    "server:dev": "cd server && node --watch index.js",
+    "docker:build": "docker build -t valpoint_s .",
+    "docker:run": "docker run -p 3209:3209 -v valpoint_data:/data valpoint_s"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.47.2",
-    "@theojs/lumen": "^6.4.5",
-    "ali-oss": "^6.23.0",
-    "cos-js-sdk-v5": "^1.10.1",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "fflate": "^0.8.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.474.0",
     "medium-zoom": "^1.1.0",
-    "qiniu-js": "^3.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^3.6.0",
-    "viewerjs": "^1.11.7",
-    "vitepress-plugin-image-viewer": "^1.1.6"
+    "viewerjs": "^1.11.7"
   },
   "devDependencies": {
-    "@types/ali-oss": "^6.16.13",
     "@types/crypto-js": "^4.2.2",
     "@types/leaflet": "^1.9.14",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
-    "vite": "^5.4.8",
-    "vitepress": "^1.6.4"
+    "vite": "^5.4.8"
   }
 }

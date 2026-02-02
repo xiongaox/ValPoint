@@ -240,6 +240,14 @@ CREATE TABLE IF NOT EXISTS public.download_logs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 8.2 地图池配置表 (存储排位模式地图轮换状态)
+CREATE TABLE IF NOT EXISTS public.map_pool_config (
+    map_name TEXT PRIMARY KEY,
+    pool_status TEXT CHECK (pool_status IN ('in-pool', 'returning', 'rotated-out')),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+COMMENT ON TABLE public.map_pool_config IS '排位地图池配置，存储地图的排位池状态（在池/回归/轮出）';
+
 -- ==========================================
 -- 4. 触发器
 -- ==========================================
@@ -285,6 +293,7 @@ ALTER TABLE public.lineup_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_daily_downloads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.download_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.map_pool_config ENABLE ROW LEVEL SECURITY;
 
 -- 5.2 user_profiles 策略
 -- 创建获取用户角色的函数（SECURITY DEFINER 绕过 RLS，避免无限递归）
@@ -375,6 +384,13 @@ CREATE POLICY "Users can insert own download logs" ON public.download_logs FOR I
 
 DROP POLICY IF EXISTS "Admins can view all download logs" ON public.download_logs;
 CREATE POLICY "Admins can view all download logs" ON public.download_logs FOR SELECT TO authenticated USING (public.is_admin());
+
+-- 5.9 map_pool_config 策略
+DROP POLICY IF EXISTS "Anyone can read map pool config" ON public.map_pool_config;
+CREATE POLICY "Anyone can read map pool config" ON public.map_pool_config FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Only admins can modify map pool config" ON public.map_pool_config;
+CREATE POLICY "Only admins can modify map pool config" ON public.map_pool_config FOR ALL TO authenticated USING (public.is_admin());
 
 -- ==========================================
 -- 6. Storage 存储桶配置 (优化：自动创建存储桶)

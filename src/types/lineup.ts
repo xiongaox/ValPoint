@@ -52,7 +52,16 @@ export type SharedLineup = BaseLineup & {
 };
 
 export type AgentOption = { displayName: string; displayIcon?: string | null; uuid?: string };
-export type MapOption = { displayName: string; displayIcon?: string | null };
+
+/** 地图排位池状态：在池/回归/轮出 */
+export type MapPoolStatus = 'in-pool' | 'returning' | 'rotated-out';
+
+export type MapOption = {
+  displayName: string;
+  displayIcon?: string | null;
+  /** 排位池状态角标 */
+  poolStatus?: MapPoolStatus | null;
+};
 
 export type Ability = { slot?: string; displayIcon?: string; name?: string; displayName?: string; keypad?: string };
 export type AgentData = AgentOption & { abilities?: Ability[] };

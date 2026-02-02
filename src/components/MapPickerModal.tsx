@@ -11,8 +11,32 @@
 import React from 'react';
 import Icon from './Icon';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { MapOption, MapPoolStatus } from '../types/lineup';
 
-const MapPickerModal = ({ isOpen, maps, selectedMap, setSelectedMap, setIsMapModalOpen, getMapDisplayName }) => {
+/** 角标配置：状态 -> 显示文字、背景色 */
+const POOL_STATUS_CONFIG: Record<MapPoolStatus, { label: string; className: string }> = {
+  'in-pool': { label: '在池', className: 'bg-emerald-500/90' },
+  'returning': { label: '回归', className: 'bg-blue-500/90' },
+  'rotated-out': { label: '轮出', className: 'bg-red-500/90' },
+};
+
+type MapPickerModalProps = {
+  isOpen: boolean;
+  maps: MapOption[];
+  selectedMap: MapOption | null;
+  setSelectedMap: (map: MapOption) => void;
+  setIsMapModalOpen: (open: boolean) => void;
+  getMapDisplayName: (name: string) => string;
+};
+
+const MapPickerModal: React.FC<MapPickerModalProps> = ({
+  isOpen,
+  maps,
+  selectedMap,
+  setSelectedMap,
+  setIsMapModalOpen,
+  getMapDisplayName,
+}) => {
   const handleClose = () => setIsMapModalOpen(false);
   useEscapeClose(isOpen, handleClose);
 
@@ -34,6 +58,7 @@ const MapPickerModal = ({ isOpen, maps, selectedMap, setSelectedMap, setIsMapMod
           {maps.map((m) => {
             const preview = m.listViewIcon || m.displayIcon;
             const isSelected = selectedMap?.uuid === m.uuid;
+            const statusConfig = m.poolStatus ? POOL_STATUS_CONFIG[m.poolStatus] : null;
             return (
               <div
                 key={m.uuid}
@@ -55,6 +80,14 @@ const MapPickerModal = ({ isOpen, maps, selectedMap, setSelectedMap, setIsMapMod
                     </span>
                   </div>
                 </div>
+                {/* 排位池状态角标 */}
+                {statusConfig && (
+                  <div
+                    className={`absolute top-2 right-2 px-2 py-0.5 rounded text-xs font-semibold text-white shadow-md ${statusConfig.className}`}
+                  >
+                    {statusConfig.label}
+                  </div>
+                )}
               </div>
             );
           })}

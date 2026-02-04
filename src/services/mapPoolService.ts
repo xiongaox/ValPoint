@@ -2,41 +2,69 @@
  * mapPoolService - 地图池配置服务
  *
  * 职责：
- * - 从 Supabase 获取地图排位池状态配置
+ * - 从远程 API 获取地图排位池状态配置
  * - 缓存配置数据，避免重复请求
  */
 
-import { supabase } from '../supabaseClient';
 import { MapPoolStatus } from '../types/lineup';
 
-export type MapPoolConfig = {
-    map_name: string;
-    pool_status: MapPoolStatus;
-    updated_at: string;
+/** 远程 API 地址 */
+const API_URL = 'https://xiongaox.github.io/valorant-rotation-api/maps.json';
+
+/** API 返回的地图状态类型 */
+type ApiMapStatus = 'in_pool' | 'returning';
+
+/** API 响应结构 */
+type ApiResponse = {
+    maps: Array<{
+        name_zh: string;
+        name_en: string;
+        status: ApiMapStatus;
+    }>;
 };
 
-let cachedConfig: MapPoolConfig[] | null = null;
+let cachedConfig: Record<string, MapPoolStatus> | null = null;
+
+/**
+ * 将 API 状态格式转换为内部格式
+ * API 使用下划线格式（in_pool），内部使用短横线格式（in-pool）
+ */
+function convertStatus(apiStatus: ApiMapStatus): MapPoolStatus {
+    const statusMap: Record<ApiMapStatus, MapPoolStatus> = {
+        'in_pool': 'in-pool',
+        'returning': 'returning',
+    };
+    return statusMap[apiStatus] || 'in-pool';
+}
 
 /**
  * 获取地图池配置
- * @returns 地图名称到状态的映射
+ * @returns 地图英文名称到状态的映射
  */
 export async function fetchMapPoolConfig(): Promise<Record<string, MapPoolStatus>> {
     if (cachedConfig) {
-        return configToMap(cachedConfig);
+        return cachedConfig;
     }
 
-    const { data, error } = await supabase
-        .from('map_pool_config')
-        .select('map_name, pool_status, updated_at');
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
 
-    if (error) {
-        console.error('[mapPoolService] Failed to fetch config:', error);
+        const json: ApiResponse = await response.json();
+
+        // 转换为 displayName -> poolStatus 的映射
+        cachedConfig = json.maps.reduce((acc, item) => {
+            acc[item.name_en] = convertStatus(item.status);
+            return acc;
+        }, {} as Record<string, MapPoolStatus>);
+
+        return cachedConfig;
+    } catch (error) {
+        console.error('[mapPoolService] Failed to fetch config from API:', error);
         return {};
     }
-
-    cachedConfig = data as MapPoolConfig[];
-    return configToMap(cachedConfig);
 }
 
 /**
@@ -44,11 +72,4 @@ export async function fetchMapPoolConfig(): Promise<Record<string, MapPoolStatus
  */
 export function clearMapPoolCache() {
     cachedConfig = null;
-}
-
-function configToMap(config: MapPoolConfig[]): Record<string, MapPoolStatus> {
-    return config.reduce((acc, item) => {
-        acc[item.map_name] = item.pool_status;
-        return acc;
-    }, {} as Record<string, MapPoolStatus>);
 }

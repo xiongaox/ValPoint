@@ -26,7 +26,7 @@ const ChangelogModal: React.FC<Props> = ({ isOpen, onClose }) => {
     <div
       className="fixed inset-0 z-[1300] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
     >
-      <div className="w-full max-w-2xl bg-[#1f2326] border border-white/10 rounded-2xl shadow-2xl p-6 space-y-4">
+      <div className="w-full max-w-lg bg-[#1f2326] border border-white/10 rounded-2xl shadow-2xl p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Icon name="History" className="text-[#ff4655]" />
@@ -39,8 +39,8 @@ const ChangelogModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <Icon name="X" size={16} />
           </button>
         </div>
-        <div className="space-y-3 text-sm text-gray-200 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
-          {changelogEntries.map((entry) => (
+        <div className="space-y-3 text-sm text-gray-200 leading-relaxed max-h-[50vh] overflow-y-auto pr-1">
+          {changelogEntries.slice(0, 3).map((entry) => (
             <div key={entry.date} className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-2">
               <div className="text-[#ff4655] text-xs font-bold uppercase tracking-wider">{entry.date}</div>
               <ul className="list-disc list-inside space-y-1 text-gray-100">
@@ -65,6 +65,19 @@ const ChangelogModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
           ))}
         </div>
+        {changelogEntries.length > 3 && (
+          <div className="pt-2 border-t border-white/10">
+            <a
+              href="/wiki/guide/更新日志.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-colors text-sm"
+            >
+              <Icon name="ExternalLink" size={14} />
+              查看完整更新日志
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

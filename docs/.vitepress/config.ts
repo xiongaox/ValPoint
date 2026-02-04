@@ -61,6 +61,7 @@ export default defineConfig({
             { text: '作者信息自动获取', link: '/guide/作者信息自动获取' },
             { text: '常见问题', link: '/guide/常见问题' },
             { text: '未来计划', link: '/guide/未来计划' },
+            { text: '更新日志', link: '/guide/更新日志' },
 
           ],
 

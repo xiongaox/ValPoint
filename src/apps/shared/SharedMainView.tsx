@@ -39,6 +39,7 @@ import MobileAgentPicker from '../../components/MobileAgentPicker';
 import MobileMapPicker from '../../components/MobileMapPicker';
 import MobileLineupList from '../../components/MobileLineupList';
 import Icon from '../../components/Icon';
+import ICPFooter from '../../components/ICPFooter';
 import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
 
 interface SharedMainViewProps {
@@ -386,6 +387,9 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                         )}
                     </>
                 )}
+
+                {/* ICP 备案信息（仅桌面端，通过环境变量配置） */}
+                {!isMobile && <ICPFooter />}
             </div>
 
             {!isMobile && (

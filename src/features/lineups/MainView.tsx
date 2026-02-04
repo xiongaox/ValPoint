@@ -24,6 +24,7 @@ import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
 
 import LeftPanel from '../../components/LeftPanel';
 import RightPanel from '../../components/RightPanel';
+import ICPFooter from '../../components/ICPFooter';
 import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm, LibraryMode } from '../../types/lineup';
 import { ActiveTab } from '../../types/app';
 
@@ -389,6 +390,9 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
             )}
           </>
         )}
+
+        {/* ICP 备案信息（仅桌面端，通过环境变量配置） */}
+        {!isMobile && <ICPFooter />}
       </div>
 
       {!isMobile && (

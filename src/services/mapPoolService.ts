@@ -12,7 +12,7 @@ import { MapPoolStatus } from '../types/lineup';
 const API_URL = 'https://xiongaox.github.io/valorant-rotation-api/maps.json';
 
 /** API 返回的地图状态类型 */
-type ApiMapStatus = 'in_pool' | 'returning';
+type ApiMapStatus = 'in_pool' | 'returning' | 'rotated_out' | 'add';
 
 /** API 响应结构 */
 type ApiResponse = {
@@ -33,6 +33,8 @@ function convertStatus(apiStatus: ApiMapStatus): MapPoolStatus {
     const statusMap: Record<ApiMapStatus, MapPoolStatus> = {
         'in_pool': 'in-pool',
         'returning': 'returning',
+        'rotated_out': 'rotated-out',
+        'add': 'new',
     };
     return statusMap[apiStatus] || 'in-pool';
 }

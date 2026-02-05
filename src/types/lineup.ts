@@ -53,8 +53,8 @@ export type SharedLineup = BaseLineup & {
 
 export type AgentOption = { displayName: string; displayIcon?: string | null; uuid?: string };
 
-/** 地图排位池状态：在池/回归/轮出 */
-export type MapPoolStatus = 'in-pool' | 'returning' | 'rotated-out';
+/** 地图排位池状态：在池/回归/轮出/新增 */
+export type MapPoolStatus = 'in-pool' | 'returning' | 'rotated-out' | 'new';
 
 export type MapOption = {
   displayName: string;

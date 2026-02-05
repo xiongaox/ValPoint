@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AgentData, MapOption } from '../types/lineup';
+import { AgentData, MapOption, MapPoolStatus } from '../types/lineup';
 import { LOCAL_AGENTS } from '../data/localAgents';
 import { LOCAL_MAPS } from '../data/localMaps';
 import { fetchMapPoolConfig } from '../services/mapPoolService';

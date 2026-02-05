@@ -168,12 +168,14 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           isFlipped={map.isFlipped}
         />
 
-        <QuickActions
-          isOpen={quickActions.isOpen}
-          onToggle={quickActions.onToggle}
-          onBatchDownload={quickActions.onBatchDownload}
-          canBatchDownload={quickActions.canBatchDownload}
-        />
+        {!isMobile && (
+          <QuickActions
+            isOpen={quickActions.isOpen}
+            onToggle={quickActions.onToggle}
+            onBatchDownload={quickActions.onBatchDownload}
+            canBatchDownload={quickActions.canBatchDownload}
+          />
+        )}
 
         {isMobile && (
           <>
@@ -207,20 +209,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               </div>
             </div>
 
-            {/* 第二行：个人库/共享库 + 用户信息（原有内容下移） */}
-            <div className="absolute top-16 left-3 z-10">
-              <div className="flex bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 p-1.5">
-                <div className="px-4 h-[32px] flex items-center justify-center rounded-lg text-sm font-medium bg-[#ff4655] text-white">
-                  个人库
-                </div>
-                <a
-                  href={sharedLibraryUrl || '#'}
-                  className="px-4 h-[32px] flex items-center justify-center rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white"
-                >
-                  共享库
-                </a>
-              </div>
-            </div>
+
 
             <div className="absolute top-16 right-3 z-10 flex items-center gap-2">
               {/* 点位列表 */}
@@ -231,13 +220,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               >
                 <Icon name="List" size={20} className="text-white" />
               </button>
-              <button
-                onClick={right.onOpenImportModal}
-                className="w-[46px] h-[46px] flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl border border-white/10"
-                title="批量导入 ZIP 点位包"
-              >
-                <Icon name="Download" size={20} className="text-white rotate-180" />
-              </button>
+
             </div>
 
             <div className="absolute bottom-8 left-3 right-3 z-10 flex items-center justify-between gap-2">
@@ -249,25 +232,25 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
                 <span className="text-white text-sm font-medium max-w-[70px] truncate">{left.getMapDisplayName(left.selectedMap?.displayName || '') || '地图'}</span>
               </button>
 
-              <div className="flex bg-[#1a232e] p-1 rounded-xl border border-white/5">
-                {(['attack', 'defense', 'all'] as const).map((side) => (
-                  <button
-                    key={side}
-                    onClick={() => left.setSelectedSide(side)}
-                    className={cn(
-                      'px-3 h-[32px] rounded-lg text-sm font-medium whitespace-nowrap transition-all',
-                      left.selectedSide === side
-                        ? side === 'attack'
-                          ? 'bg-[#ff4655] text-white shadow-[0_0_12px_rgba(255,70,85,0.3)]'
-                          : side === 'defense'
-                            ? 'bg-[#00f2ff] text-white shadow-[0_0_12px_rgba(0,242,255,0.3)]'
-                            : 'bg-white/20 text-white'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    )}
-                  >
-                    {side === 'attack' ? '进攻' : side === 'defense' ? '防守' : '全部'}
-                  </button>
-                ))}
+              <div className="flex bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 p-1.5">
+                <button
+                  onClick={() => left.setSelectedSide('attack')}
+                  className={`px-3 h-[32px] rounded-lg text-sm font-medium whitespace-nowrap transition-all ${left.selectedSide === 'attack'
+                    ? 'bg-[#ff4655] text-white'
+                    : 'text-gray-400'
+                    }`}
+                >
+                  进攻
+                </button>
+                <button
+                  onClick={() => left.setSelectedSide('defense')}
+                  className={`px-4 h-[32px] rounded-lg text-sm font-medium whitespace-nowrap transition-all ${left.selectedSide === 'defense'
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-gray-400'
+                    }`}
+                >
+                  防守
+                </button>
               </div>
 
               <div className="flex bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 p-1.5">

@@ -147,6 +147,9 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
     || import.meta.env.VITE_SHARED_LIBRARY_URL
     || '/';
 
+  const deployPlatform = (window as any).__ENV__?.VITE_DEPLOY_PLATFORM
+    || import.meta.env.VITE_DEPLOY_PLATFORM;
+
   return (
     <div className="flex h-screen w-screen bg-[#0f1923] text-white overflow-hidden">
       {!isMobile && (
@@ -236,6 +239,11 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
               </a>
               {/* 右侧：GitHub & Wiki */}
               <div className="flex items-center gap-4">
+                {deployPlatform && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-gray-400 border border-white/5">
+                    {deployPlatform}
+                  </span>
+                )}
                 <a
                   href="https://github.com/xiongaox/ValPoint"
                   target="_blank"

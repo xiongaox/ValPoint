@@ -9,9 +9,17 @@
 
 import React from 'react';
 import Icon from './Icon';
-import { MapOption } from '../types/lineup';
+import { MapOption, MapPoolStatus } from '../types/lineup';
 import { MAP_TRANSLATIONS } from '../constants/maps';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+
+/** 角标配置：状态 -> 显示文字、背景色 */
+const POOL_STATUS_CONFIG: Record<MapPoolStatus, { label: string; className: string }> = {
+    'in-pool': { label: '在池', className: 'bg-emerald-500/90' },
+    'returning': { label: '回归', className: 'bg-blue-500/90' },
+    'rotated-out': { label: '轮出', className: 'bg-red-500/90' },
+    'new': { label: '新增', className: 'bg-violet-600/90' },
+};
 
 interface MobileMapPickerProps {
     isOpen: boolean;
@@ -67,6 +75,7 @@ function MobileMapPicker({
                             const mapEnglishName = map.displayName;
                             const mapChineseName = MAP_TRANSLATIONS[mapEnglishName] || mapEnglishName;
                             const coverUrl = `/maps/covers/${mapChineseName}.webp`;
+                            const statusConfig = map.poolStatus ? POOL_STATUS_CONFIG[map.poolStatus] : null;
 
                             return (
                                 <button
@@ -91,6 +100,15 @@ function MobileMapPicker({
                                         {isSelected && (
                                             <div className="absolute top-2 right-2 w-6 h-6 bg-[#ff4655] rounded-full flex items-center justify-center">
                                                 <Icon name="Check" size={14} className="text-white" />
+                                            </div>
+                                        )}
+
+                                        {/* 排位池状态角标 */}
+                                        {statusConfig && (
+                                            <div
+                                                className={`absolute top-2 left-2 px-2 py-0.5 rounded text-xs font-semibold text-white shadow-md ${statusConfig.className}`}
+                                            >
+                                                {statusConfig.label}
                                             </div>
                                         )}
 

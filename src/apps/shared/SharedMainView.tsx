@@ -58,6 +58,9 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [submissionEnabled, setSubmissionEnabled] = useState(false);
 
+    const deployPlatform = (window as any).__ENV__?.VITE_DEPLOY_PLATFORM
+        || import.meta.env.VITE_DEPLOY_PLATFORM;
+
     const isMobile = useIsMobile();
     const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
     const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
@@ -221,6 +224,11 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             </a>
                             {/* 右侧：GitHub & Wiki */}
                             <div className="flex items-center gap-4">
+                                {deployPlatform && (
+                                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-gray-400 border border-white/5">
+                                        {deployPlatform}
+                                    </span>
+                                )}
                                 <a
                                     href="https://github.com/xiongaox/ValPoint"
                                     target="_blank"

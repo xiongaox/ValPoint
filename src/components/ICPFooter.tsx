@@ -16,33 +16,55 @@ const ICPFooter: React.FC = () => {
     // 支持运行时注入和构建时环境变量
     const icpNumber = (window as any).__ENV__?.VITE_ICP_NUMBER || import.meta.env.VITE_ICP_NUMBER;
     const psbNumber = (window as any).__ENV__?.VITE_PSB_NUMBER || import.meta.env.VITE_PSB_NUMBER;
+    const copyrightText = (window as any).__ENV__?.VITE_COPYRIGHT_TEXT || import.meta.env.VITE_COPYRIGHT_TEXT;
+    const deployPlatform = (window as any).__ENV__?.VITE_DEPLOY_PLATFORM || import.meta.env.VITE_DEPLOY_PLATFORM;
 
-    // 如果都为空则不渲染
-    if (!icpNumber && !psbNumber) return null;
+    // 如果都没有配置，则不显示 Footer
+    if (!icpNumber && !psbNumber && !copyrightText && !deployPlatform) return null;
 
     return (
-        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-3 text-xs text-gray-400">
-            {icpNumber && (
-                <a
-                    href="https://beian.miit.gov.cn/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white transition-colors"
-                >
-                    {icpNumber}
-                </a>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center gap-3 text-xs text-gray-400 w-full px-4">
+            {copyrightText && (
+                <div className="font-medium opacity-80 whitespace-nowrap">
+                    {copyrightText}
+                </div>
             )}
-            {icpNumber && psbNumber && <span className="text-gray-600">|</span>}
-            {psbNumber && (
-                <a
-                    href="https://www.beian.gov.cn/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white transition-colors flex items-center gap-1"
-                >
-                    <GonganIcon />
-                    {psbNumber}
-                </a>
+
+            {copyrightText && (icpNumber || psbNumber || deployPlatform) && <span className="text-gray-600 hidden sm:inline">|</span>}
+
+            {(icpNumber || psbNumber) && (
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    {icpNumber && (
+                        <a
+                            href="https://beian.miit.gov.cn/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-white transition-colors whitespace-nowrap"
+                        >
+                            {icpNumber}
+                        </a>
+                    )}
+                    {icpNumber && psbNumber && <span className="text-gray-600">|</span>}
+                    {psbNumber && (
+                        <a
+                            href="https://www.beian.gov.cn/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-white transition-colors flex items-center gap-1 whitespace-nowrap"
+                        >
+                            <GonganIcon />
+                            {psbNumber}
+                        </a>
+                    )}
+                </div>
+            )}
+
+            {(icpNumber || psbNumber) && deployPlatform && <span className="text-gray-600 hidden sm:inline">|</span>}
+
+            {deployPlatform && (
+                <div className="whitespace-nowrap">
+                    {deployPlatform}
+                </div>
             )}
         </div>
     );

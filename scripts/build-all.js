@@ -18,7 +18,13 @@ console.log('🚀 开始统一构建...\n');
 // Step 1: 构建主应用
 console.log('📦 [1/3] 构建主应用...');
 execSync('npm run build', { cwd: projectRoot, stdio: 'inherit' });
-console.log('✅ 主应用构建完成\n');
+console.log('✅ 主应用构建完成');
+
+// Step 1.1: 生成 env-config.js (适配静态部署如 Aliyun ESA)
+console.log('🔧 [1.1/3] 生成运行时环境配置 (env-config.js)...');
+// 使用 node 执行脚本，确保 ESM 兼容性
+execSync('node scripts/generate-env-config.js', { cwd: projectRoot, stdio: 'inherit' });
+console.log('✅ 环境配置生成完成\n');
 
 // Step 2: 构建 VitePress 文档
 console.log('📚 [2/3] 构建 VitePress 文档...');

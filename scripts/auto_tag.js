@@ -162,9 +162,9 @@ async function main() {
     const buildDocker = (answer === '' || answer === 'y' || answer === 'yes');
 
     if (buildDocker) {
-        console.log(`${colors.green}>> 选择: 构建 Docker (CI 将执行构建)${colors.reset}\n`);
+        console.log(`${colors.green}>> 选择: 构建 Docker (将在本地通过 OrbStack 构建推送到 Docker Hub)${colors.reset}\n`);
     } else {
-        console.log(`${colors.yellow}>> 选择: 跳过 Docker (CI 将跳过构建)${colors.reset}\n`);
+        console.log(`${colors.yellow}>> 选择: 跳过 Docker 构建${colors.reset}\n`);
     }
 
     const confirm = await askQuestion('确认开始打标签并发布? (Y/n): ');
@@ -175,15 +175,34 @@ async function main() {
 
     console.log(`\n${colors.cyan}正在创建标签...${colors.reset}`);
 
+    // 本地构建需要先打 tag，但如果是先构建再 push，我们可以只打 tag 不 push，或者等待构建完成后统一 push。
+    // 为了流程稳健，我们先尝试构建 Docker（如果选中），构建成功后再 push git tag。
+
+    if (buildDocker) {
+        console.log(`\n${colors.cyan}开始构建 Docker 镜像 (版本: ${newVersion})...${colors.reset}`);
+        try {
+            // 调用本地脚本，传入版本号
+            runCommand(`./scripts/build-multi-arch.sh ${newVersion}`, false, 'inherit');
+            console.log(`${colors.green}✓ Docker 镜像构建并推送成功！${colors.reset}\n`);
+        } catch (e) {
+            console.error(`${colors.red}Docker 构建失败，终止由于步骤。${colors.reset}`);
+            return;
+        }
+    }
+
+    // Git Tag 逻辑
     let tagMessage = latestMsg;
-    if (!buildDocker) {
+    // 既然本地构建了，CI 就不需要构建了，总是加上 skip docker 防止 GitHub Actions 重复构建
+    if (buildDocker) {
+        tagMessage += ` [skip docker] (built locally)`;
+    } else {
         tagMessage += ` [skip docker]`;
     }
 
     try {
         // 直接在 HEAD 上打标签
         runCommand(`git tag -a "${newVersion}" -m "${tagMessage}"`, true);
-        console.log(`已创建: ${newVersion}`);
+        console.log(`已创建 Git 标签: ${newVersion}`);
     } catch (e) {
         console.error(`创建标签 ${newVersion} 失败`);
         return;
@@ -193,12 +212,7 @@ async function main() {
     try {
         runCommand(`git push origin "${newVersion}"`, false, 'inherit');
         console.log(`\n${colors.green}✓ 发版成功！${colors.reset}`);
-        if (buildDocker) {
-            console.log(`GitHub Actions 应该已开始构建 Docker 镜像。`);
-        } else {
-            console.log(`已请求跳过 Docker 构建。`);
-        }
-        console.log(`查看状态: https://github.com/xiongaox/ValPoint/actions`);
+        console.log(`版本 ${newVersion} 已发布。`);
     } catch (e) {
         console.error(`${colors.red}✗ 推送标签失败${colors.reset}`);
     }

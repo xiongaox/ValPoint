@@ -41,3 +41,18 @@ alwaysApply: true
 * Frontend: [e.g., React, TailwindCSS, TypeScript]
 * Backend: [e.g., Node.js, Python/FastAPI]
 * Database: [e.g., PostgreSQL, Redis]
+
+## AI 交互与输出规范补充
+
+1. **核心语言要求**：
+   - 所有沟通、反馈、解释和文档必须使用简体中文。
+
+2. **特定模块中文化**：
+   - Task / Task List：显示为“任务”或“任务列表”，内容必须是中文。
+   - Walkthrough / Step-by-step：显示为“演练”“演示”或“分步讲解”，内容必须是中文。
+   - Plan / Implementation Plan：显示为“实施计划”或“执行方案”，步骤必须是中文。
+   - Progress Updates / Thoughts：显示为“进度更新”或“思考过程”，禁止英文独白。
+
+3. **格式约束**：
+   - 禁止出现类似 `I will do X`、`Next, I'm going to Y` 的英文引导句。
+   - 内部逻辑推导外显时，也必须转换为中文表达。

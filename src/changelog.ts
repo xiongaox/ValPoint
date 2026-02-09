@@ -16,6 +16,7 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '【运维】整合 AI 规则文件并新增 git描述 技能',
       '【运维】将 data 目录纳入版本控制',
       '【运维】清理废弃脚本（auto_tag.js、cleanup-releases.mjs）',
+      '【优化】Docker 发布脚本自动关联 Docker Hub 版本号',
       '【新增】新增亚海悬城/猎枭地图点位数据',
       '【优化】清理测试点位图片',
     ],

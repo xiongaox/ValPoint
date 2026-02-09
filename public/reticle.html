@@ -29,6 +29,7 @@
         /* Modern Range Slider */
         input[type=range] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             background: transparent;
         }
@@ -73,6 +74,7 @@
         /* Color Input Reset */
         input[type="color"] {
             -webkit-appearance: none;
+            appearance: none;
             border: none;
             padding: 0;
             width: 24px;
@@ -307,47 +309,76 @@
                                 <input type="range" id="param-aim-w" min="1" max="10" step="1" value="4">
                                 <span id="val-aim-w" class="text-xs font-mono text-gray-300 text-right">4</span>
                             </div>
-                            <!-- Text Stroke Width (New) -->
-                            <div class="grid grid-cols-[48px_1fr_30px] gap-3 items-center">
-                                <span class="text-xs text-gray-500 font-medium">字描边</span>
-                                <input type="range" id="param-text-stroke" min="0" max="20" step="1" value="8">
-                                <span id="val-text-stroke" class="text-xs font-mono text-gray-300 text-right">8</span>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Col 3: Text Settings -->
+                    <!-- Col 3: Drawing Tools -->
                     <div class="control-card p-4 flex flex-col gap-4 h-full">
                         <div class="flex items-center justify-between border-b border-white/5 pb-2">
                             <div class="flex items-center gap-2 text-gray-400">
-                                <i class="fas fa-font text-xs"></i>
-                                <span class="text-xs font-bold uppercase tracking-wider">文字标注</span>
+                                <i class="fas fa-pencil-alt text-xs"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">图形编辑</span>
                             </div>
-                            <!-- Removed Toggle Switch -->
-                            <span class="text-[10px] text-gray-600 italic">输入即显示</span>
+                            <button id="btn-clear-shapes"
+                                class="text-[10px] text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1">
+                                <i class="fas fa-trash-alt"></i> 全部清除
+                            </button>
+
                         </div>
 
-                        <div class="flex flex-col gap-3">
-                            <!-- Line 1 -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-1 h-8 rounded-full bg-red-500 shrink-0"></div>
-                                <div class="flex-1 relative">
-                                    <input type="text" id="text-line1" placeholder="第一行文字 (红)"
-                                        class="w-full bg-white/5 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:border-red-500/50 focus:bg-white/10 focus:outline-none transition-all placeholder-gray-600">
+                        <!-- Tool Buttons -->
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" data-tool="rect" title="矩形"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="far fa-square"></i>
+                            </button>
+                            <button type="button" data-tool="circle" title="圆形"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="far fa-circle"></i>
+                            </button>
+                            <button type="button" data-tool="line" title="直线"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-minus" style="transform: rotate(-45deg)"></i>
+                            </button>
+                            <button type="button" data-tool="arrow" title="箭头"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-long-arrow-alt-up" style="transform: rotate(45deg)"></i>
+                            </button>
+                            <button type="button" data-tool="arrow-grow" title="渐变箭头"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-location-arrow"></i>
+                            </button>
+                            <button type="button" data-tool="pen" title="画笔"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button type="button" data-tool="polyline" title="连续直线 (右键结束)"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-bezier-curve"></i>
+                            </button>
+                            <button type="button" data-tool="eraser" title="橡皮擦"
+                                class="draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-500">颜色</span>
+                                    <input type="color" id="draw-color" value="#ef4444" title="绘图颜色">
                                 </div>
-                                <div class="shrink-0 pt-1">
-                                    <input type="color" id="color-line1" value="#FF0000" title="选择颜色">
+                                <div class="flex-1 flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-500">粗细</span>
+                                    <input type="range" id="draw-stroke-width" min="1" max="12" step="1" value="3"
+                                        class="flex-1">
+                                    <span id="val-draw-stroke"
+                                        class="text-xs font-mono text-gray-300 w-4 text-right">3</span>
                                 </div>
-                            </div>
-                            <!-- Line 2 -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-1 h-8 rounded-full bg-purple-500 shrink-0"></div>
-                                <div class="flex-1 relative">
-                                    <input type="text" id="text-line2" placeholder="第二行文字 (紫)"
-                                        class="w-full bg-white/5 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-gray-200 focus:border-purple-500/50 focus:bg-white/10 focus:outline-none transition-all placeholder-gray-600">
-                                </div>
-                                <div class="shrink-0 pt-1">
-                                    <input type="color" id="color-line2" value="#a600ff" title="选择颜色">
+                                <div class="flex-1 flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-500">箭头</span>
+                                    <input type="range" id="draw-arrow-size" min="10" max="50" step="2" value="24"
+                                        class="flex-1">
+                                    <span id="val-arrow-size"
+                                        class="text-xs font-mono text-gray-300 w-5 text-right">24</span>
                                 </div>
                             </div>
                         </div>
@@ -410,13 +441,18 @@
                 borderColor: '#ef4444'
             },
 
-            watermark: {
-                // show: false, // Removed explicit show flag
-                line1: "",
-                line2: "",
-                color1: '#FF0000',
-                color2: '#a600ff',
-                strokeWidth: 8
+            // Drawing State
+            drawing: {
+                currentTool: null, // 'rect', 'circle', 'line', 'arrow', 'pen'
+                color: '#ef4444',
+                strokeWidth: 3,
+                arrowSize: 24,     // Arrow head size
+                shapes: [],        // Array of completed shapes
+                isDrawing: false,
+                startX: 0,
+                startY: 0,
+                currentPath: [],   // For pen tool
+                isPolylineActive: false // For polyline tool
             },
 
             target: { x: 0, y: 0 },
@@ -453,15 +489,13 @@
             // New Style Inputs
             borderW: document.getElementById('param-border-w'),
             aimW: document.getElementById('param-aim-w'),
-            textStroke: document.getElementById('param-text-stroke'),
             color: document.getElementById('param-color'),
 
-            // Watermark
-            // toggleWatermark: document.getElementById('toggle-watermark'), // Removed
-            textLine1: document.getElementById('text-line1'),
-            textLine2: document.getElementById('text-line2'),
-            colorLine1: document.getElementById('color-line1'),
-            colorLine2: document.getElementById('color-line2'),
+            // Drawing Tools
+            drawColor: document.getElementById('draw-color'),
+            drawStrokeWidth: document.getElementById('draw-stroke-width'),
+            drawArrowSize: document.getElementById('draw-arrow-size'),
+            btnClearShapes: document.getElementById('btn-clear-shapes'),
 
             // Labels
             valZoom: document.getElementById('val-zoom'),
@@ -471,7 +505,8 @@
             valScale: document.getElementById('val-scale'),
             valBorderW: document.getElementById('val-border-w'),
             valAimW: document.getElementById('val-aim-w'),
-            valTextStroke: document.getElementById('val-text-stroke'), // New
+            valDrawStroke: document.getElementById('val-draw-stroke'),
+            valArrowSize: document.getElementById('val-arrow-size'),
         };
 
         const ctx = els.canvas.getContext('2d');
@@ -493,14 +528,17 @@
             els.canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
             window.addEventListener('touchmove', handleTouchMove, { passive: false });
             window.addEventListener('touchend', handleMouseUp);
+            window.addEventListener('touchend', handleMouseUp);
+            els.canvas.addEventListener('contextmenu', handleContextMenu);
+            window.addEventListener('keydown', handleKeyDown);
 
             els.btnLock.addEventListener('click', toggleLock);
 
             // Event Listeners for all inputs
             const inputs = [
                 els.zoom, els.size, els.aim, els.quality, els.scale,
-                els.borderW, els.aimW, els.textStroke, els.color,
-                els.textLine1, els.textLine2, els.colorLine1, els.colorLine2 // Removed toggle
+                els.borderW, els.aimW, els.color,
+                els.drawColor, els.drawStrokeWidth, els.drawArrowSize
             ];
 
             inputs.forEach(input => {
@@ -513,6 +551,38 @@
             els.downloadBtn.disabled = true;
             els.copyBtn.addEventListener('click', copyImage);
             els.copyBtn.disabled = true;
+
+            // Drawing tool buttons
+            document.querySelectorAll('.draw-tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tool = btn.dataset.tool;
+                    if (state.drawing.currentTool === tool) {
+                        // Deselect if clicking the same tool
+                        // If polyline was active, cancel it
+                        if (state.drawing.currentTool === 'polyline' && state.drawing.isPolylineActive) {
+                            state.drawing.isPolylineActive = false;
+                            state.drawing.currentPath = [];
+                            render();
+                        }
+                        state.drawing.currentTool = null;
+                    } else {
+                        // Switching tool, reset polyline if active
+                        if (state.drawing.isPolylineActive) {
+                            state.drawing.isPolylineActive = false;
+                            state.drawing.currentPath = [];
+                            render();
+                        }
+                        state.drawing.currentTool = tool;
+                    }
+                    updateToolButtonStyles();
+                });
+            });
+
+            // Clear shapes button
+            els.btnClearShapes.addEventListener('click', () => {
+                state.drawing.shapes = [];
+                render();
+            });
 
             // Format toggle buttons
             document.querySelectorAll('.format-btn').forEach(btn => {
@@ -709,13 +779,24 @@
             state.lens.aimWidth = parseInt(els.aimW.value);
             state.lens.borderColor = els.color.value;
 
-            // Watermark
-            // state.watermark.show = els.toggleWatermark.checked; // Removed
-            state.watermark.line1 = els.textLine1.value;
-            state.watermark.line2 = els.textLine2.value;
-            state.watermark.color1 = els.colorLine1.value;
-            state.watermark.color2 = els.colorLine2.value;
-            state.watermark.strokeWidth = parseInt(els.textStroke.value);
+            // Drawing
+            state.drawing.color = els.drawColor.value;
+            state.drawing.strokeWidth = parseInt(els.drawStrokeWidth.value);
+            state.drawing.arrowSize = parseInt(els.drawArrowSize.value);
+
+            // Update the last arrow shape with new arrowSize (real-time editing)
+            // AND update the last shape with new strokeWidth (real-time editing)
+            if (state.drawing.shapes.length > 0) {
+                const lastShape = state.drawing.shapes[state.drawing.shapes.length - 1];
+
+                // Update stroke width for all shapes
+                lastShape.strokeWidth = state.drawing.strokeWidth;
+
+                // Update arrow size only for arrows
+                if (lastShape.type === 'arrow' || lastShape.type === 'arrow-grow') {
+                    lastShape.arrowSize = state.drawing.arrowSize;
+                }
+            }
 
             // Update thumb color CSS var for feedback
             document.documentElement.style.setProperty('--thumb-color', state.lens.borderColor);
@@ -728,9 +809,180 @@
             els.valScale.textContent = Math.round(els.scale.value * 100) + '%';
             els.valBorderW.textContent = state.lens.borderWidth;
             els.valAimW.textContent = state.lens.aimWidth;
-            els.valTextStroke.textContent = state.watermark.strokeWidth;
+            els.valDrawStroke.textContent = state.drawing.strokeWidth;
+            els.valArrowSize.textContent = state.drawing.arrowSize;
 
             render();
+        }
+
+        // Update tool button styles based on current tool
+        function updateToolButtonStyles() {
+            document.querySelectorAll('.draw-tool-btn').forEach(btn => {
+                if (btn.dataset.tool === state.drawing.currentTool) {
+                    btn.className = 'draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-red-500/20 border border-red-500/30 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.1)]';
+                } else {
+                    btn.className = 'draw-tool-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-gray-200';
+                }
+            });
+            // Update canvas cursor
+            if (state.drawing.currentTool) {
+                els.canvas.style.cursor = 'crosshair';
+            } else {
+                els.canvas.style.cursor = 'default';
+            }
+        }
+
+        // Draw a filled arrow (similar to annotation style)
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, strokeWidth, arrowSize) {
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            const headLen = arrowSize;
+            const headWidth = arrowSize * 0.6;
+            const shaftWidth = strokeWidth * 2;
+
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+
+            // Calculate arrow shaft end point (where it meets the arrowhead)
+            const shaftEndX = toX - headLen * Math.cos(angle);
+            const shaftEndY = toY - headLen * Math.sin(angle);
+
+            // Calculate perpendicular offset for shaft width
+            const perpAngle = angle + Math.PI / 2;
+            const halfShaft = shaftWidth / 2;
+
+            ctx.beginPath();
+            // Start from the base of the arrow (back left)
+            ctx.moveTo(fromX + halfShaft * Math.cos(perpAngle), fromY + halfShaft * Math.sin(perpAngle));
+            // Go to shaft end (left side)
+            ctx.lineTo(shaftEndX + halfShaft * Math.cos(perpAngle), shaftEndY + halfShaft * Math.sin(perpAngle));
+            // Go to the left wing of arrowhead
+            ctx.lineTo(shaftEndX + headWidth * Math.cos(perpAngle), shaftEndY + headWidth * Math.sin(perpAngle));
+            // Go to the tip
+            ctx.lineTo(toX, toY);
+            // Go to the right wing of arrowhead
+            ctx.lineTo(shaftEndX - headWidth * Math.cos(perpAngle), shaftEndY - headWidth * Math.sin(perpAngle));
+            // Go to shaft end (right side)
+            ctx.lineTo(shaftEndX - halfShaft * Math.cos(perpAngle), shaftEndY - halfShaft * Math.sin(perpAngle));
+            // Back to starting point (right side of base)
+            ctx.lineTo(fromX - halfShaft * Math.cos(perpAngle), fromY - halfShaft * Math.sin(perpAngle));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Draw a tapered arrow (starts small, ends thick)
+        function drawTaperedArrow(ctx, fromX, fromY, toX, toY, color, strokeWidth, arrowSize) {
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            const headLen = arrowSize;
+            const headWidth = arrowSize * 0.6;
+
+            // Shaft widths
+            const startWidth = 2; // Minimal width at the start
+            const endWidth = strokeWidth * 3; // Maximum width at the neck
+
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+
+            // Calculate arrow shaft end point (where it meets the arrowhead)
+            const shaftEndX = toX - headLen * Math.cos(angle);
+            const shaftEndY = toY - headLen * Math.sin(angle);
+
+            // Perpendicular angle for width offsets
+            const perpAngle = angle + Math.PI / 2;
+
+            ctx.beginPath();
+
+            // 1. Start Point (Tail) - thin
+            ctx.moveTo(
+                fromX + (startWidth / 2) * Math.cos(perpAngle),
+                fromY + (startWidth / 2) * Math.sin(perpAngle)
+            );
+
+            // 2. Shaft End (Left) - thick
+            ctx.lineTo(
+                shaftEndX + (endWidth / 2) * Math.cos(perpAngle),
+                shaftEndY + (endWidth / 2) * Math.sin(perpAngle)
+            );
+
+            // 3. Arrow Head Left Wing
+            ctx.lineTo(
+                shaftEndX + headWidth * Math.cos(perpAngle),
+                shaftEndY + headWidth * Math.sin(perpAngle)
+            );
+
+            // 4. Arrow Tip
+            ctx.lineTo(toX, toY);
+
+            // 5. Arrow Head Right Wing
+            ctx.lineTo(
+                shaftEndX - headWidth * Math.cos(perpAngle),
+                shaftEndY - headWidth * Math.sin(perpAngle)
+            );
+
+            // 6. Shaft End (Right) - thick
+            ctx.lineTo(
+                shaftEndX - (endWidth / 2) * Math.cos(perpAngle),
+                shaftEndY - (endWidth / 2) * Math.sin(perpAngle)
+            );
+
+            // 7. Start Point (Tail) - thin (right side)
+            ctx.lineTo(
+                fromX - (startWidth / 2) * Math.cos(perpAngle),
+                fromY - (startWidth / 2) * Math.sin(perpAngle)
+            );
+
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Draw a single shape
+        function drawShape(ctx, shape) {
+            ctx.strokeStyle = shape.color;
+            ctx.lineWidth = shape.strokeWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            switch (shape.type) {
+                case 'rect':
+                    ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+                    break;
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(shape.cx, shape.cy, shape.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+                case 'line':
+                    ctx.beginPath();
+                    ctx.moveTo(shape.x1, shape.y1);
+                    ctx.lineTo(shape.x2, shape.y2);
+                    ctx.stroke();
+                    break;
+                case 'arrow':
+                    drawArrow(ctx, shape.x1, shape.y1, shape.x2, shape.y2, shape.color, shape.strokeWidth, shape.arrowSize);
+                    break;
+                case 'arrow-grow':
+                    drawTaperedArrow(ctx, shape.x1, shape.y1, shape.x2, shape.y2, shape.color, shape.strokeWidth, shape.arrowSize);
+                    break;
+                case 'pen':
+                    if (shape.path.length < 2) return;
+                    ctx.beginPath();
+                    ctx.moveTo(shape.path[0].x, shape.path[0].y);
+                    for (let i = 1; i < shape.path.length; i++) {
+                        ctx.lineTo(shape.path[i].x, shape.path[i].y);
+                    }
+                    ctx.stroke();
+                    break;
+                case 'polyline':
+                    if (shape.path.length < 2) return;
+                    ctx.beginPath();
+                    ctx.moveTo(shape.path[0].x, shape.path[0].y);
+                    for (let i = 1; i < shape.path.length; i++) {
+                        ctx.lineTo(shape.path[i].x, shape.path[i].y);
+                    }
+                    ctx.stroke();
+                    break;
+            }
         }
 
         function render() {
@@ -742,40 +994,96 @@
             ctx.clearRect(0, 0, w, h);
             ctx.drawImage(state.image, 0, 0, w, h);
 
-            // Watermark (Logic Change: Check strings directly)
-            const hasWatermark = state.watermark.line1 || state.watermark.line2;
+            // Draw all completed shapes
+            state.drawing.shapes.forEach(shape => drawShape(ctx, shape));
 
-            if (hasWatermark) {
+            // Draw current shape being drawn (preview)
+            if ((state.drawing.isDrawing || state.drawing.isPolylineActive) && state.drawing.currentTool) {
+                const d = state.drawing;
+                const pos = state.lastMouse;
                 ctx.save();
 
-                const fontSize = 32;
-                const lineHeight = fontSize * 1.4;
-                ctx.font = `900 ${fontSize}px "Segoe UI", Roboto, sans-serif`;
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'top';
+                switch (d.currentTool) {
+                    case 'rect': {
+                        const x = Math.min(d.startX, pos.x);
+                        const y = Math.min(d.startY, pos.y);
+                        const width = Math.abs(pos.x - d.startX);
+                        const height = Math.abs(pos.y - d.startY);
+                        ctx.strokeStyle = d.color;
+                        ctx.lineWidth = d.strokeWidth;
+                        ctx.strokeRect(x, y, width, height);
+                        break;
+                    }
+                    case 'circle': {
+                        const cx = (d.startX + pos.x) / 2;
+                        const cy = (d.startY + pos.y) / 2;
+                        const radius = Math.hypot(pos.x - d.startX, pos.y - d.startY) / 2;
+                        ctx.strokeStyle = d.color;
+                        ctx.lineWidth = d.strokeWidth;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        break;
+                    }
+                    case 'line': {
+                        ctx.strokeStyle = d.color;
+                        ctx.lineWidth = d.strokeWidth;
+                        ctx.lineCap = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(d.startX, d.startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                        break;
+                    }
+                    case 'arrow': {
+                        drawArrow(ctx, d.startX, d.startY, pos.x, pos.y, d.color, d.strokeWidth, d.arrowSize);
+                        break;
+                    }
+                    case 'arrow-grow': {
+                        drawTaperedArrow(ctx, d.startX, d.startY, pos.x, pos.y, d.color, d.strokeWidth, d.arrowSize);
+                        break;
+                    }
+                    case 'polyline': {
+                        if (d.currentPath.length > 0) {
+                            ctx.strokeStyle = d.color;
+                            ctx.lineWidth = d.strokeWidth;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
 
-                const padding = 20;
-                const x = w - padding;
-                let y = padding;
+                            ctx.beginPath();
+                            ctx.moveTo(d.currentPath[0].x, d.currentPath[0].y);
+                            for (let i = 1; i < d.currentPath.length; i++) {
+                                ctx.lineTo(d.currentPath[i].x, d.currentPath[i].y);
+                            }
+                            // Preview line to cursor
+                            ctx.lineTo(pos.x, pos.y);
+                            ctx.stroke();
 
-                // Use dynamic stroke width
-                ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = state.watermark.strokeWidth;
-                ctx.lineJoin = 'round';
-                ctx.miterLimit = 2;
-                ctx.shadowColor = 'transparent';
-
-                if (state.watermark.line1) {
-                    if (state.watermark.strokeWidth > 0) ctx.strokeText(state.watermark.line1, x, y);
-                    ctx.fillStyle = state.watermark.color1;
-                    ctx.fillText(state.watermark.line1, x, y);
-                }
-
-                if (state.watermark.line2) {
-                    if (state.watermark.line1) y += lineHeight;
-                    if (state.watermark.strokeWidth > 0) ctx.strokeText(state.watermark.line2, x, y);
-                    ctx.fillStyle = state.watermark.color2;
-                    ctx.fillText(state.watermark.line2, x, y);
+                            // Draw "nodes" for better visibility
+                            ctx.fillStyle = '#fff';
+                            d.currentPath.forEach(p => {
+                                ctx.beginPath();
+                                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                                ctx.fill();
+                            });
+                        }
+                        break;
+                    }
+                    case 'pen': {
+                        if (d.currentPath.length >= 2) {
+                            ctx.strokeStyle = d.color;
+                            ctx.lineWidth = d.strokeWidth;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
+                            ctx.beginPath();
+                            ctx.moveTo(d.currentPath[0].x, d.currentPath[0].y);
+                            for (let i = 1; i < d.currentPath.length; i++) {
+                                ctx.lineTo(d.currentPath[i].x, d.currentPath[i].y);
+                            }
+                            ctx.stroke();
+                        }
+                        break;
+                    }
                 }
                 ctx.restore();
             }
@@ -875,6 +1183,43 @@
             if (!state.image) return;
             const pos = getMousePos(e);
 
+
+
+            if (state.drawing.currentTool === 'eraser') {
+                // Update eraser cursor size (visual only for now, or actual cursor)
+                // We can use the render function to show an eraser circle
+                state.lastMouse = pos;
+                state.drawing.isDrawing = true; // "Drawing" with eraser
+                eraseShapesAt(pos); // Erase on click
+                render();
+                return;
+            }
+
+            // If a drawing tool is selected, start drawing
+            if (state.drawing.currentTool) {
+                // If it's polyline, handle click by adding point
+                if (state.drawing.currentTool === 'polyline') {
+                    if (!state.drawing.isPolylineActive) {
+                        state.drawing.isPolylineActive = true;
+                        state.drawing.currentPath = [{ x: pos.x, y: pos.y }];
+                    } else {
+                        state.drawing.currentPath.push({ x: pos.x, y: pos.y });
+                    }
+                    state.lastMouse = pos;
+                    render(); // Render to show new segment/node
+                    return;
+                }
+
+                state.drawing.isDrawing = true;
+                state.drawing.startX = pos.x;
+                state.drawing.startY = pos.y;
+                if (state.drawing.currentTool === 'pen') {
+                    state.drawing.currentPath = [{ x: pos.x, y: pos.y }];
+                }
+                state.lastMouse = pos;
+                return;
+            }
+
             const lensCenterX = state.lens.x + state.lens.radius;
             const lensCenterY = state.lens.y + state.lens.radius;
 
@@ -901,10 +1246,40 @@
         function handleTouchStart(e) { e.preventDefault(); handleMouseDown(e); }
 
         function handleMouseMove(e) {
-            if (!state.isDraggingLens && !state.isDraggingContent) return;
             if (!state.image) return;
-
             const pos = getMousePos(e);
+
+            // Handle drawing
+            if (state.drawing.isDrawing && state.drawing.currentTool) {
+                if (state.drawing.currentTool === 'pen') {
+                    state.drawing.currentPath.push({ x: pos.x, y: pos.y });
+                } else if (state.drawing.currentTool === 'eraser') {
+                    state.lastMouse = pos;
+                    eraseShapesAt(pos);
+                    render();
+                    return;
+                }
+                state.lastMouse = pos;
+                render();
+                return;
+            }
+
+            // Eraser hover cursor
+            if (state.drawing.currentTool === 'eraser') {
+                state.lastMouse = pos;
+                render();
+                return;
+            }
+
+            // Handle polyline preview
+            if (state.drawing.currentTool === 'polyline' && state.drawing.isPolylineActive) {
+                state.lastMouse = pos;
+                render();
+                return;
+            }
+
+            if (!state.isDraggingLens && !state.isDraggingContent) return;
+
             const dx = pos.x - state.lastMouse.x;
             const dy = pos.y - state.lastMouse.y;
 
@@ -923,9 +1298,207 @@
         function handleTouchMove(e) { e.preventDefault(); handleMouseMove(e); }
 
         function handleMouseUp() {
+            // Stop erasing
+            if (state.drawing.currentTool === 'eraser') {
+                state.drawing.isDrawing = false;
+                return;
+            }
+
+            // Special handling for polyline: do NOT finish on mouse up, unless it's not active (logic moved to mousedown/contextmenu)
+            if (state.drawing.currentTool === 'polyline') {
+                return;
+            }
+
+            // Finalize drawing if in progress
+            if (state.drawing.isDrawing && state.drawing.currentTool) {
+                const d = state.drawing;
+                const pos = state.lastMouse;
+                let shape = null;
+
+                switch (d.currentTool) {
+                    case 'rect': {
+                        const x = Math.min(d.startX, pos.x);
+                        const y = Math.min(d.startY, pos.y);
+                        const width = Math.abs(pos.x - d.startX);
+                        const height = Math.abs(pos.y - d.startY);
+                        if (width > 2 && height > 2) {
+                            shape = { type: 'rect', x, y, width, height, color: d.color, strokeWidth: d.strokeWidth };
+                        }
+                        break;
+                    }
+                    case 'circle': {
+                        const cx = (d.startX + pos.x) / 2;
+                        const cy = (d.startY + pos.y) / 2;
+                        const radius = Math.hypot(pos.x - d.startX, pos.y - d.startY) / 2;
+                        if (radius > 2) {
+                            shape = { type: 'circle', cx, cy, radius, color: d.color, strokeWidth: d.strokeWidth };
+                        }
+                        break;
+                    }
+                    case 'line': {
+                        const len = Math.hypot(pos.x - d.startX, pos.y - d.startY);
+                        if (len > 2) {
+                            shape = { type: 'line', x1: d.startX, y1: d.startY, x2: pos.x, y2: pos.y, color: d.color, strokeWidth: d.strokeWidth };
+                        }
+                        break;
+                    }
+                    case 'arrow': {
+                        const len = Math.hypot(pos.x - d.startX, pos.y - d.startY);
+                        if (len > 5) {
+                            shape = { type: 'arrow', x1: d.startX, y1: d.startY, x2: pos.x, y2: pos.y, color: d.color, strokeWidth: d.strokeWidth, arrowSize: d.arrowSize };
+                        }
+                        break;
+                    }
+                    case 'arrow-grow': {
+                        const len = Math.hypot(pos.x - d.startX, pos.y - d.startY);
+                        if (len > 5) {
+                            shape = { type: 'arrow-grow', x1: d.startX, y1: d.startY, x2: pos.x, y2: pos.y, color: d.color, strokeWidth: d.strokeWidth, arrowSize: d.arrowSize };
+                        }
+                        break;
+                    }
+                    case 'pen': {
+                        if (d.currentPath.length >= 2) {
+                            shape = { type: 'pen', path: [...d.currentPath], color: d.color, strokeWidth: d.strokeWidth };
+                        }
+                        break;
+                    }
+                }
+
+                if (shape) {
+                    state.drawing.shapes.push(shape);
+                }
+
+                state.drawing.isDrawing = false;
+                state.drawing.currentPath = [];
+                render();
+                render();
+                return;
+            }
+
             state.isDraggingLens = false;
             state.isDraggingContent = false;
-            els.canvas.style.cursor = 'default';
+            if (!state.drawing.currentTool) {
+                els.canvas.style.cursor = 'default';
+            }
+        }
+
+        function handleContextMenu(e) {
+            if (state.drawing.currentTool === 'polyline' && state.drawing.isPolylineActive) {
+                e.preventDefault();
+                console.log('Finishing polyline, path length:', state.drawing.currentPath.length);
+                // Finish polyline
+                if (state.drawing.currentPath.length >= 2) {
+                    const shape = {
+                        type: 'polyline',
+                        path: [...state.drawing.currentPath],
+                        color: state.drawing.color,
+                        strokeWidth: state.drawing.strokeWidth
+                    };
+                    state.drawing.shapes.push(shape);
+                }
+
+                state.drawing.isPolylineActive = false;
+                state.drawing.currentPath = [];
+                render();
+            }
+        }
+
+
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                if (state.drawing.currentTool === 'polyline' && state.drawing.isPolylineActive) {
+                    // Cancel polyline
+                    state.drawing.isPolylineActive = false;
+                    state.drawing.currentPath = [];
+                    render();
+                }
+            }
+        }
+
+        // --- Eraser Logic ---
+        function eraseShapesAt(pos) {
+            const eraserSize = state.drawing.strokeWidth * 5; // Eraser size multiplier
+            const eraserRadius = eraserSize / 2;
+
+            // Filter out shapes that collide with eraser
+            // We iterate backwards to prioritize top shapes (though simple filter is easier)
+            const initialCount = state.drawing.shapes.length;
+            state.drawing.shapes = state.drawing.shapes.filter(shape => !isShapeHit(shape, pos, eraserRadius));
+
+            if (state.drawing.shapes.length !== initialCount) {
+                // Something was erased
+            }
+        }
+
+        function isShapeHit(shape, pos, radius) {
+            // Simple hit testing
+            switch (shape.type) {
+                case 'circle': {
+                    const dist = Math.hypot(pos.x - shape.cx, pos.y - shape.cy);
+                    return dist < (shape.radius + radius + shape.strokeWidth / 2);
+                }
+                case 'rect': {
+                    // Check if point is near rect borders
+                    // A simple bounding box check + expansion for now
+                    // Ideally we check distance to rectangle edges
+                    const innerX = shape.x - radius - shape.strokeWidth / 2;
+                    const innerY = shape.y - radius - shape.strokeWidth / 2;
+                    const innerW = shape.width + (radius + shape.strokeWidth / 2) * 2;
+                    const innerH = shape.height + (radius + shape.strokeWidth / 2) * 2;
+
+                    const inBox = pos.x >= innerX && pos.x <= innerX + innerW &&
+                        pos.y >= innerY && pos.y <= innerY + innerH;
+
+                    if (!inBox) return false;
+
+                    // More precise: check if inside rect (filled?) or near edges?
+                    // Assuming hollow rects for reticle
+                    // Dist to left
+                    const dL = Math.abs(pos.x - shape.x);
+                    const dR = Math.abs(pos.x - (shape.x + shape.width));
+                    const dT = Math.abs(pos.y - shape.y);
+                    const dB = Math.abs(pos.y - (shape.y + shape.height));
+
+                    // Check if within horizontal/vertical bands
+                    const onVert = (pos.y >= shape.y - radius && pos.y <= shape.y + shape.height + radius);
+                    const onHorz = (pos.x >= shape.x - radius && pos.x <= shape.x + shape.width + radius);
+
+                    if (onVert && (dL <= radius + shape.strokeWidth || dR <= radius + shape.strokeWidth)) return true;
+                    if (onHorz && (dT <= radius + shape.strokeWidth || dB <= radius + shape.strokeWidth)) return true;
+
+                    return false;
+                }
+                case 'line': {
+                    return distanceToSegment(pos, { x: shape.x1, y: shape.y1 }, { x: shape.x2, y: shape.y2 }) <= radius + shape.strokeWidth / 2;
+                }
+                case 'arrow':
+                case 'arrow-grow': {
+                    // Approximate with line segment for shaft extended to tip
+                    return distanceToSegment(pos, { x: shape.x1, y: shape.y1 }, { x: shape.x2, y: shape.y2 }) <= radius + shape.arrowSize / 2;
+                }
+                case 'pen':
+                case 'polyline': {
+                    // Check all segments
+                    if (shape.path.length < 2) return false;
+                    for (let i = 0; i < shape.path.length - 1; i++) {
+                        if (distanceToSegment(pos, shape.path[i], shape.path[i + 1]) <= radius + shape.strokeWidth / 2) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        function distanceToSegment(p, v, w) {
+            const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+            if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            const proj = { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) };
+            return Math.hypot(p.x - proj.x, p.y - proj.y);
         }
 
         // 生成导出画布，复用给下载与复制
@@ -954,40 +1527,121 @@
 
             eCtx.drawImage(state.image, 0, 0, finalW, finalH);
 
-            const hasWatermark = state.watermark.line1 || state.watermark.line2;
-
-            if (hasWatermark) {
-                eCtx.save();
-                const fontSize = 32 * ratio;
-                const lineHeight = fontSize * 1.4;
-                eCtx.font = `900 ${fontSize}px "Segoe UI", Roboto, sans-serif`;
-                eCtx.textAlign = 'right';
-                eCtx.textBaseline = 'top';
-
-                const padding = 20 * ratio;
-                const x = finalW - padding;
-                let y = padding;
-
-                eCtx.strokeStyle = '#FFFFFF';
-                eCtx.lineWidth = state.watermark.strokeWidth * ratio;
+            // Draw all shapes (scaled)
+            state.drawing.shapes.forEach(shape => {
+                eCtx.strokeStyle = shape.color;
+                eCtx.lineWidth = shape.strokeWidth * ratio;
+                eCtx.lineCap = 'round';
                 eCtx.lineJoin = 'round';
-                eCtx.miterLimit = 2;
-                eCtx.shadowColor = 'transparent';
 
-                if (state.watermark.line1) {
-                    if (state.watermark.strokeWidth > 0) eCtx.strokeText(state.watermark.line1, x, y);
-                    eCtx.fillStyle = state.watermark.color1;
-                    eCtx.fillText(state.watermark.line1, x, y);
-                }
+                switch (shape.type) {
+                    case 'rect':
+                        eCtx.strokeRect(shape.x * ratio, shape.y * ratio, shape.width * ratio, shape.height * ratio);
+                        break;
+                    case 'circle':
+                        eCtx.beginPath();
+                        eCtx.arc(shape.cx * ratio, shape.cy * ratio, shape.radius * ratio, 0, Math.PI * 2);
+                        eCtx.stroke();
+                        break;
+                    case 'line':
+                        eCtx.beginPath();
+                        eCtx.moveTo(shape.x1 * ratio, shape.y1 * ratio);
+                        eCtx.lineTo(shape.x2 * ratio, shape.y2 * ratio);
+                        eCtx.stroke();
+                        break;
+                    case 'arrow': {
+                        // Use same filled arrow style as drawArrow
+                        const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
+                        const headLen = shape.arrowSize * ratio;
+                        const headWidth = shape.arrowSize * 0.6 * ratio;
+                        const shaftWidth = shape.strokeWidth * 2 * ratio;
 
-                if (state.watermark.line2) {
-                    if (state.watermark.line1) y += lineHeight;
-                    if (state.watermark.strokeWidth > 0) eCtx.strokeText(state.watermark.line2, x, y);
-                    eCtx.fillStyle = state.watermark.color2;
-                    eCtx.fillText(state.watermark.line2, x, y);
+                        const fromX = shape.x1 * ratio;
+                        const fromY = shape.y1 * ratio;
+                        const toX = shape.x2 * ratio;
+                        const toY = shape.y2 * ratio;
+
+                        const shaftEndX = toX - headLen * Math.cos(angle);
+                        const shaftEndY = toY - headLen * Math.sin(angle);
+
+                        const perpAngle = angle + Math.PI / 2;
+                        const halfShaft = shaftWidth / 2;
+
+                        eCtx.fillStyle = shape.color;
+                        eCtx.beginPath();
+                        eCtx.moveTo(fromX + halfShaft * Math.cos(perpAngle), fromY + halfShaft * Math.sin(perpAngle));
+                        eCtx.lineTo(shaftEndX + halfShaft * Math.cos(perpAngle), shaftEndY + halfShaft * Math.sin(perpAngle));
+                        eCtx.lineTo(shaftEndX + headWidth * Math.cos(perpAngle), shaftEndY + headWidth * Math.sin(perpAngle));
+                        eCtx.lineTo(toX, toY);
+                        eCtx.lineTo(shaftEndX - headWidth * Math.cos(perpAngle), shaftEndY - headWidth * Math.sin(perpAngle));
+                        eCtx.lineTo(shaftEndX - halfShaft * Math.cos(perpAngle), shaftEndY - halfShaft * Math.sin(perpAngle));
+                        eCtx.lineTo(fromX - halfShaft * Math.cos(perpAngle), fromY - halfShaft * Math.sin(perpAngle));
+                        eCtx.closePath();
+                        eCtx.fill();
+                        break;
+                    }
+                    case 'arrow-grow': {
+                        // Re-implement drawTaperedArrow logic for export (scaled)
+                        const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
+                        const headLen = shape.arrowSize * ratio;
+                        const headWidth = shape.arrowSize * 0.6 * ratio;
+
+                        const startWidth = 2 * ratio;
+                        const endWidth = shape.strokeWidth * 3 * ratio;
+
+                        const fromX = shape.x1 * ratio;
+                        const fromY = shape.y1 * ratio;
+                        const toX = shape.x2 * ratio;
+                        const toY = shape.y2 * ratio;
+
+                        const shaftEndX = toX - headLen * Math.cos(angle);
+                        const shaftEndY = toY - headLen * Math.sin(angle);
+                        const perpAngle = angle + Math.PI / 2;
+
+                        eCtx.fillStyle = shape.color;
+                        eCtx.beginPath();
+
+                        // 1. Tail (thin)
+                        eCtx.moveTo(fromX + (startWidth / 2) * Math.cos(perpAngle), fromY + (startWidth / 2) * Math.sin(perpAngle));
+                        // 2. Shaft end (thick)
+                        eCtx.lineTo(shaftEndX + (endWidth / 2) * Math.cos(perpAngle), shaftEndY + (endWidth / 2) * Math.sin(perpAngle));
+                        // 3. Head L
+                        eCtx.lineTo(shaftEndX + headWidth * Math.cos(perpAngle), shaftEndY + headWidth * Math.sin(perpAngle));
+                        // 4. Tip
+                        eCtx.lineTo(toX, toY);
+                        // 5. Head R
+                        eCtx.lineTo(shaftEndX - headWidth * Math.cos(perpAngle), shaftEndY - headWidth * Math.sin(perpAngle));
+                        // 6. Shaft end (thick)
+                        eCtx.lineTo(shaftEndX - (endWidth / 2) * Math.cos(perpAngle), shaftEndY - (endWidth / 2) * Math.sin(perpAngle));
+                        // 7. Tail (thin)
+                        eCtx.lineTo(fromX - (startWidth / 2) * Math.cos(perpAngle), fromY - (startWidth / 2) * Math.sin(perpAngle));
+
+                        eCtx.closePath();
+                        eCtx.fill();
+                        break;
+                    }
+                    case 'polyline':
+                        if (shape.path.length >= 2) {
+                            eCtx.beginPath();
+                            eCtx.moveTo(shape.path[0].x * ratio, shape.path[0].y * ratio);
+                            for (let i = 1; i < shape.path.length; i++) {
+                                eCtx.lineTo(shape.path[i].x * ratio, shape.path[i].y * ratio);
+                            }
+                            eCtx.stroke();
+                        }
+                        break;
+                    case 'pen':
+                        if (shape.path.length >= 2) {
+                            eCtx.beginPath();
+                            eCtx.moveTo(shape.path[0].x * ratio, shape.path[0].y * ratio);
+                            for (let i = 1; i < shape.path.length; i++) {
+                                eCtx.lineTo(shape.path[i].x * ratio, shape.path[i].y * ratio);
+                            }
+                            eCtx.stroke();
+                        }
+                        break;
                 }
-                eCtx.restore();
-            }
+            });
 
             const lensCenterX = exportLensX + exportLensR;
             const lensCenterY = exportLensY + exportLensR;

@@ -11,10 +11,21 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-02-09',
+    items: [
+      '【优化】同步 main 分支点位编辑器及灯箱组件优化',
+      '【新增】点位编辑器新增渐变箭头、连续直线、橡皮擦工具',
+      '【优化】移动端描述文字不再随图片缩放/平移，保持固定位置',
+      '【优化】描边算法改用圆形多层阴影，实现更平滑的圆角效果',
+      '【优化】描述文字支持自动换行，左右居中并保留间距',
+      '【优化】移动端隐藏描述文字样式编辑按钮',
+    ],
+  },
+  {
     date: '2026-02-05',
     items: [
       '【新增】迁移地图池状态功能，对接远程 API 实现状态实时同步',
-      '【优化】MapPickerModal 支持显示“在池/回归/轮出”状态角标',
+      '【优化】MapPickerModal 支持显示"在池/回归/轮出"状态角标',
       '【新增】新增 public/log.html 独立日志页面，替代 Wiki 并适配深色主题',
       '【优化】ChangelogModal 仅展示最近详情，提供完整日志入口',
       '【重构】清理 src/changelog.ts 历史数据，同步 docker_local 分支记录',
@@ -23,7 +34,7 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
     date: '2026-02-04',
     items: [
-      '【新增】迁移地图池状态功能，对接远程 API 显示“在池/回归/轮出”状态',
+      '【新增】迁移地图池状态功能，对接远程 API 显示"在池/回归/轮出"状态',
     ],
   },
   {

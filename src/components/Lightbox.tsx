@@ -389,43 +389,42 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
           {/* 说明：描述文字叠加层 */}
           {desc && (
             <div
-              className="absolute left-1/2 pointer-events-none"
+              className="absolute left-0 right-0 pointer-events-none flex justify-center px-4"
               style={{
                 top: `${textStyle.position}%`,
-                transform: `translate(-50%, -50%) scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
+                // 移动端：文字不随图片缩放/平移，保持固定位置
+                transform: isMobile
+                  ? 'translateY(-50%)'
+                  : `translateY(-50%) scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
                 transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
               }}
             >
               <span
-                className="font-black tracking-wide whitespace-nowrap"
+                className="font-black tracking-wide text-center inline-block"
                 style={{
                   fontSize: `${isMobile ? textStyle.fontSize * 0.6 : textStyle.fontSize}px`,
                   color: textStyle.color,
                   textShadow: (() => {
                     const baseW = textStyle.strokeWidth;
-                    const w = isMobile ? baseW * 0.6 : baseW; // 移动端描边也等比缩小
+                    const w = isMobile ? baseW * 0.6 : baseW;
                     const c = textStyle.strokeColor;
-                    const half = w * 0.7; // 对角线方向用略小的值实现圆角效果
-                    const shadows = [
-                      // 8个方向实现圆角描边
-                      `0 -${w}px 0 ${c}`,       // 上
-                      `0 ${w}px 0 ${c}`,        // 下
-                      `-${w}px 0 0 ${c}`,       // 左
-                      `${w}px 0 0 ${c}`,        // 右
-                      `-${half}px -${half}px 0 ${c}`, // 左上
-                      `${half}px -${half}px 0 ${c}`,  // 右上
-                      `-${half}px ${half}px 0 ${c}`,  // 左下
-                      `${half}px ${half}px 0 ${c}`,   // 右下
-                      // 增加更多层实现更平滑的圆角
-                      `-${w}px -${half}px 0 ${c}`,
-                      `${w}px -${half}px 0 ${c}`,
-                      `-${w}px ${half}px 0 ${c}`,
-                      `${w}px ${half}px 0 ${c}`,
-                      `-${half}px -${w}px 0 ${c}`,
-                      `${half}px -${w}px 0 ${c}`,
-                      `-${half}px ${w}px 0 ${c}`,
-                      `${half}px ${w}px 0 ${c}`,
-                    ];
+                    // 使用更多层阴影实现平滑圆角描边
+                    const shadows: string[] = [];
+                    const steps = 24; // 更多步数 = 更平滑
+                    for (let i = 0; i < steps; i++) {
+                      const angle = (i / steps) * Math.PI * 2;
+                      const x = Math.cos(angle) * w;
+                      const y = Math.sin(angle) * w;
+                      shadows.push(`${x.toFixed(2)}px ${y.toFixed(2)}px 0 ${c}`);
+                    }
+                    // 额外添加半径的层，填充中间空隙
+                    const halfW = w * 0.5;
+                    for (let i = 0; i < 12; i++) {
+                      const angle = (i / 12) * Math.PI * 2;
+                      const x = Math.cos(angle) * halfW;
+                      const y = Math.sin(angle) * halfW;
+                      shadows.push(`${x.toFixed(2)}px ${y.toFixed(2)}px 0 ${c}`);
+                    }
                     if (textStyle.shadow) {
                       shadows.push('0 0 12px rgba(0,0,0,0.8)');
                     }
@@ -514,8 +513,8 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
         <Icon name="X" size={28} />
       </button>
 
-      {/* 说明：文字样式按钮 - 在关闭按钮下方 */}
-      {desc && (
+      {/* 说明：文字样式按钮 - 在关闭按钮下方（仅桌面端显示） */}
+      {desc && !isMobile && (
         <div className="absolute top-[88px] right-6 z-50">
           <button
             className={`w-12 h-12 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/40 rounded-full text-emerald-400 transition-all backdrop-blur-md border border-emerald-500/40 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}

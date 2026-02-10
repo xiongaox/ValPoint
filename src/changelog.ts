@@ -15,8 +15,7 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
     items: [
       '【运维】GitHub Actions 多平台 Docker 构建（amd64 + arm64）',
       '【运维】重写 docker-build.yml，升级 build-push-action 并启用 GHA 缓存',
-      '【运维】新增 release.js 一键发布脚本，替代旧 shell/powershell 脚本',
-      '【修复】修复 release.js ESM 兼容性问题，全面汉化脚本输出',
+      '【运维】新增 release.js 一键发布脚本，支持版本号自动递增',
       '【运维】扩展 .dockerignore 排除规则',
       '【运维】清理废弃的 publish_docker.ps1 和 publish_docker.sh',
     ],

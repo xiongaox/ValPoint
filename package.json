@@ -12,8 +12,9 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "release": "node scripts/auto_tag.js",
-    "release:preview": "node scripts/auto_tag.js --preview",
+    "release": "node scripts/release.js",
+    "release:preview": "node scripts/release.js --preview",
+    "release:local": "node scripts/auto_tag.js",
     "build:esa": "npm run build && node scripts/generate-env-config.js"
   },
   "dependencies": {

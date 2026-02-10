@@ -1,0 +1,3 @@
+interface:
+  display_name: "ValPoint Git 描述"
+  short_description: "输入 git描述 生成提交描述并同步更新日志"

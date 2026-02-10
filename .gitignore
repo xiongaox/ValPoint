@@ -12,6 +12,7 @@ docs/.obsidian/workspace.json
 .vscode
 supabase/cloud
 data
+docs/.vitepress/cache
 
 # Worktrees
 .worktrees/

@@ -11,6 +11,14 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-02-10',
+    items: [
+      '【运维】在 .gitignore 中添加工作区配置',
+      '【运维】将 .worktrees/ 和 worktrees/ 目录加入忽略列表，支持 Git Worktree workflow',
+      '【运维】将 *.code-workspace 加入忽略列表，避免提交本地 VS Code 工作区配置',
+    ],
+  },
+  {
     date: '2026-02-09',
     items: [
       '【优化】优化灯箱组件描述文字显示与更新日志同步',

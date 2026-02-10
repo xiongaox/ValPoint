@@ -13,8 +13,12 @@ docs/.obsidian/workspace.json
 supabase/cloud
 data
 
-# VitePress
-docs/.vitepress/cache
+# Worktrees
+.worktrees/
+worktrees/
+
+# Local workspace config
+*.code-workspace
 docs/.vitepress/dist
 .temp
 

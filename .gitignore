@@ -15,7 +15,6 @@ data
 docs/.vitepress/cache
 
 # Worktrees
-.worktrees/
 worktrees/
 
 # Local workspace config

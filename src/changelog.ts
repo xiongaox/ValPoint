@@ -15,6 +15,8 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
     items: [
       '【运维】在 .gitignore 中添加 VitePress 缓存忽略规则',
       '【运维】将 docs/.vitepress/cache 加入忽略列表，避免提交文档构建缓存',
+      '【运维】优化 valpoint-git-description 技能，支持 changelog 与文档的增量更新',
+      '【运维】清理 .codex 目录及 .gitignore 中的冗余配置',
     ],
   },
   {

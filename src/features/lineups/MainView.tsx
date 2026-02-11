@@ -226,6 +226,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
             isAdmin={quickActions.isAdmin}
             pendingTransfers={quickActions.pendingTransfers}
             canBatchDownload={quickActions.canBatchDownload}
+            mode={isTabletLandscape ? 'pad' : 'default'}
           />
         )}
 

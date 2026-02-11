@@ -25,6 +25,7 @@ type Props = {
   isAdmin?: boolean; // 说明：管理员标记。
   pendingTransfers?: number;
   canBatchDownload?: boolean; // 说明：允许批量下载。
+  mode?: 'default' | 'pad'; // 说明：pad 模式仅保留核心入口。
 };
 
 const ActionButton = ({ onClick, icon, title, color = "bg-[#2a2f38]" }: { onClick: () => void, icon: IconName, title: string, color?: string }) => (
@@ -57,8 +58,10 @@ const QuickActions: React.FC<Props> = ({
   isAdmin = false,
   pendingTransfers = 0,
   canBatchDownload = false,
+  mode = 'default',
 }) => {
-  const showProgress = pendingTransfers > 0;
+  const isPadMode = mode === 'pad';
+  const showProgress = !isPadMode && pendingTransfers > 0;
   return (
     <div className="absolute bottom-4 right-4 z-30 pointer-events-none">
       <div className="relative flex items-end flex-col gap-3 pointer-events-none">
@@ -86,15 +89,15 @@ const QuickActions: React.FC<Props> = ({
                 <ActionButton onClick={onProfile} icon="User" title="个人信息" />
               )}
 
-              {!isAdmin && onPendingSubmissions && (
+              {!isPadMode && !isAdmin && onPendingSubmissions && (
                 <ActionButton onClick={onPendingSubmissions} icon="Clock" title="待审点位" />
               )}
 
-              {isAdmin && onSyncToShared && (
+              {!isPadMode && isAdmin && onSyncToShared && (
                 <ActionButton onClick={onSyncToShared} icon="Share2" title="同步到共享库" />
               )}
 
-              {onBatchDownload && canBatchDownload && (
+              {!isPadMode && onBatchDownload && canBatchDownload && (
                 <ActionButton onClick={onBatchDownload} icon="Download" title="批量下载" />
               )}
 
@@ -102,16 +105,18 @@ const QuickActions: React.FC<Props> = ({
 
               <ActionButton onClick={onChangePassword} icon="Key" title="修改密码" />
 
-              {onPngSettings && (
+              {!isPadMode && onPngSettings && (
                 <ActionButton onClick={onPngSettings} icon="FileImage" title="PNG转换" />
               )}
 
-              <ActionButton onClick={onImageBedConfig} icon="Image" title="图床配置" />
+              {!isPadMode && (
+                <ActionButton onClick={onImageBedConfig} icon="Image" title="图床配置" />
+              )}
             </>
           )}
 
           <div className="flex items-center gap-3">
-            {isOpen && (
+            {isOpen && !isPadMode && (
               <button
                 onClick={() => window.open('/reticle.html', '_blank')}
                 className="w-12 h-12 rounded-full bg-[#2a2f38] hover:bg-[#3a4048] text-white flex items-center justify-center shadow-lg border border-white/10 transition-all active:scale-95 animate-in slide-in-from-right-2 fade-in duration-200"

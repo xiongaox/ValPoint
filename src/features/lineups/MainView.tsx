@@ -141,6 +141,12 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
     }
   }, [isTabletLandscape]);
 
+  useEffect(() => {
+    if (isTabletLandscape && activeTab === 'create') {
+      right.handleTabSwitch('view');
+    }
+  }, [isTabletLandscape, activeTab, right.handleTabSwitch]);
+
   // 移动端：根据 disabledAbilities 过滤点位
   const filteredMapLineups = useMemo(() => {
     if (!isMobile || disabledAbilities.size === 0) {

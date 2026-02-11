@@ -7,27 +7,12 @@
  * - 处理订阅、清理或缓存等生命周期细节。
  */
 
-import { useState, useEffect } from 'react';
+import { useDeviceMode } from './useDeviceMode';
 
 const DEFAULT_BREAKPOINT = 768;
 
 export function useIsMobile(breakpoint: number = DEFAULT_BREAKPOINT): boolean {
-    const [isMobile, setIsMobile] = useState(() => {
-        if (typeof window === 'undefined') return false;
-        return window.innerWidth < breakpoint;
-    });
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < breakpoint);
-        };
-
-        checkMobile();
-
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, [breakpoint]);
-
+    const { isMobile } = useDeviceMode(breakpoint);
     return isMobile;
 }
 

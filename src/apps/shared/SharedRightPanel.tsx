@@ -28,6 +28,8 @@ interface SharedRightPanelProps {
     onOpenFilter: () => void;
     userId?: string | null;
     submissionEnabled?: boolean; // 说明：投稿开关。
+    layoutMode?: 'desktop' | 'tablet-drawer';
+    className?: string;
 }
 
 function SharedRightPanel({
@@ -46,7 +48,10 @@ function SharedRightPanel({
     onOpenFilter,
     userId,
     submissionEnabled = true,
+    layoutMode = 'desktop',
+    className = '',
 }: SharedRightPanelProps) {
+    const isTabletDrawer = layoutMode === 'tablet-drawer';
     const pageSize = 7;
     const [page, setPage] = useState(1);
     const showPagination = filteredLineups.length > 8;
@@ -67,7 +72,7 @@ function SharedRightPanel({
     }, [filteredLineups, page, showPagination]);
 
     return (
-        <div className="w-96 flex-shrink-0 flex flex-col bg-[#1f2326] border-l border-white/10 z-20 shadow-2xl">
+        <div className={`${isTabletDrawer ? 'w-[360px] max-w-[calc(100vw-18rem)] h-full' : 'w-96'} flex-shrink-0 flex flex-col bg-[#1f2326] border-l border-white/10 z-20 shadow-2xl ${className}`.trim()}>
             <div className="flex border-b border-white/10">
                 <button
                     onClick={() => onTabSwitch?.('view')}

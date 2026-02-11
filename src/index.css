@@ -17,6 +17,11 @@ body {
   overscroll-behavior: none;
 }
 
+:root {
+  --vp-safe-right: env(safe-area-inset-right, 0px);
+  --vp-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* 区块：滚动条。 */
 ::-webkit-scrollbar {
   width: 4px;
@@ -201,4 +206,17 @@ body {
 
 .modal-content {
   animation: fadeIn 0.2s ease-out;
+}
+
+/* 区块：iPad 横屏抽屉与安全区。 */
+.tablet-fab-safe {
+  right: calc(0.75rem + var(--vp-safe-right));
+}
+
+.tablet-drawer-panel {
+  padding-bottom: var(--vp-safe-bottom);
+}
+
+.tablet-bottom-safe {
+  padding-bottom: max(0.5rem, var(--vp-safe-bottom));
 }

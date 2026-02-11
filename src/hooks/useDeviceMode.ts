@@ -9,6 +9,9 @@
 import { useEffect, useState } from 'react';
 
 const DEFAULT_BREAKPOINT = 768;
+const SIZE_TOLERANCE = 24;
+const IPAD_SHORT_SIDES = [744, 768, 820, 834, 1024];
+const IPAD_LONG_SIDES = [1024, 1112, 1133, 1180, 1194, 1366];
 
 export type DeviceMode = 'mobile' | 'tablet-landscape' | 'desktop';
 
@@ -21,7 +24,7 @@ export interface DeviceModeState {
 }
 
 function detectIPad(): boolean {
-  if (typeof navigator === 'undefined') {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
     return false;
   }
 
@@ -29,8 +32,14 @@ function detectIPad(): boolean {
   const platform = navigator.platform || '';
   const isClassicIPadUA = /iPad/.test(userAgent);
   const isIPadOSDesktopUA = platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  const shortSide = Math.min(window.innerWidth, window.innerHeight);
+  const longSide = Math.max(window.innerWidth, window.innerHeight);
+  const isKnownIPadShortSide = IPAD_SHORT_SIDES.some((size) => Math.abs(shortSide - size) <= SIZE_TOLERANCE);
+  const isKnownIPadLongSide = IPAD_LONG_SIDES.some((size) => Math.abs(longSide - size) <= SIZE_TOLERANCE);
+  // 兜底：兼容 DevTools 设备模拟（UA / touch points 可能不完整）。
+  const isIPadLikeViewport = isKnownIPadShortSide && isKnownIPadLongSide;
 
-  return isClassicIPadUA || isIPadOSDesktopUA;
+  return isClassicIPadUA || isIPadOSDesktopUA || isIPadLikeViewport;
 }
 
 function getIsPortrait(): boolean {

@@ -10,7 +10,7 @@
 import React, { useMemo, useEffect, useLayoutEffect, useCallback, useState, useRef } from 'react';
 import Icon from './Icon';
 import { LightboxImage } from '../types/ui';
-import { useIsMobile } from '../hooks/useIsMobile';
+import { useDeviceMode } from '../hooks/useDeviceMode';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 
 type Props = {
@@ -19,7 +19,8 @@ type Props = {
 };
 
 const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
-  const isMobile = useIsMobile();
+  const { isMobile, isTabletLandscape } = useDeviceMode();
+  const isTabletDesktop = !isMobile && isTabletLandscape;
 
   const { src, list, index, desc, descList } = useMemo(() => {
     if (!viewingImage) {
@@ -353,6 +354,12 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   if (!viewingImage) return null;
 
   const bgOpacity = 1 - Math.min(Math.abs(dragY) / 300, 0.8);
+  const imageMaxHeightClass = isTabletDesktop ? 'max-h-[72vh]' : 'max-h-[80vh]';
+  const bottomBarClass = isMobile
+    ? 'fixed bottom-0 w-full px-2 pb-6 pt-4 tablet-bottom-safe bg-gradient-to-t from-black/90 via-black/60 to-transparent'
+    : (isTabletDesktop ? 'fixed bottom-4 gap-4 px-3' : 'fixed bottom-8');
+  const closeButtonClass = isTabletDesktop ? 'top-4 right-4 w-10 h-10' : 'top-6 right-6 w-12 h-12';
+  const styleToggleTopClass = isTabletDesktop ? 'top-[64px] right-4' : 'top-[88px] right-6';
 
   return (
     <div
@@ -373,14 +380,14 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       >
         {prevSrc && (
           <div className="absolute left-0 top-0 w-full h-full -translate-x-full flex items-center justify-center p-4">
-            <img src={prevSrc} className="max-h-[80vh] max-w-full object-contain pointer-events-none" />
+            <img src={prevSrc} className={`${imageMaxHeightClass} max-w-full object-contain pointer-events-none`} />
           </div>
         )}
 
         <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
           <img
             src={src}
-            className="max-h-[80vh] max-w-full object-contain will-change-transform"
+            className={`${imageMaxHeightClass} max-w-full object-contain will-change-transform`}
             style={{
               transform: `scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
               transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
@@ -402,11 +409,11 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
               <span
                 className="font-black tracking-wide text-center inline-block"
                 style={{
-                  fontSize: `${isMobile ? textStyle.fontSize * 0.6 : textStyle.fontSize}px`,
+                  fontSize: `${isMobile ? textStyle.fontSize * 0.6 : (isTabletDesktop ? textStyle.fontSize * 0.85 : textStyle.fontSize)}px`,
                   color: textStyle.color,
                   textShadow: (() => {
                     const baseW = textStyle.strokeWidth;
-                    const w = isMobile ? baseW * 0.6 : baseW;
+                    const w = isMobile ? baseW * 0.6 : (isTabletDesktop ? baseW * 0.8 : baseW);
                     const c = textStyle.strokeColor;
                     // 使用更多层阴影实现平滑圆角描边
                     const shadows: string[] = [];
@@ -440,15 +447,13 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
 
         {nextSrc && (
           <div className="absolute left-0 top-0 w-full h-full translate-x-full flex items-center justify-center p-4">
-            <img src={nextSrc} className="max-h-[80vh] max-w-full object-contain pointer-events-none" />
+            <img src={nextSrc} className={`${imageMaxHeightClass} max-w-full object-contain pointer-events-none`} />
           </div>
         )}
       </div>
 
       <div
-        className={`shrink-0 flex items-center justify-center gap-6 z-20 transition-opacity duration-200 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'} ${isMobile
-          ? 'fixed bottom-0 w-full px-2 pb-6 pt-4 bg-gradient-to-t from-black/90 via-black/60 to-transparent'
-          : 'fixed bottom-8'}`}
+        className={`shrink-0 flex items-center justify-center gap-6 z-20 transition-opacity duration-200 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'} ${bottomBarClass}`}
         onClick={(e) => e.stopPropagation()}
       >
         {!isMobile && (
@@ -506,28 +511,28 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       </div>
 
       <button
-        className={`absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-md border border-white/20 z-50 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
+        className={`absolute ${closeButtonClass} flex items-center justify-center bg-black/60 hover:bg-[#ff4655] rounded-full text-white transition-all backdrop-blur-md border border-white/20 z-50 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
         onClick={(e) => { e.stopPropagation(); close(); }}
         title="关闭 (Q)"
       >
-        <Icon name="X" size={28} />
+        <Icon name="X" size={isTabletDesktop ? 22 : 28} />
       </button>
 
       {/* 说明：文字样式按钮 - 在关闭按钮下方（仅桌面端显示） */}
       {desc && !isMobile && (
-        <div className="absolute top-[88px] right-6 z-50">
+        <div className={`absolute ${styleToggleTopClass} z-50`}>
           <button
-            className={`w-12 h-12 flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/40 rounded-full text-emerald-400 transition-all backdrop-blur-md border border-emerald-500/40 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
+            className={`${isTabletDesktop ? 'w-10 h-10' : 'w-12 h-12'} flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/40 rounded-full text-emerald-400 transition-all backdrop-blur-md border border-emerald-500/40 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}
             onClick={(e) => { e.stopPropagation(); setTextStyleOpen(!textStyleOpen); }}
             title="文字样式"
           >
-            <Icon name="Type" size={24} />
+            <Icon name="Type" size={isTabletDesktop ? 20 : 24} />
           </button>
 
           {/* 说明：样式控制弹窗 */}
           {textStyleOpen && (
             <div
-              className="absolute top-0 right-14 w-72 bg-black/90 backdrop-blur-md rounded-xl border border-white/15 p-4 shadow-2xl"
+              className={`absolute top-0 ${isTabletDesktop ? 'right-12 w-64' : 'right-14 w-72'} bg-black/90 backdrop-blur-md rounded-xl border border-white/15 p-4 shadow-2xl`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">

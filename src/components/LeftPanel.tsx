@@ -31,6 +31,8 @@ type Props = {
   getMapDisplayName: (name: string) => string;
   openChangelog: () => void;
   onReset?: () => void;
+  layoutMode?: 'desktop' | 'tablet-compact';
+  className?: string;
 };
 
 const LeftPanel: React.FC<Props> = ({
@@ -49,7 +51,11 @@ const LeftPanel: React.FC<Props> = ({
   getMapDisplayName,
   openChangelog,
   onReset,
+  layoutMode = 'desktop',
+  className = '',
 }) => {
+  const isTabletCompact = layoutMode === 'tablet-compact';
+
   const handleAgentClick = (agent: AgentData) => {
     if (selectedAgent?.uuid === agent.uuid) {
       if (activeTab === 'view') setSelectedAgent(null);
@@ -60,20 +66,20 @@ const LeftPanel: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-80 flex-shrink-0 flex flex-col bg-[#1f2326] border-r border-white/10 z-20 shadow-2xl">
-      <div className="h-16 flex items-center px-6 border-b border-white/5 bg-[#1f2326] shadow-sm flex justify-between gap-3">
+    <div className={`${isTabletCompact ? 'w-64' : 'w-80'} flex-shrink-0 flex flex-col bg-[#1f2326] border-r border-white/10 z-20 shadow-2xl ${className}`.trim()}>
+      <div className={`${isTabletCompact ? 'h-14 px-4' : 'h-16 px-6'} flex items-center border-b border-white/5 bg-[#1f2326] shadow-sm flex justify-between gap-3`}>
         <div className="flex items-center gap-3">
-          <img src="/brand-logo.svg" alt="Logo" className="w-[168px] h-[32px]" />
+          <img src="/brand-logo.svg" alt="Logo" className={isTabletCompact ? 'w-[142px] h-[28px]' : 'w-[168px] h-[32px]'} />
         </div>
         <button
           onClick={openChangelog}
-          className="px-3.5 py-2 rounded-lg border border-white/10 text-xs text-gray-200 hover:text-white hover:border-[#ff4655] hover:bg-[#ff4655]/10 transition-colors"
+          className={`${isTabletCompact ? 'px-2.5 py-1.5 text-[11px]' : 'px-3.5 py-2 text-xs'} rounded-lg border border-white/10 text-gray-200 hover:text-white hover:border-[#ff4655] hover:bg-[#ff4655]/10 transition-colors`}
         >
           更新日志
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+      <div className={`${isTabletCompact ? 'p-3 space-y-4' : 'p-4 space-y-6'} flex-1 overflow-y-auto custom-scrollbar`}>
         <div>
           <div className="flex justify-between items-center mb-2">
             <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">当前地图 (Map)</label>
@@ -91,7 +97,7 @@ const LeftPanel: React.FC<Props> = ({
           {selectedMap && (
             <div
               onClick={() => setIsMapModalOpen(true)}
-              className="group relative h-28 w-full rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:border-[#ff4655] transition-all shadow-lg"
+              className={`group relative ${isTabletCompact ? 'h-24' : 'h-28'} w-full rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:border-[#ff4655] transition-all shadow-lg`}
             >
               {(() => {
                 const mapImageSrc: string | undefined =
@@ -109,7 +115,7 @@ const LeftPanel: React.FC<Props> = ({
                 );
               })()}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex items-end p-4">
-                <span className="font-bold text-xl uppercase tracking-widest text-white drop-shadow-md">
+                <span className={`${isTabletCompact ? 'text-lg' : 'text-xl'} font-bold uppercase tracking-widest text-white drop-shadow-md`}>
                   {getMapDisplayName(selectedMap.displayName)}
                 </span>
               </div>

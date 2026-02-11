@@ -7,7 +7,7 @@
  * - 整合数据来源与子组件的交互。
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import LeafletMap from '../../components/LeafletMap';
 import QuickActions from '../../components/QuickActions';
@@ -16,7 +16,7 @@ import CompactUserCard from '../../components/CompactUserCard';
 import UserAvatar from '../../components/UserAvatar';
 import AuthorLinksBar from '../../components/AuthorLinksBar';
 import Icon from '../../components/Icon';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useDeviceMode } from '../../hooks/useDeviceMode';
 import MobileAgentPicker from '../../components/MobileAgentPicker';
 import MobileMapPicker from '../../components/MobileMapPicker';
 import MobileLineupList from '../../components/MobileLineupList';
@@ -125,13 +125,21 @@ type Props = {
 };
 
 const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quickActions, right, hideSharedButton, hideAuthorLinks, user, onSignOut, onOpenProfile, userAvatarUrl }) => {
-  const isMobile = useIsMobile();
+  const { isMobile, isTabletLandscape } = useDeviceMode();
+  const isDesktop = !isMobile && !isTabletLandscape;
   const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
   const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
   const [isMobileLineupListOpen, setIsMobileLineupListOpen] = useState(false);
   const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false); // 说明：用户菜单状态。
+  const [isTabletRightPanelOpen, setIsTabletRightPanelOpen] = useState(false);
 
   const [disabledAbilities, setDisabledAbilities] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!isTabletLandscape) {
+      setIsTabletRightPanelOpen(false);
+    }
+  }, [isTabletLandscape]);
 
   // 移动端：根据 disabledAbilities 过滤点位
   const filteredMapLineups = useMemo(() => {
@@ -169,6 +177,7 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           getMapDisplayName={left.getMapDisplayName}
           openChangelog={left.openChangelog}
           onReset={left.onReset}
+          layoutMode={isTabletLandscape ? 'tablet-compact' : 'desktop'}
         />
       )}
 
@@ -180,14 +189,24 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           activeTab={map.activeTab}
           lineups={filteredMapLineups}
           selectedLineupId={map.selectedLineupId}
-          onLineupSelect={map.onLineupSelect}
+          onLineupSelect={(id) => {
+            map.onLineupSelect(id);
+            if (isTabletLandscape && id === null) {
+              setIsTabletRightPanelOpen(false);
+            }
+          }}
           newLineupData={map.newLineupData}
           setNewLineupData={map.setNewLineupData}
           placingType={map.placingType}
           setPlacingType={(val) => map.setPlacingType(val as 'agent' | 'skill' | null)}
           selectedAgent={map.selectedAgent}
           selectedAbilityIndex={map.selectedAbilityIndex}
-          onViewLineup={map.onViewLineup}
+          onViewLineup={(id) => {
+            map.onViewLineup(id);
+            if (isTabletLandscape) {
+              setIsTabletRightPanelOpen(false);
+            }
+          }}
           isFlipped={map.isFlipped}
         />
 
@@ -401,9 +420,60 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
 
         {/* ICP 备案信息（仅桌面端，通过环境变量配置） */}
         {!isMobile && <ICPFooter />}
+
+        {isTabletLandscape && (
+          <>
+            {isTabletRightPanelOpen && (
+              <button
+                onClick={() => setIsTabletRightPanelOpen(false)}
+                className="absolute inset-0 z-30 bg-black/35"
+                aria-label="关闭点位抽屉"
+              />
+            )}
+            <button
+              onClick={() => setIsTabletRightPanelOpen((v) => !v)}
+              className="absolute top-1/2 -translate-y-1/2 right-3 z-50 h-12 w-12 rounded-xl border border-white/15 bg-black/60 backdrop-blur-sm flex items-center justify-center hover:border-[#ff4655]/70 transition-colors"
+              title={isTabletRightPanelOpen ? '收起点位列表' : '展开点位列表'}
+            >
+              <Icon name={isTabletRightPanelOpen ? 'ChevronRight' : 'ChevronLeft'} size={20} className="text-white" />
+            </button>
+            <div className={`absolute top-0 right-0 bottom-0 z-40 transition-transform duration-300 ease-out ${isTabletRightPanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}>
+              <RightPanel
+                activeTab={right.activeTab}
+                handleTabSwitch={(tab) => right.handleTabSwitch(tab as ActiveTab)}
+                selectedSide={right.selectedSide}
+                setSelectedSide={(val) => right.setSelectedSide(val as 'all' | 'attack' | 'defense')}
+                placingType={right.placingType}
+                togglePlacingType={(type) => right.togglePlacingType(type as 'agent' | 'skill')}
+                newLineupData={right.newLineupData}
+                handleOpenEditor={right.handleOpenEditor}
+                searchQuery={right.searchQuery}
+                setSearchQuery={right.setSearchQuery}
+                filteredLineups={right.filteredLineups}
+                selectedLineupId={right.selectedLineupId}
+                handleViewLineup={(id) => {
+                  right.handleViewLineup(id);
+                  setIsTabletRightPanelOpen(false);
+                }}
+                handleDownload={right.handleDownload}
+                handleRequestDelete={right.handleRequestDelete}
+                handleClearAll={right.handleClearAll}
+                getMapDisplayName={right.getMapDisplayName}
+                onOpenImportModal={right.onOpenImportModal}
+                userId={right.userId}
+                pinnedLineupIds={right.pinnedLineupIds}
+                onTogglePinLineup={right.onTogglePinLineup}
+                pinnedLimit={right.pinnedLimit}
+                onSubmitLineup={right.onSubmitLineup}
+                isAdmin={right.isAdmin}
+                layoutMode="tablet-drawer"
+              />
+            </div>
+          </>
+        )}
       </div>
 
-      {!isMobile && (
+      {isDesktop && (
         <RightPanel
           activeTab={right.activeTab}
           handleTabSwitch={(tab) => right.handleTabSwitch(tab as ActiveTab)}

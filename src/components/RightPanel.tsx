@@ -36,6 +36,8 @@ type Props = {
   pinnedLimit: number;
   onSubmitLineup?: (lineupId: string) => void; // 说明：投稿单个点位。
   isAdmin?: boolean; // 说明：管理员标记。
+  layoutMode?: 'desktop' | 'tablet-drawer';
+  className?: string;
 };
 
 const RightPanel: React.FC<Props> = ({
@@ -63,7 +65,10 @@ const RightPanel: React.FC<Props> = ({
   pinnedLimit,
   onSubmitLineup,
   isAdmin = true,
+  layoutMode = 'desktop',
+  className = '',
 }) => {
+  const isTabletDrawer = layoutMode === 'tablet-drawer';
   const pageSize = 7;
   const [page, setPage] = useState(1);
   const showPagination = filteredLineups.length > 8;
@@ -84,7 +89,7 @@ const RightPanel: React.FC<Props> = ({
   }, [filteredLineups, page, showPagination]);
 
   return (
-    <div className="w-96 flex-shrink-0 flex flex-col bg-[#1f2326] border-l border-white/10 z-20 shadow-2xl">
+    <div className={`${isTabletDrawer ? 'w-[360px] max-w-[calc(100vw-18rem)] h-full' : 'w-96'} flex-shrink-0 flex flex-col bg-[#1f2326] border-l border-white/10 z-20 shadow-2xl ${className}`.trim()}>
       <div className="flex border-b border-white/10">
         <button
           onClick={() => handleTabSwitch('view')}

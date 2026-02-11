@@ -42,7 +42,9 @@ const ViewerModal = ({
 
   const headerClass = isMobile ? 'p-4' : (isTabletDesktop ? 'p-5' : 'p-6');
   const actionsClass = isMobile ? 'overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide' : 'shrink-0';
-  const actionBtnClass = isTabletDesktop ? 'px-2.5 py-1.5 text-xs' : 'px-3 py-2 text-sm';
+  const actionBtnClass = isTabletDesktop
+    ? 'h-8 px-2.5 text-xs leading-none box-border appearance-none'
+    : 'h-9 px-3 text-sm leading-none box-border appearance-none';
 
   useEscapeClose(Boolean(viewingLineup), onClose);
 

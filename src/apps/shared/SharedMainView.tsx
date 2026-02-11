@@ -429,12 +429,12 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                         )}
                         <button
                             onClick={() => setIsTabletRightPanelOpen((v) => !v)}
-                            className="absolute top-1/2 -translate-y-1/2 right-3 z-50 h-12 w-12 rounded-xl border border-white/15 bg-black/60 backdrop-blur-sm flex items-center justify-center hover:border-[#ff4655]/70 transition-colors"
+                            className="absolute top-1/2 -translate-y-1/2 tablet-fab-safe z-50 h-12 w-12 rounded-xl border border-white/15 bg-black/60 backdrop-blur-sm flex items-center justify-center hover:border-[#ff4655]/70 transition-colors"
                             title={isTabletRightPanelOpen ? '收起点位列表' : '展开点位列表'}
                         >
                             <Icon name={isTabletRightPanelOpen ? 'ChevronRight' : 'ChevronLeft'} size={20} className="text-white" />
                         </button>
-                        <div className={`absolute top-0 right-0 bottom-0 z-40 transition-transform duration-300 ease-out ${isTabletRightPanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}>
+                        <div className={`tablet-drawer-panel absolute top-0 right-0 bottom-0 z-40 transition-transform duration-300 ease-out ${isTabletRightPanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}>
                             <SharedRightPanel
                                 activeTab={activeTab}
                                 onTabSwitch={(tab) => {

@@ -34,7 +34,7 @@ import AlertModal from '../../components/AlertModal';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useDeviceMode } from '../../hooks/useDeviceMode';
 import MobileAgentPicker from '../../components/MobileAgentPicker';
 import MobileMapPicker from '../../components/MobileMapPicker';
 import MobileLineupList from '../../components/MobileLineupList';
@@ -61,11 +61,13 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     const deployPlatform = (window as any).__ENV__?.VITE_DEPLOY_PLATFORM
         || import.meta.env.VITE_DEPLOY_PLATFORM;
 
-    const isMobile = useIsMobile();
+    const { isMobile, isTabletLandscape } = useDeviceMode();
+    const isDesktop = !isMobile && !isTabletLandscape;
     const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
     const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
     const [isMobileLineupListOpen, setIsMobileLineupListOpen] = useState(false);
     const [isMobileUserMenuOpen, setIsMobileUserMenuOpen] = useState(false); // 说明：用户菜单状态。
+    const [isTabletRightPanelOpen, setIsTabletRightPanelOpen] = useState(false);
 
     const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -118,6 +120,12 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
         loadPersonalLibraryUrl();
     }, []);
 
+    useEffect(() => {
+        if (!isTabletLandscape) {
+            setIsTabletRightPanelOpen(false);
+        }
+    }, [isTabletLandscape]);
+
     const [previousTab, setPreviousTab] = useState<'view' | 'pending'>('view');
 
     const handleSubmitModalClose = () => {
@@ -148,6 +156,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     getMapDisplayName={controller.getMapDisplayName}
                     openChangelog={() => setIsChangelogOpen(true)}
                     onReset={controller.handleReset}
+                    layoutMode={isTabletLandscape ? 'tablet-compact' : 'desktop'}
                 />
             )}
 
@@ -158,14 +167,24 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     activeTab="view"
                     lineups={mobileFilteredLineups}
                     selectedLineupId={controller.selectedLineupId}
-                    onLineupSelect={controller.setSelectedLineupId}
+                    onLineupSelect={(id) => {
+                        controller.setSelectedLineupId(id);
+                        if (isTabletLandscape && id === null) {
+                            setIsTabletRightPanelOpen(false);
+                        }
+                    }}
                     newLineupData={controller.newLineupData}
                     setNewLineupData={controller.setNewLineupData}
                     placingType={controller.placingType}
                     setPlacingType={controller.setPlacingType}
                     selectedAgent={controller.selectedAgent}
                     selectedAbilityIndex={controller.selectedAbilityIndex}
-                    onViewLineup={controller.handleViewLineup}
+                    onViewLineup={(id) => {
+                        controller.handleViewLineup(id);
+                        if (isTabletLandscape) {
+                            setIsTabletRightPanelOpen(false);
+                        }
+                    }}
                     isFlipped={controller.selectedSide === 'defense'}
                     sharedLineup={controller.selectedLineup}
                 />
@@ -398,9 +417,57 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
                 {/* ICP 备案信息（仅桌面端，通过环境变量配置） */}
                 {!isMobile && <ICPFooter />}
+
+                {isTabletLandscape && (
+                    <>
+                        {isTabletRightPanelOpen && (
+                            <button
+                                onClick={() => setIsTabletRightPanelOpen(false)}
+                                className="absolute inset-0 z-30 bg-black/35"
+                                aria-label="关闭点位抽屉"
+                            />
+                        )}
+                        <button
+                            onClick={() => setIsTabletRightPanelOpen((v) => !v)}
+                            className="absolute top-1/2 -translate-y-1/2 right-3 z-50 h-12 w-12 rounded-xl border border-white/15 bg-black/60 backdrop-blur-sm flex items-center justify-center hover:border-[#ff4655]/70 transition-colors"
+                            title={isTabletRightPanelOpen ? '收起点位列表' : '展开点位列表'}
+                        >
+                            <Icon name={isTabletRightPanelOpen ? 'ChevronRight' : 'ChevronLeft'} size={20} className="text-white" />
+                        </button>
+                        <div className={`absolute top-0 right-0 bottom-0 z-40 transition-transform duration-300 ease-out ${isTabletRightPanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}>
+                            <SharedRightPanel
+                                activeTab={activeTab}
+                                onTabSwitch={(tab) => {
+                                    if (tab === 'submit') {
+                                        handleOpenSubmit();
+                                    } else {
+                                        setActiveTab(tab);
+                                    }
+                                }}
+                                isLoading={controller.isLoading}
+                                searchQuery={controller.searchQuery}
+                                setSearchQuery={controller.setSearchQuery}
+                                selectedSide={controller.selectedSide}
+                                setSelectedSide={controller.setSelectedSide}
+                                filteredLineups={controller.filteredLineups}
+                                selectedLineupId={controller.selectedLineupId}
+                                handleViewLineup={(id) => {
+                                    controller.handleViewLineup(id);
+                                    setIsTabletRightPanelOpen(false);
+                                }}
+                                handleDownload={controller.handleDownload}
+                                getMapDisplayName={controller.getMapDisplayName}
+                                onOpenFilter={() => controller.setIsFilterModalOpen(true)}
+                                userId={user?.id}
+                                submissionEnabled={submissionEnabled}
+                                layoutMode="tablet-drawer"
+                            />
+                        </div>
+                    </>
+                )}
             </div>
 
-            {!isMobile && (
+            {isDesktop && (
                 <SharedRightPanel
                     activeTab={activeTab}
                     onTabSwitch={(tab) => {

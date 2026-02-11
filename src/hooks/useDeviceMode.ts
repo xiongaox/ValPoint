@@ -71,7 +71,8 @@ function computeDeviceMode(breakpoint: number): DeviceModeState {
 
   let mode: DeviceMode;
   if (isIPad) {
-    mode = isPortrait ? 'mobile' : 'tablet-landscape';
+    // 需求约束：iPad 与 Android 端功能一致（仅查看点位），统一走移动端模式。
+    mode = 'mobile';
   } else {
     mode = width < breakpoint ? 'mobile' : 'desktop';
   }
@@ -79,7 +80,7 @@ function computeDeviceMode(breakpoint: number): DeviceModeState {
   return {
     mode,
     isMobile: mode === 'mobile',
-    isTabletLandscape: mode === 'tablet-landscape',
+    isTabletLandscape: false,
     isIPad,
     isPortrait,
   };

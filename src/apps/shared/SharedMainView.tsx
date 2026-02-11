@@ -191,7 +191,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
                 {!isMobile && (
                     <>
-                        <div className="absolute top-3 left-3 z-10 flex items-center gap-3">
+                        <div className={`absolute z-10 flex items-center ${isTabletLandscape ? 'top-2 left-2 gap-2 origin-top-left scale-[0.86]' : 'top-3 left-3 gap-3'}`}>
                             {user && (
                                 <LibrarySwitchButton
                                     currentLibrary="shared"
@@ -208,7 +208,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             />
                         </div>
 
-                        <div className="absolute top-3 right-3 z-10">
+                        <div className={`absolute z-10 ${isTabletLandscape ? 'top-2 right-2 origin-top-right scale-[0.86]' : 'top-3 right-3'}`}>
                             <AuthorLinksBar />
                         </div>
 

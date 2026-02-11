@@ -31,17 +31,20 @@ const ViewerModal = ({
 }: any) => {
   const [authorInfo, setAuthorInfo] = useState<{ name: string; avatar: string; uid?: string } | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
-  const { isMobile, isTabletLandscape } = useDeviceMode();
-  const isTabletDesktop = !isMobile && isTabletLandscape;
+  const { isMobile, isTabletLandscape, isIPad, isPortrait } = useDeviceMode();
+  const isPadPortrait = isMobile && isIPad && isPortrait;
+  const isMobileLayout = isMobile && !isPadPortrait;
+  const isTabletDesktop = isTabletLandscape || isPadPortrait;
+  const canEditLineup = !handleCopyShared && !isGuest && !isMobileLayout && !isPadPortrait;
 
-  const modalSizeClass = isMobile
+  const modalSizeClass = isMobileLayout
     ? 'w-full h-full'
     : isTabletDesktop
       ? 'w-full max-w-3xl max-h-[86vh]'
       : 'w-full max-w-4xl max-h-[90vh]';
 
-  const headerClass = isMobile ? 'p-4' : (isTabletDesktop ? 'p-5' : 'p-6');
-  const actionsClass = isMobile ? 'overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide' : 'shrink-0';
+  const headerClass = isMobileLayout ? 'p-4' : (isTabletDesktop ? 'p-5' : 'p-6');
+  const actionsClass = isMobileLayout ? 'overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide' : 'shrink-0';
   const actionBtnClass = isTabletDesktop
     ? 'h-8 px-2.5 text-xs leading-none box-border appearance-none'
     : 'h-9 px-3 text-sm leading-none box-border appearance-none';
@@ -86,7 +89,7 @@ const ViewerModal = ({
       .replace(/[\u200B-\u200D\uFEFF\u3164\u115F\u1160\u2800-\u28FF]/g, '')
       .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]+$/g, '')
       .trim();
-    const limit = maxLength ?? (isMobile ? 5 : (isTabletDesktop ? 12 : 16));
+    const limit = maxLength ?? (isMobileLayout ? 5 : (isTabletDesktop ? 12 : 16));
     if (cleaned.length <= limit) {
       return cleaned;
     }
@@ -108,7 +111,7 @@ const ViewerModal = ({
     <div className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-4">
       <div className={`modal-content bg-[#1f2326] flex flex-col rounded-none md:rounded-xl border-0 md:border border-white/10 shadow-2xl overflow-hidden relative ${modalSizeClass}`}>
         <div className={`border-b border-white/10 bg-[#252a30] ${headerClass}`}>
-          {isMobile && (
+          {isMobileLayout && (
             <button
               type="button"
               onClick={onClose}
@@ -118,7 +121,7 @@ const ViewerModal = ({
             </button>
           )}
 
-          <div className={isMobile ? 'flex flex-col gap-3' : `flex items-start justify-between ${isTabletDesktop ? 'gap-3' : 'gap-4'}`}>
+          <div className={isMobileLayout ? 'flex flex-col gap-3' : `flex items-start justify-between ${isTabletDesktop ? 'gap-3' : 'gap-4'}`}>
             <div className="space-y-2">
               <div className="flex items-center gap-3 flex-wrap">
                 <span className={`text-[12px] font-bold px-2 py-0.5 rounded ${viewingLineup.side === 'attack' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
@@ -128,7 +131,7 @@ const ViewerModal = ({
                   {getMapDisplayName(getMapEnglishName(viewingLineup.mapName))}
                 </span>
               </div>
-              <h2 className={`font-bold text-white tracking-tight ${isMobile ? 'text-xl' : (isTabletDesktop ? 'text-[22px]' : 'text-2xl')}`}>
+              <h2 className={`font-bold text-white tracking-tight ${isMobileLayout ? 'text-xl' : (isTabletDesktop ? 'text-[22px]' : 'text-2xl')}`}>
                 {viewingLineup.title}
               </h2>
               <div className="flex items-center gap-2 opacity-70">
@@ -171,7 +174,7 @@ const ViewerModal = ({
                   <Icon name="Play" size={14} /> 精准空降
                 </a>
               )}
-              {!handleCopyShared && !isGuest && !isMobile && (
+              {canEditLineup && (
                 <button
                   type="button"
                   onClick={() => handleEditStart(viewingLineup)}
@@ -191,7 +194,7 @@ const ViewerModal = ({
                   <Icon name="Send" size={14} /> 投稿
                 </button>
               )}
-              {handleCopyShared && !isMobile && (
+              {handleCopyShared && !isMobileLayout && (
                 <button
                   type="button"
                   onClick={() => handleCopyShared(viewingLineup)}
@@ -202,7 +205,7 @@ const ViewerModal = ({
                   <Icon name="Download" size={14} /> {isSavingShared ? '下载中...' : '下载'}
                 </button>
               )}
-              {handleSaveToPersonal && !isMobile && (
+              {handleSaveToPersonal && !isMobileLayout && (
                 <button
                   type="button"
                   onClick={async () => {
@@ -221,7 +224,7 @@ const ViewerModal = ({
                   <Icon name="Save" size={14} /> {isSavingToPersonal ? '保存中...' : '保存'}
                 </button>
               )}
-              {!isMobile && (
+              {!isMobileLayout && (
                 <button
                   type="button"
                   onClick={onClose}
@@ -236,12 +239,12 @@ const ViewerModal = ({
         </div>
 
         <div className={`flex-1 overflow-y-auto bg-[#181b1f] ${isTabletDesktop ? 'p-4 md:p-5' : 'p-4 md:p-6'}`}>
-          <div className={`grid ${isTabletDesktop ? 'gap-4 md:gap-4' : 'gap-4 md:gap-6'} ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
+          <div className={`grid ${isTabletDesktop ? 'gap-4 md:gap-4' : 'gap-4 md:gap-6'} ${isMobileLayout ? 'grid-cols-1' : 'grid-cols-2'}`}>
             {imageItems.map((item, idx) =>
               item.src ? (
                 <div key={idx} className="flex flex-col gap-2">
                   <div
-                    className={`relative group cursor-zoom-in aspect-video bg-[#0f1923] rounded-lg overflow-hidden border border-white/10 transition-colors ${!isMobile ? 'hover:border-[#ff4655]/70' : 'active:border-[#ff4655]/70'}`}
+                    className={`relative group cursor-zoom-in aspect-video bg-[#0f1923] rounded-lg overflow-hidden border border-white/10 transition-colors ${!isMobileLayout ? 'hover:border-[#ff4655]/70' : 'active:border-[#ff4655]/70'}`}
                     onClick={() =>
                       setViewingImage({
                         src: item.src,

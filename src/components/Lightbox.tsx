@@ -19,8 +19,11 @@ type Props = {
 };
 
 const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
-  const { isMobile, isTabletLandscape } = useDeviceMode();
-  const isTabletDesktop = !isMobile && isTabletLandscape;
+  const { isMobile, isTabletLandscape, isIPad, isPortrait } = useDeviceMode();
+  const isPadPortrait = isMobile && isIPad && isPortrait;
+  const isMobileLayout = isMobile && !isPadPortrait;
+  const isTouchGestureMode = isMobileLayout || isPadPortrait;
+  const isTabletDesktop = isTabletLandscape || isPadPortrait;
 
   const { src, list, index, desc, descList } = useMemo(() => {
     if (!viewingImage) {
@@ -103,6 +106,9 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   const MAX_SCALE = 3;
 
   const [showHint, setShowHint] = useState(false);
+  const [isTouchSwapAnimating, setIsTouchSwapAnimating] = useState(false);
+  const touchSwapTimerRef = useRef<number | null>(null);
+  const wheelNavLockRef = useRef<number>(0);
 
   // 说明：描述文字样式状态
   const [textStyleOpen, setTextStyleOpen] = useState(false);
@@ -116,10 +122,19 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   });
 
   useEffect(() => {
-    if (isMobile && viewingImage) {
+    if (isTouchGestureMode && viewingImage) {
       setShowHint(true);
     }
-  }, [isMobile, viewingImage]);
+  }, [isTouchGestureMode, viewingImage]);
+
+  useEffect(() => {
+    return () => {
+      if (touchSwapTimerRef.current !== null) {
+        window.clearTimeout(touchSwapTimerRef.current);
+        touchSwapTimerRef.current = null;
+      }
+    };
+  }, []);
 
 
   useLayoutEffect(() => {
@@ -139,6 +154,55 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   }, [src]);
 
   const minFlickVelocity = 0.5; // 说明：单位为 px/ms。
+
+  const triggerTouchSwapAnimation = useCallback(() => {
+    if (touchSwapTimerRef.current !== null) {
+      window.clearTimeout(touchSwapTimerRef.current);
+    }
+    setIsTouchSwapAnimating(true);
+    touchSwapTimerRef.current = window.setTimeout(() => {
+      setIsTouchSwapAnimating(false);
+      touchSwapTimerRef.current = null;
+    }, 150);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    const dominantDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if (dominantDelta === 0) {
+      return;
+    }
+
+    // Ctrl/Meta + 滚轮 或 已处于缩放状态时，优先做缩放。
+    if (e.ctrlKey || e.metaKey || scale > 1) {
+      const zoomStep = dominantDelta < 0 ? 0.14 : -0.14;
+      const nextScale = Math.max(1, Math.min(MAX_SCALE, scale + zoomStep));
+      setScale(nextScale);
+      if (nextScale === 1) {
+        setPan({ x: 0, y: 0 });
+      }
+      return;
+    }
+
+    if (!hasList) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - wheelNavLockRef.current < 160) {
+      return;
+    }
+    wheelNavLockRef.current = now;
+
+    if (dominantDelta > 0 && nextSrc) {
+      triggerTouchSwapAnimation();
+      goNext();
+    } else if (dominantDelta < 0 && prevSrc) {
+      triggerTouchSwapAnimation();
+      goPrev();
+    }
+  }, [goNext, goPrev, hasList, nextSrc, prevSrc, scale, triggerTouchSwapAnimation]);
 
   const getDistance = (touches: React.TouchList) => {
     return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
@@ -335,6 +399,20 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
     if (Math.abs(finalSwipeOffset) > threshold || (Math.abs(swipeOffset) > threshold && scale > 1)) {
       const checkOffset = scale > 1 ? swipeOffset : finalSwipeOffset;
 
+      // 触控模式（移动端 / iPad 竖屏）直接切图，避免过渡阶段闪烁。
+      if (isTouchGestureMode) {
+        if (checkOffset < 0 && nextSrc) {
+          triggerTouchSwapAnimation();
+          goNext();
+        } else if (checkOffset > 0 && prevSrc) {
+          triggerTouchSwapAnimation();
+          goPrev();
+        }
+        setSwipeOffset(0);
+        setTouchStart(null);
+        return;
+      }
+
       if (checkOffset < 0 && nextSrc) {
         setSwipeOffset(-window.innerWidth);
         setTimeout(() => goNext(), 300);
@@ -354,8 +432,10 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
   if (!viewingImage) return null;
 
   const bgOpacity = 1 - Math.min(Math.abs(dragY) / 300, 0.8);
+  const isTouching = touchStart !== null || isPinching;
+  const shouldDisableMotionTransition = isTouching || isSwiping || isResetting || isDraggingVertical;
   const imageMaxHeightClass = isTabletDesktop ? 'max-h-[72vh]' : 'max-h-[80vh]';
-  const bottomBarClass = isMobile
+  const bottomBarClass = isTouchGestureMode
     ? 'fixed bottom-0 w-full px-2 pb-6 pt-4 tablet-bottom-safe bg-gradient-to-t from-black/90 via-black/60 to-transparent'
     : (isTabletDesktop ? 'fixed bottom-4 gap-4 px-3' : 'fixed bottom-8');
   const closeButtonClass = isTabletDesktop ? 'top-4 right-4 w-10 h-10' : 'top-6 right-6 w-12 h-12';
@@ -366,13 +446,16 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       className="fixed inset-0 z-[2000] flex flex-col items-center justify-center cursor-zoom-out touch-none overflow-hidden transition-colors"
       style={{ backgroundColor: `rgba(0, 0, 0, ${bgOpacity * 0.95})` }}
       onClick={close}
+      onWheel={handleWheel}
     >
 
       <div
         className="absolute inset-0 flex items-center justify-center transition-transform ease-out will-change-transform"
         style={{
-          transform: `translateX(${swipeOffset}px) translateY(${dragY}px) scale(${1 - Math.abs(dragY) / 1000})`,
-          transitionDuration: isSwiping || isResetting || isDraggingVertical ? '0ms' : '300ms'
+          transform: `translateX(${swipeOffset}px) translateY(${dragY}px) scale(${1 - Math.abs(dragY) / 1000}) translateZ(0)`,
+          transitionDuration: shouldDisableMotionTransition ? '0ms' : '300ms',
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
         }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -384,13 +467,19 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
           </div>
         )}
 
-        <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-full h-full flex items-center justify-center p-4">
           <img
             src={src}
             className={`${imageMaxHeightClass} max-w-full object-contain will-change-transform`}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              transform: `scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
-              transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
+              transform: `scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px) translateZ(0)`,
+              transition: shouldDisableMotionTransition
+                ? 'opacity 150ms ease-out'
+                : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 150ms ease-out',
+              opacity: isTouchSwapAnimating ? 0.88 : 1,
+              WebkitBackfaceVisibility: 'hidden',
+              backfaceVisibility: 'hidden',
             }}
           />
           {/* 说明：描述文字叠加层 */}
@@ -400,20 +489,20 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
               style={{
                 top: `${textStyle.position}%`,
                 // 移动端：文字不随图片缩放/平移，保持固定位置
-                transform: isMobile
+                transform: isTouchGestureMode
                   ? 'translateY(-50%)'
                   : `translateY(-50%) scale(${scale}) translate(${pan.x / scale}px, ${pan.y / scale}px)`,
-                transition: isSwiping || isDraggingVertical || isResetting || isPinching ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
+                transition: shouldDisableMotionTransition ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1)'
               }}
             >
               <span
                 className="font-black tracking-wide text-center inline-block"
                 style={{
-                  fontSize: `${isMobile ? textStyle.fontSize * 0.6 : (isTabletDesktop ? textStyle.fontSize * 0.85 : textStyle.fontSize)}px`,
+                  fontSize: `${isTouchGestureMode ? textStyle.fontSize * 0.6 : (isTabletDesktop ? textStyle.fontSize * 0.85 : textStyle.fontSize)}px`,
                   color: textStyle.color,
                   textShadow: (() => {
                     const baseW = textStyle.strokeWidth;
-                    const w = isMobile ? baseW * 0.6 : (isTabletDesktop ? baseW * 0.8 : baseW);
+                    const w = isTouchGestureMode ? baseW * 0.6 : (isTabletDesktop ? baseW * 0.8 : baseW);
                     const c = textStyle.strokeColor;
                     // 使用更多层阴影实现平滑圆角描边
                     const shadows: string[] = [];
@@ -456,7 +545,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
         className={`shrink-0 flex items-center justify-center gap-6 z-20 transition-opacity duration-200 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'} ${bottomBarClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {!isMobile && (
+        {!isTouchGestureMode && (
           <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
             <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">A</div>
             <span className="text-white/70 text-sm">上一张</span>
@@ -464,11 +553,11 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
         )}
 
         {hasList && (
-          <div className={`flex items-center gap-3 px-4 py-2 rounded-full border border-white/15 ${isMobile
+          <div className={`flex items-center gap-3 px-4 py-2 rounded-full border border-white/15 ${isTouchGestureMode
             ? 'overflow-x-auto w-fit mx-auto max-w-full scrollbar-hide bg-transparent border-none'
             : 'bg-black/70 backdrop-blur-md'
             }`}>
-            {!isMobile && (
+            {!isTouchGestureMode && (
               <button
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15 shrink-0"
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -490,7 +579,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
               ))}
             </div>
 
-            {!isMobile && (
+            {!isTouchGestureMode && (
               <button
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-[#ff4655] text-white transition-colors border border-white/15 shrink-0"
                 onClick={(e) => { e.stopPropagation(); goNext(); }}
@@ -502,7 +591,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
           </div>
         )}
 
-        {!isMobile && (
+        {!isTouchGestureMode && (
           <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
             <div className="w-8 h-8 rounded-md bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold text-xs shadow-lg backdrop-blur-sm">D</div>
             <span className="text-white/70 text-sm">下一张</span>
@@ -519,7 +608,7 @@ const Lightbox: React.FC<Props> = ({ viewingImage, setViewingImage }) => {
       </button>
 
       {/* 说明：文字样式按钮 - 在关闭按钮下方（仅桌面端显示） */}
-      {desc && !isMobile && (
+      {desc && !isTouchGestureMode && (
         <div className={`absolute ${styleToggleTopClass} z-50`}>
           <button
             className={`${isTabletDesktop ? 'w-10 h-10' : 'w-12 h-12'} flex items-center justify-center bg-emerald-500/20 hover:bg-emerald-500/40 rounded-full text-emerald-400 transition-all backdrop-blur-md border border-emerald-500/40 ${isDraggingVertical ? 'opacity-0' : 'opacity-100'}`}

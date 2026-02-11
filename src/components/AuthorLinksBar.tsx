@@ -19,7 +19,11 @@ const getEnv = (key: string) => {
     return (window as any).__ENV__?.[key] || import.meta.env[key] || '';
 };
 
-const AuthorLinksBar: React.FC = () => {
+type AuthorLinksBarProps = {
+    compact?: boolean;
+};
+
+const AuthorLinksBar: React.FC<AuthorLinksBarProps> = ({ compact = false }) => {
     const [links, setLinks] = useState<AuthorLinks>(defaultAuthorLinks);
     const [qrModal, setQrModal] = useState<QRModalType>(null);
     const [donateTab, setDonateTab] = useState<'wechat' | 'alipay'>('wechat');
@@ -50,19 +54,21 @@ const AuthorLinksBar: React.FC = () => {
 
     if (!hasAnyLink) return null;
 
-    const buttonClass = "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all border backdrop-blur-md";
+    const buttonClass = compact
+        ? "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border backdrop-blur-md whitespace-nowrap shrink-0"
+        : "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all border backdrop-blur-md whitespace-nowrap shrink-0";
     const defaultStyle = "bg-black/40 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/20";
 
     return (
         <>
-            <div className="flex items-center gap-2">
+            <div className={`flex items-center flex-nowrap ${compact ? 'gap-1.5' : 'gap-2'}`}>
                 <a
                     href={FIXED_GITHUB_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`${buttonClass} bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30 hover:border-purple-400/50`}
                 >
-                    <Icon name="Github" size={14} />
+                    <Icon name="Github" size={compact ? 13 : 14} />
                     项目地址
                 </a>
 
@@ -72,7 +78,7 @@ const AuthorLinksBar: React.FC = () => {
                     rel="noopener noreferrer"
                     className={`${buttonClass} bg-blue-500/20 border-blue-500/30 text-blue-400 hover:bg-blue-500/30 hover:border-blue-400/50`}
                 >
-                    <Icon name="BookOpen" size={14} />
+                    <Icon name="BookOpen" size={compact ? 13 : 14} />
                     使用教程
                 </a>
 
@@ -81,7 +87,7 @@ const AuthorLinksBar: React.FC = () => {
                         onClick={() => setQrModal('donate')}
                         className={`${buttonClass} bg-amber-500/20 border-amber-500/30 text-amber-400 hover:bg-amber-500/30 hover:border-amber-400/50`}
                     >
-                        <Icon name="Heart" size={14} />
+                        <Icon name="Heart" size={compact ? 13 : 14} />
                         打赏作者
                     </button>
                 )}
@@ -91,7 +97,7 @@ const AuthorLinksBar: React.FC = () => {
                         onClick={() => setQrModal('contact')}
                         className={`${buttonClass} bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 hover:border-emerald-400/50`}
                     >
-                        <Icon name="MessageCircle" size={14} />
+                        <Icon name="MessageCircle" size={compact ? 13 : 14} />
                         联系作者
                     </button>
                 )}

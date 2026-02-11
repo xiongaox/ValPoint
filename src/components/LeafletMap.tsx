@@ -103,6 +103,7 @@ const LeafletMap: React.FC<Props> = ({
       zoomControl: false,
       attributionControl: false,
       zoomSnap: 0.1,
+      scrollWheelZoom: false,
       wheelPxPerZoomLevel: 120,
     });
     mapInstance.current = map;
@@ -111,6 +112,33 @@ const LeafletMap: React.FC<Props> = ({
         mapInstance.current.remove();
         mapInstance.current = null;
       }
+    };
+  }, []);
+
+  // 说明：为 iPad/触控模拟环境提供稳定的滚轮缩放兜底能力。
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+
+    const container: HTMLElement = map.getContainer();
+    const handleWheelZoom = (event: WheelEvent) => {
+      event.preventDefault();
+
+      const zoomDelta = event.deltaY < 0 ? 0.2 : -0.2;
+      const currentZoom = map.getZoom();
+      const nextZoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), currentZoom + zoomDelta));
+      if (nextZoom === currentZoom) {
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const point = L.point(event.clientX - rect.left, event.clientY - rect.top);
+      map.setZoomAround(point, nextZoom, { animate: false });
+    };
+
+    container.addEventListener('wheel', handleWheelZoom, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheelZoom);
     };
   }, []);
 

@@ -40,6 +40,7 @@ import MobileMapPicker from '../../components/MobileMapPicker';
 import MobileLineupList from '../../components/MobileLineupList';
 import Icon from '../../components/Icon';
 import ICPFooter from '../../components/ICPFooter';
+import PadPortraitSidebar from '../../components/PadPortraitSidebar';
 import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
 
 interface SharedMainViewProps {
@@ -60,8 +61,13 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
 
     const deployPlatform = (window as any).__ENV__?.VITE_DEPLOY_PLATFORM
         || import.meta.env.VITE_DEPLOY_PLATFORM;
+    const sideSwitchContainerClass = 'flex items-center justify-center gap-0 p-2 w-[166px] h-[54px] bg-black/70 backdrop-blur-[4px] rounded-[12px] border border-white/15 box-border';
+    const sideSwitchButtonBaseClass = 'flex items-center justify-center w-[74px] h-[36px] rounded-[8px] text-[14px] font-bold leading-none text-center px-0 transition-all duration-200';
 
-    const { isMobile, isTabletLandscape } = useDeviceMode();
+    const { isMobile, isTabletLandscape, isIPad, isPortrait } = useDeviceMode();
+    const isPadPortrait = isMobile && isIPad && isPortrait;
+    const isTabletHybrid = isTabletLandscape || isPadPortrait;
+    const isAndroidMobile = isMobile && !isPadPortrait;
     const isDesktop = !isMobile && !isTabletLandscape;
     const [isMobileAgentPickerOpen, setIsMobileAgentPickerOpen] = useState(false);
     const [isMobileMapPickerOpen, setIsMobileMapPickerOpen] = useState(false);
@@ -121,10 +127,10 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
     }, []);
 
     useEffect(() => {
-        if (!isTabletLandscape) {
+        if (!isTabletHybrid) {
             setIsTabletRightPanelOpen(false);
         }
-    }, [isTabletLandscape]);
+    }, [isTabletHybrid]);
 
     const [previousTab, setPreviousTab] = useState<'view' | 'pending'>('view');
 
@@ -169,7 +175,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     selectedLineupId={controller.selectedLineupId}
                     onLineupSelect={(id) => {
                         controller.setSelectedLineupId(id);
-                        if (isTabletLandscape && id === null) {
+                        if (isTabletHybrid && id === null) {
                             setIsTabletRightPanelOpen(false);
                         }
                     }}
@@ -181,7 +187,7 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     selectedAbilityIndex={controller.selectedAbilityIndex}
                     onViewLineup={(id) => {
                         controller.handleViewLineup(id);
-                        if (isTabletLandscape) {
+                        if (isTabletHybrid) {
                             setIsTabletRightPanelOpen(false);
                         }
                     }}
@@ -208,9 +214,45 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                             />
                         </div>
 
-                        <div className={`absolute z-10 ${isTabletLandscape ? 'top-2 right-2 origin-top-right scale-[0.86]' : 'top-3 right-3'}`}>
-                            <AuthorLinksBar />
-                        </div>
+                        {!isTabletLandscape && (
+                            <div className={`absolute z-10 ${isTabletLandscape ? 'top-2 right-2 origin-top-right scale-[0.86]' : 'top-3 right-3'}`}>
+                                <AuthorLinksBar />
+                            </div>
+                        )}
+
+                        {isTabletLandscape && (
+                            <div className="absolute top-2 right-2 z-20 origin-top-right scale-[0.86] flex items-center gap-2">
+                                <div className={sideSwitchContainerClass}>
+                                    <button
+                                        onClick={() => controller.setSelectedSide('attack')}
+                                        className={`${sideSwitchButtonBaseClass} ${controller.selectedSide === 'attack'
+                                            ? 'bg-[#ff4655] text-white'
+                                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                                            }`}
+                                    >
+                                        进攻
+                                    </button>
+                                    <button
+                                        onClick={() => controller.setSelectedSide('defense')}
+                                        className={`${sideSwitchButtonBaseClass} ${controller.selectedSide === 'defense'
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                                            }`}
+                                    >
+                                        防守
+                                    </button>
+                                </div>
+                                <div className="flex bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 p-2.5">
+                                    <button
+                                        onClick={() => setIsTabletRightPanelOpen((v) => !v)}
+                                        className="w-9 h-9 rounded-lg transition-all text-gray-200 hover:text-white hover:bg-white/10 flex items-center justify-center"
+                                        title="点位列表"
+                                    >
+                                        <Icon name="List" size={22} className="text-white" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
 
 
@@ -227,12 +269,13 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                     setIsProfileModalOpen(true);
                                 }}
                                 saveProgress={controller.saveProgressAverage}
+                                mode="default"
                             />
                         )}
                     </>
                 )}
 
-                {isMobile && (
+                {isAndroidMobile && (
                     <>
                         {/* 第一行：顶部 Tab 栏 */}
                         <div className="absolute top-0 left-0 right-0 z-20 h-14 bg-[#1a1a1a]/95 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4">
@@ -415,10 +458,130 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                     </>
                 )}
 
-                {/* ICP 备案信息（仅桌面端，通过环境变量配置） */}
-                {!isMobile && <ICPFooter />}
+                {isPadPortrait && (
+                    <>
+                        <PadPortraitSidebar
+                            selectedMap={controller.selectedMap}
+                            selectedAgent={controller.selectedAgent}
+                            agents={controller.agents}
+                            agentCounts={controller.agentCounts}
+                            getMapDisplayName={controller.getMapDisplayName}
+                            onMapClick={() => controller.setIsMapModalOpen(true)}
+                            onSelectAgent={(agent) => controller.setSelectedAgent(agent)}
+                        />
 
-                {isTabletLandscape && (
+                        <div className="absolute top-2 left-[74px] z-20 origin-top-left scale-[0.9] flex items-center gap-2">
+                            {user && (
+                                <LibrarySwitchButton
+                                    currentLibrary="shared"
+                                />
+                            )}
+                            <CompactUserCard
+                                user={user}
+                                onSignOut={onSignOut}
+                                onRequestLogin={onRequestLogin}
+                            />
+                        </div>
+                        <div className="absolute top-2 right-2 z-20 origin-top-right scale-[0.9]">
+                            <div className="flex items-start gap-2">
+                                <div className={sideSwitchContainerClass}>
+                                    <button
+                                        onClick={() => controller.setSelectedSide('attack')}
+                                        className={`${sideSwitchButtonBaseClass} ${controller.selectedSide === 'attack'
+                                            ? 'bg-[#ff4655] text-white'
+                                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                                            }`}
+                                    >
+                                        进攻
+                                    </button>
+                                    <button
+                                        onClick={() => controller.setSelectedSide('defense')}
+                                        className={`${sideSwitchButtonBaseClass} ${controller.selectedSide === 'defense'
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                                            }`}
+                                    >
+                                        防守
+                                    </button>
+                                </div>
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="flex bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 p-2.5">
+                                        <button
+                                            onClick={() => setIsTabletRightPanelOpen((v) => !v)}
+                                            className="w-9 h-9 rounded-lg transition-all text-gray-200 hover:text-white hover:bg-white/10 flex items-center justify-center"
+                                            title="点位列表"
+                                        >
+                                        <Icon name="List" size={22} className="text-white" />
+                                    </button>
+                                </div>
+
+                                    {controller.selectedAgent && (
+                                        <div className="flex flex-col gap-4">
+                                            {getAbilityList(controller.selectedAgent).map((ability: any, idx: number) => {
+                                                const iconUrl = getAbilityIcon(controller.selectedAgent!, idx);
+                                                const isDisabled = disabledAbilities.has(idx);
+                                                const isSelected = !isDisabled;
+                                                return (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => {
+                                                            setDisabledAbilities(prev => {
+                                                                const next = new Set(prev);
+                                                                if (next.has(idx)) {
+                                                                    next.delete(idx);
+                                                                } else {
+                                                                    next.add(idx);
+                                                                }
+                                                                return next;
+                                                            });
+                                                        }}
+                                                        className={`w-[56px] h-[56px] rounded-xl border transition-all flex items-center justify-center ${isSelected
+                                                            ? 'bg-[#ff4655] border-[#ff4655] shadow-lg shadow-red-500/30'
+                                                            : 'bg-black/40 border-white/10 opacity-50'
+                                                            }`}
+                                                        title={ability.displayName || `技能${idx + 1}`}
+                                                    >
+                                                        {iconUrl ? (
+                                                            <img
+                                                                src={iconUrl}
+                                                                alt=""
+                                                                className={`w-8 h-8 object-contain ${isSelected ? 'brightness-0 invert' : ''}`}
+                                                            />
+                                                        ) : (
+                                                            <span className="text-white text-sm font-bold">{idx + 1}</span>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {user && (
+                            <SharedQuickActions
+                                isOpen={isQuickActionsOpen}
+                                onToggle={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
+                                onChangePassword={() => {
+                                    setIsQuickActionsOpen(false);
+                                    setIsChangePasswordOpen(true);
+                                }}
+                                onUserProfile={() => {
+                                    setIsQuickActionsOpen(false);
+                                    setIsProfileModalOpen(true);
+                                }}
+                                saveProgress={controller.saveProgressAverage}
+                                mode="pad"
+                            />
+                        )}
+                    </>
+                )}
+
+                {/* ICP 备案信息（桌面端与 iPad 竖屏，通过环境变量配置） */}
+                {(!isMobile || isPadPortrait) && <ICPFooter />}
+
+                {isTabletHybrid && (
                     <>
                         {isTabletRightPanelOpen && (
                             <button
@@ -427,13 +590,6 @@ function SharedMainView({ user, onSignOut, setAlertMessage, setViewingImage, onR
                                 aria-label="关闭点位抽屉"
                             />
                         )}
-                        <button
-                            onClick={() => setIsTabletRightPanelOpen((v) => !v)}
-                            className="absolute top-1/2 -translate-y-1/2 tablet-fab-safe z-50 h-12 w-12 rounded-xl border border-white/15 bg-black/60 backdrop-blur-sm flex items-center justify-center hover:border-[#ff4655]/70 transition-colors"
-                            title={isTabletRightPanelOpen ? '收起点位列表' : '展开点位列表'}
-                        >
-                            <Icon name={isTabletRightPanelOpen ? 'ChevronRight' : 'ChevronLeft'} size={20} className="text-white" />
-                        </button>
                         <div className={`tablet-drawer-panel absolute top-0 right-0 bottom-0 z-40 transition-transform duration-300 ease-out ${isTabletRightPanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}>
                             <SharedRightPanel
                                 activeTab={activeTab}

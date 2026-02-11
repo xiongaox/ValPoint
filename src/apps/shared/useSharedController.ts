@@ -16,7 +16,7 @@ import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm } from 
 import { downloadLineupBundle } from '../../lib/lineupDownload';
 import { checkDailyDownloadLimit, incrementDownloadCount, logDownload } from '../../lib/downloadLimit';
 import { MAP_TRANSLATIONS } from '../../constants/maps';
-import { useIsMobile } from '../../hooks/useIsMobile';
+import { useDeviceMode } from '../../hooks/useDeviceMode';
 import { createClient } from '@supabase/supabase-js';
 import { getSubscriptionList } from './logic/subscription';
 import { migrateLineupImages } from '../../services/imageMigrationService';
@@ -34,7 +34,7 @@ interface UseSharedControllerParams {
 }
 
 export function useSharedController({ user, setAlertMessage, setViewingImage, onRequestLogin }: UseSharedControllerParams) {
-    const isMobile = useIsMobile();
+    const { isMobile } = useDeviceMode();
 
     const { maps, agents } = useValorantData();
 

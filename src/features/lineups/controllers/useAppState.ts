@@ -11,10 +11,10 @@ import { useState } from 'react';
 import { ActiveTab } from '../../../types/app';
 import { BaseLineup, LibraryMode, NewLineupForm, SharedLineup } from '../../../types/lineup';
 import { createEmptyLineup } from '../lineupHelpers';
-import { useIsMobile } from '../../../hooks/useIsMobile';
+import { useDeviceMode } from '../../../hooks/useDeviceMode';
 
 export function useAppState() {
-  const isMobile = useIsMobile();
+  const { isMobile } = useDeviceMode();
   const [activeTab, setActiveTab] = useState<ActiveTab>('view');
   const [selectedSide, setSelectedSide] = useState<'all' | 'attack' | 'defense'>(() => isMobile ? 'attack' : 'all');
   const [selectedAbilityIndex, setSelectedAbilityIndex] = useState<number | null>(null);

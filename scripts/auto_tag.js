@@ -157,14 +157,14 @@ async function main() {
     }
 
     console.log(`${colors.blue}发布配置:${colors.reset}`);
-    const answer = await askQuestion('是否构建并发布 Docker 镜像? (Y/n): ');
+    const answer = await askQuestion('是否通过 GitHub Actions 构建并发布 Docker 镜像? (Y/n): ');
 
     const buildDocker = (answer === '' || answer === 'y' || answer === 'yes');
 
     if (buildDocker) {
-        console.log(`${colors.green}>> 选择: 构建 Docker (将在本地通过 OrbStack 构建推送到 Docker Hub)${colors.reset}\n`);
+        console.log(`${colors.green}>> 选择: 构建 Docker (将由 GitHub Actions 构建并推送到 Docker Hub)${colors.reset}\n`);
     } else {
-        console.log(`${colors.yellow}>> 选择: 跳过 Docker 构建${colors.reset}\n`);
+        console.log(`${colors.yellow}>> 选择: 跳过 Docker 构建 (将添加 [skip docker])${colors.reset}\n`);
     }
 
     const confirm = await askQuestion('确认开始打标签并发布? (Y/n): ');
@@ -175,29 +175,10 @@ async function main() {
 
     console.log(`\n${colors.cyan}正在创建标签...${colors.reset}`);
 
-    // 本地构建需要先打 tag，但如果是先构建再 push，我们可以只打 tag 不 push，或者等待构建完成后统一 push。
-    // 为了流程稳健，我们先尝试构建 Docker（如果选中），构建成功后再 push git tag。
-
-    if (buildDocker) {
-        console.log(`\n${colors.cyan}开始构建 Docker 镜像 (版本: ${newVersion})...${colors.reset}`);
-        try {
-            // 调用本地脚本，传入版本号
-            runCommand(`./scripts/build-multi-arch.sh ${newVersion}`, false, 'inherit');
-            console.log(`${colors.green}✓ Docker 镜像构建并推送成功！${colors.reset}\n`);
-        } catch (e) {
-            console.error(`${colors.red}Docker 构建失败，终止由于步骤。${colors.reset}`);
-            return;
-        }
-    }
-
     // Git Tag 逻辑
     let tagMessage = latestMsg;
-    // 既然本地构建了，CI 就不需要构建了，总是加上 skip docker 防止 GitHub Actions 重复构建
-    if (buildDocker) {
-        tagMessage += ` [skip docker] (built locally)`;
-    } else {
-        tagMessage += ` [skip docker]`;
-    }
+    // Docker 构建由 GitHub Actions 触发；只有选择“跳过”时才加 [skip docker]。
+    if (!buildDocker) tagMessage += ' [skip docker]';
 
     try {
         // 直接在 HEAD 上打标签

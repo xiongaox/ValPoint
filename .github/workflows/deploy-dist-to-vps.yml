@@ -22,21 +22,36 @@ jobs:
 
     steps:
       - name: Check required secrets
-        if: ${{ secrets.VPS_HOST == '' || secrets.VPS_USER == '' || secrets.VPS_SSH_KEY == '' || secrets.VPS_TARGET_DIR == '' }}
         shell: bash
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_TARGET_DIR: ${{ secrets.VPS_TARGET_DIR }}
         run: |
-          echo "Missing required secrets."
-          echo ""
-          echo "Required secrets:"
-          echo "- VPS_HOST: server host or IP"
-          echo "- VPS_USER: ssh user"
-          echo "- VPS_SSH_KEY: private key"
-          echo "- VPS_TARGET_DIR: deployment base dir on server (e.g. /var/www/valpoint)"
-          echo ""
-          echo "Optional secrets:"
-          echo "- VPS_PORT: ssh port (default 22)"
-          echo "- VPS_POST_DEPLOY: command to run after switching symlink (e.g. sudo systemctl reload nginx)"
-          exit 1
+          set -euo pipefail
+
+          missing=0
+          for k in VPS_HOST VPS_USER VPS_SSH_KEY VPS_TARGET_DIR; do
+            if [ -z "${!k:-}" ]; then
+              echo "Missing required secret: $k"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo ""
+            echo "Required secrets:"
+            echo "- VPS_HOST: server host or IP"
+            echo "- VPS_USER: ssh user"
+            echo "- VPS_SSH_KEY: private key"
+            echo "- VPS_TARGET_DIR: deployment base dir on server (e.g. /var/www/valpoint)"
+            echo ""
+            echo "Optional secrets:"
+            echo "- VPS_PORT: ssh port (default 22)"
+            echo "- VPS_POST_DEPLOY: command to run after switching symlink (e.g. sudo systemctl reload nginx)"
+            exit 1
+          fi
 
       - name: Resolve SSH port
         id: port

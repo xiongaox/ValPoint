@@ -93,6 +93,7 @@ jobs:
             base='${{ secrets.VPS_TARGET_DIR }}'
             release_dir=\"\$base/releases/${{ steps.tag.outputs.value }}-${{ github.sha }}\"
             tarball=\"/tmp/valpoint-dist-${{ github.sha }}.tar.gz\"
+            keep_releases=10
 
             mkdir -p \"\$release_dir\"
             tar -xzf \"\$tarball\" -C \"\$release_dir\"
@@ -101,8 +102,18 @@ jobs:
             # dist.tar.gz contains 'dist/' at the top-level
             ln -sfn \"\$release_dir/dist\" \"\$base/current\"
 
+            # Keep only the latest N releases (by mtime) to avoid disk growth.
+            releases_dir=\"\$base/releases\"
+            if [ -d \"\$releases_dir\" ]; then
+              mapfile -t releases < <(ls -1dt \"\$releases_dir\"/* 2>/dev/null || true)
+              if [ \"\${#releases[@]}\" -gt \"\$keep_releases\" ]; then
+                for ((i=keep_releases; i<\${#releases[@]}; i++)); do
+                  rm -rf -- \"\${releases[\$i]}\"
+                done
+              fi
+            fi
+
             if [ -n '${{ secrets.VPS_POST_DEPLOY }}' ]; then
               eval '${{ secrets.VPS_POST_DEPLOY }}'
             fi
           "
-

@@ -1,122 +1,171 @@
 /**
- * StorageChart - 管理端Storage图表
+ * StorageChart - 管理端地图热度分布图表
  *
  * 职责：
- * - 渲染管理端Storage图表相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * - 渲染近30天地图热度分布（上传/下载）图表。
  */
 
 import React, { useEffect, useState } from 'react';
 import {
-    PieChart,
-    Pie,
-    Cell,
-    ResponsiveContainer,
-    Tooltip
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 import { adminSupabase } from '../../../../supabaseClient';
+import { MAP_TRANSLATIONS } from '../../../../constants/maps';
 
-interface StorageStats {
-    totalBytes: number;
-    breakdown: Array<{
-        category: string;
-        size: number;
-    }>;
+interface MapHeatPoint {
+  mapName: string;
+  uploadCount: number;
+  downloadCount: number;
+  total: number;
 }
 
-const COLORS: Record<string, string> = {
-    'Image': '#ff4655',
-    'Video': '#3b82f6',
-    'Audio': '#10b981',
-    'Other': '#6b7280'
-};
+const WINDOW_DAYS = 30;
+const MAX_MAPS = 8;
 
-const STORAGE_LIMIT_GB = 1;
+function getMapDisplayName(mapName: string): string {
+  return MAP_TRANSLATIONS[mapName] || mapName;
+}
 
 export default function StorageChart() {
-    const [stats, setStats] = useState<StorageStats | null>(null);
-    const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<MapHeatPoint[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function fetchStorageStats() {
-            try {
-                const { data, error } = await adminSupabase.rpc('get_storage_stats');
-                if (error) throw error;
-                setStats(data as StorageStats);
-            } catch (error) {
-                console.error('Error fetching storage stats:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
+  useEffect(() => {
+    async function fetchMapHeat() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (WINDOW_DAYS - 1));
+      start.setHours(0, 0, 0, 0);
 
-        fetchStorageStats();
-    }, []);
+      try {
+        const [lineupsResult, sharedResult, downloadsResult] = await Promise.all([
+          adminSupabase
+            .from('valorant_lineups')
+            .select('map_name')
+            .gte('created_at', start.toISOString()),
+          adminSupabase
+            .from('valorant_shared')
+            .select('map_name')
+            .gte('created_at', start.toISOString()),
+          adminSupabase
+            .from('download_logs')
+            .select('map_name, download_count')
+            .gte('created_at', start.toISOString()),
+        ]);
 
-    if (loading) {
-        return (
-            <div className="bg-[#1f2326] rounded-xl border border-white/10 p-6 h-[340px] flex items-center justify-center">
-                <div className="text-gray-400">Loading storage stats...</div>
-            </div>
-        );
+        if (lineupsResult.error) throw lineupsResult.error;
+        if (sharedResult.error) throw sharedResult.error;
+        if (downloadsResult.error) throw downloadsResult.error;
+
+        const uploadMap: Record<string, number> = {};
+        const downloadMap: Record<string, number> = {};
+
+        lineupsResult.data?.forEach(item => {
+          const key = item.map_name || '未知地图';
+          uploadMap[key] = (uploadMap[key] || 0) + 1;
+        });
+
+        sharedResult.data?.forEach(item => {
+          const key = item.map_name || '未知地图';
+          uploadMap[key] = (uploadMap[key] || 0) + 1;
+        });
+
+        downloadsResult.data?.forEach(item => {
+          const key = item.map_name || '未知地图';
+          const count = item.download_count || 0;
+          downloadMap[key] = (downloadMap[key] || 0) + count;
+        });
+
+        const keys = Array.from(new Set([...Object.keys(uploadMap), ...Object.keys(downloadMap)]));
+        const merged = keys.map(key => {
+          const uploadCount = uploadMap[key] || 0;
+          const downloadCount = downloadMap[key] || 0;
+
+          return {
+            mapName: key,
+            uploadCount,
+            downloadCount,
+            total: uploadCount + downloadCount,
+          };
+        });
+
+        merged.sort((a, b) => b.total - a.total);
+        setData(merged.slice(0, MAX_MAPS));
+      } catch (error) {
+        console.error('Error fetching map heat stats:', error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    const totalUsedGB = stats ? (stats.totalBytes / (1024 * 1024 * 1024)) : 0;
-    const freeGB = Math.max(0, STORAGE_LIMIT_GB - totalUsedGB);
-    const usagePercent = Math.min(100, (totalUsedGB / STORAGE_LIMIT_GB) * 100).toFixed(1);
+    fetchMapHeat();
+  }, []);
 
-    const chartData = [
-        { name: '已用空间', value: totalUsedGB, color: '#ff4655' },
-        { name: '剩余空间', value: freeGB, color: '#333333' }
-    ];
+  const totalUploads = data.reduce((sum, item) => sum + item.uploadCount, 0);
+  const totalDownloads = data.reduce((sum, item) => sum + item.downloadCount, 0);
 
-    return (
-        <div className="bg-[#1f2326] rounded-xl border border-white/10 p-4 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-2 flex-none">
-                <h3 className="text-sm font-semibold text-white">存储空间占用</h3>
-                <span className="text-xs text-gray-400">{totalUsedGB.toFixed(2)} GB / {STORAGE_LIMIT_GB} GB</span>
-            </div>
-            <div className="flex-1 min-h-0 relative">
-                <ResponsiveContainer width="99%" height="100%">
-                    <PieChart>
-                        <defs>
-                            <linearGradient id="colorUsed" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stopColor="#ff4655" />
-                                <stop offset="100%" stopColor="#ff8f9a" />
-                            </linearGradient>
-                        </defs>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="70%"
-                            outerRadius="90%"
-                            startAngle={90}
-                            endAngle={-270}
-                            dataKey="value"
-                            stroke="none"
-                            cornerRadius={4}
-                        >
-                            <Cell key="cell-used" fill="url(#colorUsed)" />
-                            <Cell key="cell-free" fill="#333333" />
-                        </Pie>
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: '#1f2326',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: '8px',
-                            }}
-                            itemStyle={{ color: '#fff' }}
-                            formatter={(value: any) => [`${Number(value).toFixed(3)} GB`]}
-                        />
-                    </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-bold text-white">{usagePercent}%</span>
-                    <span className="text-xs text-gray-500">已使用</span>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="bg-[#1f2326] rounded-xl border border-white/10 p-4 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2 flex-none">
+        <h3 className="text-sm font-semibold text-white">地图热度分布 (30天)</h3>
+        <span className="text-xs text-gray-400">上传 {totalUploads} / 下载 {totalDownloads}</span>
+      </div>
+      <div className="flex-1 min-h-0">
+        {loading ? (
+          <div className="h-full flex items-center justify-center text-gray-500">加载中...</div>
+        ) : (
+          <ResponsiveContainer width="99%" height="100%">
+            <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis
+                dataKey="mapName"
+                stroke="#666"
+                fontSize={12}
+                interval={0}
+                tickFormatter={(value: string | number) => getMapDisplayName(String(value))}
+              />
+              <YAxis stroke="#666" fontSize={12} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1f2326',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                }}
+                cursor={{ fill: 'rgba(255, 255, 255, 0.06)' }}
+                formatter={(value: number | string | undefined, name: string | undefined) => [
+                  `${value ?? 0} 次`,
+                  name || '数量',
+                ]}
+                labelFormatter={(label: string | number) => getMapDisplayName(String(label))}
+                labelStyle={{ color: '#fff' }}
+              />
+              <Legend />
+              <Bar
+                dataKey="uploadCount"
+                name="上传量"
+                fill="#10b981"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={26}
+              />
+              <Bar
+                dataKey="downloadCount"
+                name="下载量"
+                fill="#3b82f6"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={26}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
 }
+

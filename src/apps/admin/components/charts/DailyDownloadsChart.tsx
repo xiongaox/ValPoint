@@ -1,97 +1,166 @@
 /**
- * DailyDownloadsChart - 管理端每日Downloads图表
+ * DailyDownloadsChart - 管理端内容供给趋势图表
  *
  * 职责：
- * - 渲染管理端每日Downloads图表相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * - 渲染管理端内容供给趋势（14天）图表。
+ * - 统一展示上传到个人库与共享库的日趋势。
  */
 
 import React, { useEffect, useState } from 'react';
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { adminSupabase } from '../../../../supabaseClient';
 import { format, parseISO } from 'date-fns';
+import { adminSupabase } from '../../../../supabaseClient';
 
-interface DownloadTrend {
-    download_date: string;
-    count: number;
+interface SupplyTrendPoint {
+  date: string;
+  displayDate: string;
+  lineupCount: number;
+  sharedCount: number;
+}
+
+const TREND_DAYS = 14;
+
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getDateKeys(days: number): string[] {
+  const keys: string[] = [];
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days - 1));
+
+  for (let i = 0; i < days; i++) {
+    const current = new Date(start);
+    current.setDate(start.getDate() + i);
+    keys.push(toLocalDateKey(current));
+  }
+  return keys;
 }
 
 export default function DailyDownloadsChart() {
-    const [data, setData] = useState<DownloadTrend[]>([]);
-    const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<SupplyTrendPoint[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function fetchTrends() {
-            try {
-                const { data: trends, error } = await adminSupabase.rpc('get_daily_download_trends');
-                if (error) throw error;
+  useEffect(() => {
+    async function fetchSupplyTrends() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (TREND_DAYS - 1));
+      start.setHours(0, 0, 0, 0);
 
-                const formattedData = (trends as DownloadTrend[]).map(item => ({
-                    ...item,
-                    displayDate: format(parseISO(item.download_date), 'MM/dd')
-                }));
+      try {
+        const [lineupsResult, sharedResult] = await Promise.all([
+          adminSupabase
+            .from('valorant_lineups')
+            .select('created_at')
+            .gte('created_at', start.toISOString()),
+          adminSupabase
+            .from('valorant_shared')
+            .select('created_at')
+            .gte('created_at', start.toISOString()),
+        ]);
 
-                setData(formattedData);
-            } catch (error) {
-                console.error('Error fetching download trends:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
+        if (lineupsResult.error) throw lineupsResult.error;
+        if (sharedResult.error) throw sharedResult.error;
 
-        fetchTrends();
-    }, []);
+        const lineupCounts: Record<string, number> = {};
+        const sharedCounts: Record<string, number> = {};
 
-    const totalDownloads = data.reduce((sum, item) => sum + item.count, 0);
+        lineupsResult.data?.forEach(item => {
+          const key = toLocalDateKey(new Date(item.created_at));
+          lineupCounts[key] = (lineupCounts[key] || 0) + 1;
+        });
 
-    return (
-        <div className="bg-[#1f2326] rounded-xl border border-white/10 p-4 h-full flex flex-col">
-            <div className="flex items-center justify-between mb-2 flex-none">
-                <h3 className="text-sm font-semibold text-white">下载趋势 (近7天)</h3>
-                <span className="text-xs text-gray-400">本周共 {totalDownloads} 次</span>
-            </div>
-            <div className="flex-1 min-h-0">
-                {loading ? (
-                    <div className="h-full flex items-center justify-center text-gray-500">加载中...</div>
-                ) : (
-                    <ResponsiveContainer width="99%" height="100%">
-                        <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                            <XAxis
-                                dataKey="displayDate"
-                                stroke="#666"
-                                fontSize={12}
-                            />
-                            <YAxis stroke="#666" fontSize={12} allowDecimals={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: '#1f2326',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '8px',
-                                }}
-                                formatter={(value) => [`${value} 次`, '下载量']}
-                                labelStyle={{ color: '#fff' }}
-                                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                            />
-                            <Bar
-                                dataKey="count"
-                                fill="#ff4655"
-                                radius={[4, 4, 0, 0]}
-                                maxBarSize={40}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                )}
-            </div>
-        </div>
-    );
+        sharedResult.data?.forEach(item => {
+          const key = toLocalDateKey(new Date(item.created_at));
+          sharedCounts[key] = (sharedCounts[key] || 0) + 1;
+        });
+
+        const trendData = getDateKeys(TREND_DAYS).map(dateKey => ({
+          date: dateKey,
+          displayDate: format(parseISO(dateKey), 'MM/dd'),
+          lineupCount: lineupCounts[dateKey] || 0,
+          sharedCount: sharedCounts[dateKey] || 0,
+        }));
+
+        setData(trendData);
+      } catch (error) {
+        console.error('Error fetching supply trends:', error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSupplyTrends();
+  }, []);
+
+  const totalLineups = data.reduce((sum, item) => sum + item.lineupCount, 0);
+  const totalShared = data.reduce((sum, item) => sum + item.sharedCount, 0);
+
+  return (
+    <div className="bg-[#1f2326] rounded-xl border border-white/10 p-4 h-full flex flex-col">
+      <div className="flex items-center justify-between mb-2 flex-none">
+        <h3 className="text-sm font-semibold text-white">内容供给趋势 (14天)</h3>
+        <span className="text-xs text-gray-400">个人库 {totalLineups} / 共享库 {totalShared}</span>
+      </div>
+      <div className="flex-1 min-h-0">
+        {loading ? (
+          <div className="h-full flex items-center justify-center text-gray-500">加载中...</div>
+        ) : (
+          <ResponsiveContainer width="99%" height="100%">
+            <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+              <XAxis dataKey="displayDate" stroke="#666" fontSize={12} />
+              <YAxis stroke="#666" fontSize={12} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1f2326',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                }}
+                cursor={{ stroke: 'rgba(255, 255, 255, 0.18)', strokeWidth: 1 }}
+                formatter={(value: number | string | undefined, name: string | undefined) => [
+                  `${value ?? 0} 条`,
+                  name || '数量',
+                ]}
+                labelStyle={{ color: '#fff' }}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="lineupCount"
+                name="个人库新增"
+                stroke="#10b981"
+                strokeWidth={2}
+                dot={{ fill: '#10b981', strokeWidth: 2 }}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="sharedCount"
+                name="共享库新增"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={{ fill: '#3b82f6', strokeWidth: 2 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
 }
+

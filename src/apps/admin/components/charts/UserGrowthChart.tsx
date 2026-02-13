@@ -80,6 +80,7 @@ export default function UserGrowthChart() {
                                     border: '1px solid rgba(255,255,255,0.1)',
                                     borderRadius: '8px',
                                 }}
+                                cursor={{ stroke: 'rgba(255, 255, 255, 0.18)', strokeWidth: 1 }}
                                 labelStyle={{ color: '#fff' }}
                             />
                             <Legend />

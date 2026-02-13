@@ -14,13 +14,15 @@ import UserAvatar from '../../../components/UserAvatar';
 import { adminSupabase } from '../../../supabaseClient';
 import UserEditModal, { UserProfile } from '../components/UserEditModal';
 
+type UserRow = UserProfile & { lineup_count?: number | null };
+
 function UsersPage() {
-    const [users, setUsers] = useState<UserProfile[]>([]);
+    const [users, setUsers] = useState<UserRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
-    const [sortField, setSortField] = useState<'created_at' | 'download_count'>('created_at');
+    const [sortField, setSortField] = useState<'created_at' | 'download_count' | 'lineup_count'>('lineup_count');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
@@ -43,7 +45,7 @@ function UsersPage() {
             let adminUsers: UserProfile[] = [];
             if (currentPage === 1) {
                 let adminQuery = adminSupabase
-                    .from('user_profiles')
+                    .from('user_profiles_with_lineup_count')
                     .select('*')
                     .in('role', ['admin', 'super_admin']);
 
@@ -54,7 +56,7 @@ function UsersPage() {
                 const { data: admins } = await adminQuery;
 
                 if (admins) {
-                    adminUsers = (admins as UserProfile[]).sort((a, b) => {
+                    adminUsers = (admins as UserRow[]).sort((a, b) => {
                         const getPriority = (role: string) => {
                             if (role === 'super_admin') return 2;
                             if (role === 'admin') return 1;
@@ -64,13 +66,20 @@ function UsersPage() {
                         const pB = getPriority(b.role);
                         if (pA !== pB) return pB - pA; // 说明：按优先级降序。
 
-                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                        const ascFactor = sortOrder === 'asc' ? 1 : -1;
+                        if (sortField === 'lineup_count') {
+                            return ((Number(a.lineup_count) || 0) - (Number(b.lineup_count) || 0)) * ascFactor;
+                        }
+                        if (sortField === 'download_count') {
+                            return ((Number(a.download_count) || 0) - (Number(b.download_count) || 0)) * ascFactor;
+                        }
+                        return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * ascFactor;
                     });
                 }
             }
 
             let userQuery = adminSupabase
-                .from('user_profiles')
+                .from('user_profiles_with_lineup_count')
                 .select('*', { count: 'exact' })
                 .not('role', 'in', '("admin","super_admin")'); // 说明：排除管理员角色。
 
@@ -79,6 +88,9 @@ function UsersPage() {
             }
 
             userQuery = userQuery.order(sortField, { ascending: sortOrder === 'asc' });
+            if (sortField !== 'created_at') {
+                userQuery = userQuery.order('created_at', { ascending: false });
+            }
 
             userQuery = userQuery.range(from, to);
 
@@ -94,7 +106,7 @@ function UsersPage() {
 
             console.log('[UsersPage] Loaded users:', finalUsers.map(u => ({ id: u.id, email: u.email, can_batch: u.can_batch_download })));
 
-            setUsers(finalUsers as UserProfile[]);
+            setUsers(finalUsers as UserRow[]);
             setTotalCount(count || 0); // 说明：分页总数仅统计普通用户。
         } catch (err) {
             console.error('加载用户列表异常:', err);
@@ -124,7 +136,7 @@ function UsersPage() {
         }
     }, [alertMessage]);
 
-    const handleSort = (field: 'created_at' | 'download_count') => {
+    const handleSort = (field: 'created_at' | 'download_count' | 'lineup_count') => {
         if (sortField === field) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
         } else {
@@ -299,6 +311,17 @@ function UsersPage() {
                                     )}
                                 </div>
                             </th>
+                            <th
+                                className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('lineup_count')}
+                            >
+                                <div className="flex items-center gap-1">
+                                    用户点位数
+                                    {sortField === 'lineup_count' && (
+                                        <Icon name={sortOrder === 'asc' ? 'ChevronUp' : 'ChevronDown'} size={14} />
+                                    )}
+                                </div>
+                            </th>
                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                                 状态
                             </th>
@@ -310,7 +333,7 @@ function UsersPage() {
                     <tbody className="divide-y divide-white/5">
                         {isLoading ? (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center">
+                                <td colSpan={7} className="px-6 py-12 text-center">
                                     <div className="flex flex-col items-center gap-3">
                                         <div className="w-8 h-8 border-2 border-[#ff4655] border-t-transparent rounded-full animate-spin" />
                                         <span className="text-gray-500 text-sm">加载中...</span>
@@ -319,7 +342,7 @@ function UsersPage() {
                             </tr>
                         ) : users.length === 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center">
+                                <td colSpan={7} className="px-6 py-12 text-center">
                                     <div className="flex flex-col items-center gap-2">
                                         <Icon name="Users" size={32} className="text-gray-600" />
                                         <span className="text-gray-500">暂无用户数据</span>
@@ -363,6 +386,7 @@ function UsersPage() {
                                         {new Date(user.created_at).toLocaleDateString('zh-CN')}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-white">{user.download_count}</td>
+                                    <td className="px-6 py-4 text-sm text-white">{Number(user.lineup_count) || 0}</td>
                                     <td className="px-6 py-4">
                                         <button
                                             onClick={() => handleToggleBan(user)}

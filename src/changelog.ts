@@ -16,6 +16,12 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '【文档】将未来计划中的平板端适配标记为已完成',
       '【文档】将未来计划中的 SQLite 本地 Docker 版本标记为已完成',
       '【文档】补充 ValPoint-Local 项目地址：https://github.com/xiongaox/ValPoint-Local',
+      '【新增】管理后台仪表盘改为活跃指标展示：内容供给趋势/地图热度分布/个人库贡献榜',
+      '【新增】内容供给趋势(14天)按个人库与共享库新增量绘制日趋势折线',
+      '【新增】地图热度分布(30天)展示上传/下载量并支持中文地图名称显示',
+      '【新增】个人库贡献榜(30天)按用户标识聚合展示上传量 Top 榜单',
+      '【新增】用户管理新增用户点位数列（个人库）并支持点位数排序（默认降序）',
+      '【运维】新增 Release dist 自动部署到 VPS 的 GitHub Actions 工作流',
     ],
   },
   {

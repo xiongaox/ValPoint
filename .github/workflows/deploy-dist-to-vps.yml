@@ -1,0 +1,108 @@
+name: Deploy dist to VPS
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to deploy (e.g. v2.2.5). Leave empty to deploy the release that triggered this workflow."
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-dist-to-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check required secrets
+        if: ${{ secrets.VPS_HOST == '' || secrets.VPS_USER == '' || secrets.VPS_SSH_KEY == '' || secrets.VPS_TARGET_DIR == '' }}
+        shell: bash
+        run: |
+          echo "Missing required secrets."
+          echo ""
+          echo "Required secrets:"
+          echo "- VPS_HOST: server host or IP"
+          echo "- VPS_USER: ssh user"
+          echo "- VPS_SSH_KEY: private key"
+          echo "- VPS_TARGET_DIR: deployment base dir on server (e.g. /var/www/valpoint)"
+          echo ""
+          echo "Optional secrets:"
+          echo "- VPS_PORT: ssh port (default 22)"
+          echo "- VPS_POST_DEPLOY: command to run after switching symlink (e.g. sudo systemctl reload nginx)"
+          exit 1
+
+      - name: Resolve SSH port
+        id: port
+        shell: bash
+        env:
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          port="${VPS_PORT:-22}"
+          echo "value=$port" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            echo "value=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download dist.tar.gz from GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.tag.outputs.value }}"
+          if [ -z "$tag" ]; then
+            echo "No tag resolved. If running workflow_dispatch, please provide inputs.tag."
+            exit 1
+          fi
+          gh release download "$tag" --repo "${{ github.repository }}" -p "dist.tar.gz"
+          ls -lah dist.tar.gz
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add known hosts
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ steps.port.outputs.value }}" "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload dist.tar.gz
+        shell: bash
+        run: |
+          scp -P "${{ steps.port.outputs.value }}" dist.tar.gz "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/valpoint-dist-${{ github.sha }}.tar.gz"
+
+      - name: Extract & switch current symlink
+        shell: bash
+        run: |
+          ssh -p "${{ steps.port.outputs.value }}" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -lc "set -euo pipefail
+            base='${{ secrets.VPS_TARGET_DIR }}'
+            release_dir=\"\$base/releases/${{ steps.tag.outputs.value }}-${{ github.sha }}\"
+            tarball=\"/tmp/valpoint-dist-${{ github.sha }}.tar.gz\"
+
+            mkdir -p \"\$release_dir\"
+            tar -xzf \"\$tarball\" -C \"\$release_dir\"
+            rm -f \"\$tarball\"
+
+            # dist.tar.gz contains 'dist/' at the top-level
+            ln -sfn \"\$release_dir/dist\" \"\$base/current\"
+
+            if [ -n '${{ secrets.VPS_POST_DEPLOY }}' ]; then
+              eval '${{ secrets.VPS_POST_DEPLOY }}'
+            fi
+          "
+

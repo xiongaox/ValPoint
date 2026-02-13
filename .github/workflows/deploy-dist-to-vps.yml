@@ -117,6 +117,11 @@ jobs:
             # dist.tar.gz contains 'dist/' at the top-level
             ln -sfn \"\$release_dir/dist\" \"\$base/current\"
 
+            # Keep runtime config stable across releases (avoid blank page due to missing/mismatched env-config.js).
+            if [ -f \"\$base/env-config.js\" ]; then
+              cp -f \"\$base/env-config.js\" \"\$base/current/env-config.js\"
+            fi
+
             # Keep only the latest N releases (by mtime) to avoid disk growth.
             releases_dir=\"\$base/releases\"
             if [ -d \"\$releases_dir\" ]; then

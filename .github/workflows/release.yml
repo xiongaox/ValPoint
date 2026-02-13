@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   build-upload:
@@ -34,3 +35,17 @@ jobs:
         with:
           files: dist.tar.gz
           generate_release_notes: true
+
+      - name: Trigger deploy dist to VPS
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            core.info(`Triggering deploy-dist-to-vps.yml for tag: ${tag}`);
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-dist-to-vps.yml',
+              ref: 'main',
+              inputs: { tag },
+            });

@@ -11,6 +11,14 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-02-13',
+    items: [
+      '【文档】将未来计划中的平板端适配标记为已完成',
+      '【文档】将未来计划中的 SQLite 本地 Docker 版本标记为已完成',
+      '【文档】补充 ValPoint-Local 项目地址：https://github.com/xiongaox/ValPoint-Local',
+    ],
+  },
+  {
     date: '2026-02-11',
     items: [
       '【新增】完成 iPad 横竖屏点位界面与交互适配',

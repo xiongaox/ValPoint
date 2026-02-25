@@ -1,10 +1,21 @@
 /**
- * BatchDownloadModal - 点位批量下载弹窗
+ * BatchDownloadModal - Feature 组件层
  *
- * 职责：
- * - 渲染点位批量下载弹窗内容与操作区域。
- * - 处理打开/关闭、确认/取消等交互。
- * - 与表单校验或数据提交逻辑联动。
+ * 模块定位：
+ * - 所在层级：Feature 组件层
+ * - 主要目标：承载点位模块内聚 UI
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:BatchDownloadModal`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`react-dom`、`../../../components/Icon`、`../../../constants/maps`
+ * - 下游影响：供 MainView 与控制器配合
  */
 
 import React, { useState } from 'react';

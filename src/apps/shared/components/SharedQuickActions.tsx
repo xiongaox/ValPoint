@@ -1,10 +1,21 @@
 /**
- * SharedQuickActions - 共享库快捷操作
+ * SharedQuickActions - 应用壳层(shared)
  *
- * 职责：
- * - 渲染共享库快捷操作相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:SharedQuickActions`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../components/Icon`、`../../../hooks/useEmailAuth`
+ * - 下游影响：供 index.html 入口挂载
  */
 
 import React from 'react';

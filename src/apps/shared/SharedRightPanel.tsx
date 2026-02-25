@@ -1,10 +1,21 @@
 /**
- * SharedRightPanel - 共享库右侧面板
+ * SharedRightPanel - 应用壳层(shared)
  *
- * 职责：
- * - 承载共享库右侧面板相关信息与操作入口。
- * - 组织内部子模块的布局与显示状态。
- * - 向父级汇报用户操作或选择。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `default:SharedRightPanel`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../components/Icon`、`../../types/lineup`、`./PendingSubmissionsTab`
+ * - 下游影响：供 index.html 入口挂载
  */
 
 import React, { useEffect, useMemo, useState } from 'react';

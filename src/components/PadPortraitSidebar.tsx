@@ -1,10 +1,21 @@
 /**
- * PadPortraitSidebar - iPad 竖屏侧栏
+ * PadPortraitSidebar - 组件层
  *
- * 职责：
- * - 提供 iPad 竖屏专用的左侧细栏。
- * - 展示 Logo、地图缩略图与英雄单列滚动选择。
- * - 将地图/英雄选择操作回传给父组件。
+ * 模块定位：
+ * - 所在层级：组件层
+ * - 主要目标：承载界面渲染与事件分发
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:PadPortraitSidebar`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../types/lineup`
+ * - 下游影响：供页面与应用壳组合
  */
 
 import React from 'react';

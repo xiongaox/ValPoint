@@ -1,10 +1,21 @@
 /**
- * AdminProfileModal - 管理端资料弹窗
+ * AdminProfileModal - 应用壳层(admin)
  *
- * 职责：
- * - 渲染管理端资料弹窗内容与操作区域。
- * - 处理打开/关闭、确认/取消等交互。
- * - 与表单校验或数据提交逻辑联动。
+ * 模块定位：
+ * - 所在层级：应用壳层(admin)
+ * - 主要目标：承载管理后台流程与页面路由
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:AdminProfileModal`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../components/Icon`、`../../../components/UserAvatar`、`../../../supabaseClient`
+ * - 下游影响：供 admin.html 入口挂载
  */
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';

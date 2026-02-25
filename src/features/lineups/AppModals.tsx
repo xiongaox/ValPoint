@@ -1,10 +1,21 @@
 /**
- * AppModals - 点位应用Modals
+ * AppModals - Feature 层
  *
- * 职责：
- * - 渲染点位应用Modals相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * 模块定位：
+ * - 所在层级：Feature 层
+ * - 主要目标：承载点位核心业务入口与组合逻辑
+ *
+ * 关键职责：
+ * - 组织点位模块核心流程与组件组合
+ * - 串联控制器、视图与工具函数
+ * - 对 apps 层提供 feature 级能力入口
+ *
+ * 主要导出：
+ * - `default:AppModals`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../components/MapPickerModal`、`../../components/PreviewModal`、`../../components/AlertModal`
+ * - 下游影响：供 apps 层对接
  */
 
 import React from 'react';

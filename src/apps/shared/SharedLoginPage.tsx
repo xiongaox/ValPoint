@@ -1,10 +1,21 @@
 /**
- * SharedLoginPage - 共享库登录页面
+ * SharedLoginPage - 应用壳层(shared)
  *
- * 职责：
- * - 组织共享库登录页面的整体布局与关键区域。
- * - 协调路由、筛选或 Tab 等顶层状态。
- * - 整合数据来源与子组件的交互。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `default:SharedLoginPage`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../components/Icon`、`../../hooks/useEmailAuth`、`../../lib/emailValidator`
+ * - 下游影响：供 index.html 入口挂载
  */
 
 import React, { useState, useEffect } from 'react';

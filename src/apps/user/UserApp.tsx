@@ -1,10 +1,21 @@
 /**
- * UserApp - 个人库用户应用
+ * UserApp - 应用壳层(user)
  *
- * 职责：
- * - 渲染个人库用户应用相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * 模块定位：
+ * - 所在层级：应用壳层(user)
+ * - 主要目标：承载个人库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `default:UserApp`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../features/lineups/MainView`、`../../features/lineups/AppModals`、`../../features/lineups/useAppController`
+ * - 下游影响：供 user.html 入口挂载
  */
 
 import React, { useState, useEffect, useCallback } from 'react';

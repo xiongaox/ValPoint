@@ -1,8 +1,21 @@
 /**
- * StorageChart - 管理端地图热度分布图表
+ * StorageChart - 应用壳层(admin)
  *
- * 职责：
- * - 渲染近30天地图热度分布（上传/下载）图表。
+ * 模块定位：
+ * - 所在层级：应用壳层(admin)
+ * - 主要目标：承载管理后台流程与页面路由
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:function`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../../supabaseClient`、`../../../../constants/maps`
+ * - 下游影响：供 admin.html 入口挂载
  */
 
 import React, { useEffect, useState } from 'react';

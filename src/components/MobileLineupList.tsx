@@ -1,10 +1,21 @@
 /**
- * MobileLineupList - 移动端点位列表
+ * MobileLineupList - 组件层
  *
- * 职责：
- * - 渲染移动端点位列表列表与空态/加载态。
- * - 处理筛选、排序或选择等列表交互。
- * - 对外暴露条目操作的回调接口。
+ * 模块定位：
+ * - 所在层级：组件层
+ * - 主要目标：承载界面渲染与事件分发
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:MobileLineupList`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`./Icon`、`../types/lineup`、`../hooks/useEscapeClose`
+ * - 下游影响：供页面与应用壳组合
  */
 
 import React from 'react';

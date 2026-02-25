@@ -1,9 +1,21 @@
 /**
- * ReviewStatsChart - 管理端个人库贡献榜图表
+ * ReviewStatsChart - 应用壳层(admin)
  *
- * 职责：
- * - 渲染近30天个人库贡献者上传活跃榜（Top8）。
- * - 以 user_profiles 的 custom_id/nickname/email 作为展示名，便于管理员识别用户。
+ * 模块定位：
+ * - 所在层级：应用壳层(admin)
+ * - 主要目标：承载管理后台流程与页面路由
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:function`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../../supabaseClient`
+ * - 下游影响：供 admin.html 入口挂载
  */
 
 import React, { useEffect, useState } from 'react';

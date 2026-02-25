@@ -1,10 +1,21 @@
 /**
- * supabaseClient - supabaseClient
+ * supabaseClient - 应用源码层
  *
- * 职责：
- * - 承载supabaseClient相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：应用源码层
+ * - 主要目标：承载前端运行时主逻辑
+ *
+ * 关键职责：
+ * - 承载当前文件的核心实现逻辑
+ * - 处理输入输出与边界行为
+ * - 向上层提供稳定可复用能力
+ *
+ * 主要导出：
+ * - `supabase`、`shareSupabase`、`adminSupabase`
+ *
+ * 依赖关系：
+ * - 上游依赖：`@supabase/supabase-js`
+ * - 下游影响：供 MPA 入口启动
  */
 
 import { createClient } from '@supabase/supabase-js';

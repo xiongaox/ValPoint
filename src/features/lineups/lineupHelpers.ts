@@ -1,10 +1,21 @@
 /**
- * lineupHelpers - 点位工具
+ * lineupHelpers - Feature 层
  *
- * 职责：
- * - 承载点位工具相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：Feature 层
+ * - 主要目标：承载点位核心业务入口与组合逻辑
+ *
+ * 关键职责：
+ * - 组织点位模块核心流程与组件组合
+ * - 串联控制器、视图与工具函数
+ * - 对 apps 层提供 feature 级能力入口
+ *
+ * 主要导出：
+ * - `checkTitleExists`、`generateUniqueTitle`、`createEmptyLineup`、`toDbPayload`、`getMapDisplayName`、`getMapEnglishName`
+ *
+ * 依赖关系：
+ * - 上游依赖：`../../types/lineup`
+ * - 下游影响：供 apps 层对接
  */
 
 import { LineupDbPayload, MapOption, AgentOption, NewLineupForm, LineupSide, LineupPosition, AgentData, BaseLineup } from '../../types/lineup';

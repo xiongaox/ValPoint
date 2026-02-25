@@ -1,9 +1,21 @@
 /**
- * DailyDownloadsChart - 管理端内容供给趋势图表
+ * DailyDownloadsChart - 应用壳层(admin)
  *
- * 职责：
- * - 渲染管理端内容供给趋势（14天）图表。
- * - 统一展示上传到个人库与共享库的日趋势。
+ * 模块定位：
+ * - 所在层级：应用壳层(admin)
+ * - 主要目标：承载管理后台流程与页面路由
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:function`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`date-fns`、`../../../../supabaseClient`
+ * - 下游影响：供 admin.html 入口挂载
  */
 
 import React, { useEffect, useState } from 'react';

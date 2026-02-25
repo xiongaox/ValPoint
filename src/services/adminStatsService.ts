@@ -1,10 +1,21 @@
 /**
- * adminStatsService - 管理端统计服务
+ * adminStatsService - 服务层
  *
- * 职责：
- * - 封装管理端统计服务相关的接口调用。
- * - 处理参数整理、错误兜底与结果转换。
- * - 向上层提供稳定的服务 API。
+ * 模块定位：
+ * - 所在层级：服务层
+ * - 主要目标：面向数据访问与结果归一化
+ *
+ * 关键职责：
+ * - 对外提供可复用的数据访问函数
+ * - 统一处理查询参数、字段映射与错误抛出
+ * - 保证上层拿到稳定的数据结构
+ *
+ * 主要导出：
+ * - `DashboardStats`、`RecentActivity`、`UserTrend`
+ *
+ * 依赖关系：
+ * - 上游依赖：`../supabaseClient`、`./tables`
+ * - 下游影响：供 hooks/controllers 复用
  */
 
 import { supabase } from '../supabaseClient';

@@ -1,10 +1,21 @@
 /**
- * MainView - 点位主视图
+ * MainView - Feature 层
  *
- * 职责：
- * - 组织点位主视图的整体布局与关键区域。
- * - 协调路由、筛选或 Tab 等顶层状态。
- * - 整合数据来源与子组件的交互。
+ * 模块定位：
+ * - 所在层级：Feature 层
+ * - 主要目标：承载点位核心业务入口与组合逻辑
+ *
+ * 关键职责：
+ * - 组织点位模块核心流程与组件组合
+ * - 串联控制器、视图与工具函数
+ * - 对 apps 层提供 feature 级能力入口
+ *
+ * 主要导出：
+ * - `default:MainView`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`@supabase/supabase-js`、`../../components/LeafletMap`、`../../components/QuickActions`
+ * - 下游影响：供 apps 层对接
  */
 
 import React, { useState, useMemo, useEffect } from 'react';

@@ -1,10 +1,21 @@
 /**
- * utils - 工具
+ * utils - 基础库(imageBed)
  *
- * 职责：
- * - 承载工具相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：基础库(imageBed)
+ * - 主要目标：封装图床上传/转存能力
+ *
+ * 关键职责：
+ * - 提供与框架解耦的通用能力函数
+ * - 处理下载、导入、校验、系统配置等基础逻辑
+ * - 为业务层提供可组合的底层能力
+ *
+ * 主要导出：
+ * - `trimSlashes`、`ensureProcessParams`、`ensureHttps`、`buildDateSegments`、`buildTimestampName`、`generateUUID`
+ *
+ * 依赖关系：
+ * - 上游依赖：无显式外部模块依赖
+ * - 下游影响：供业务上传与迁移流程调用
  */
 
 export const trimSlashes = (value = '') => value.replace(/^\/+|\/+$/g, '');

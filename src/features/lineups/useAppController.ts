@@ -1,10 +1,21 @@
 /**
- * useAppController - 点位应用控制器
+ * useAppController - Feature 层
  *
- * 职责：
- * - 封装点位应用控制器相关的状态与副作用。
- * - 对外提供稳定的接口与回调。
- * - 处理订阅、清理或缓存等生命周期细节。
+ * 模块定位：
+ * - 所在层级：Feature 层
+ * - 主要目标：承载点位核心业务入口与组合逻辑
+ *
+ * 关键职责：
+ * - 组织点位模块核心流程与组件组合
+ * - 串联控制器、视图与工具函数
+ * - 对 apps 层提供 feature 级能力入口
+ *
+ * 主要导出：
+ * - `useAppController`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../hooks/useEmailAuth`、`../../hooks/useLineups`、`../../hooks/useLineupActions`
+ * - 下游影响：供 apps 层对接
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';

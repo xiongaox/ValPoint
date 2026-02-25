@@ -1,10 +1,21 @@
 /**
- * CompactUserCard - Compact用户卡片
+ * CompactUserCard - 组件层
  *
- * 职责：
- * - 渲染单个Compact用户卡片条目的关键信息。
- * - 提供点击或快捷操作入口。
- * - 与父级列表的状态保持同步。
+ * 模块定位：
+ * - 所在层级：组件层
+ * - 主要目标：承载界面渲染与事件分发
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:CompactUserCard`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`@supabase/supabase-js`、`./UserAvatar`、`./Icon`
+ * - 下游影响：供页面与应用壳组合
  */
 
 import React from 'react';

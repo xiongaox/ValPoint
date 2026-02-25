@@ -1,10 +1,21 @@
 /**
- * adminUpload - 管理端上传
+ * adminUpload - 基础库
  *
- * 职责：
- * - 承载管理端上传相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：基础库
+ * - 主要目标：提供通用工具能力与系统辅助逻辑
+ *
+ * 关键职责：
+ * - 提供与框架解耦的通用能力函数
+ * - 处理下载、导入、校验、系统配置等基础逻辑
+ * - 为业务层提供可组合的底层能力
+ *
+ * 主要导出：
+ * - `AdminProfile`、`AdminUploadProgress`、`AdminUploadResult`、`parseZipFile`、`parseZipMetadata`、`adminUploadLineup`
+ *
+ * 依赖关系：
+ * - 上游依赖：`fflate`、`../supabaseClient`、`../types/imageBed`、`./imageBed`
+ * - 下游影响：供 hooks/features/services 复用
  */
 
 import { unzipSync, strFromU8 } from 'fflate';

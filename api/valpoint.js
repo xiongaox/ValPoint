@@ -1,10 +1,21 @@
 /**
- * valpoint - valpoint
+ * valpoint - API 适配层
  *
- * 职责：
- * - 处理valpoint相关的接口请求。
- * - 完成参数校验、业务处理与响应输出。
- * - 保持与前端/服务端契约一致。
+ * 模块定位：
+ * - 所在层级：API 适配层
+ * - 主要目标：承载边缘 API/接口适配实现
+ *
+ * 关键职责：
+ * - 处理平台侧请求入口与响应格式
+ * - 封装外部访问到内部逻辑的适配
+ * - 确保部署目标下行为可预期
+ *
+ * 主要导出：
+ * - `default:function`
+ *
+ * 依赖关系：
+ * - 上游依赖：`../valpoint.config.js`
+ * - 下游影响：供部署平台调用
  */
 
 import { manifestConfig } from '../valpoint.config.js';

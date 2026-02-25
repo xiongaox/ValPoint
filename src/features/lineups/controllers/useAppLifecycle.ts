@@ -1,10 +1,21 @@
 /**
- * useAppLifecycle - 点位应用Lifecycle
+ * useAppLifecycle - Feature 控制器层
  *
- * 职责：
- * - 封装点位应用Lifecycle相关的状态与副作用。
- * - 对外提供稳定的接口与回调。
- * - 处理订阅、清理或缓存等生命周期细节。
+ * 模块定位：
+ * - 所在层级：Feature 控制器层
+ * - 主要目标：拆分点位业务流程与状态编排
+ *
+ * 关键职责：
+ * - 按职责拆分点位业务控制器
+ * - 组合状态、动作与生命周期逻辑
+ * - 为视图层提供可直接消费的 props/handler
+ *
+ * 主要导出：
+ * - `useAppLifecycle`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../types/app`、`../../../types/lineup`、`../lineupHelpers`
+ * - 下游影响：供 feature 入口控制器组合
  */
 
 import { useEffect } from 'react';

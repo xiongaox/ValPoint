@@ -1,10 +1,21 @@
 /**
- * changelog - changelog
+ * changelog - 应用源码层
  *
- * 职责：
- * - 承载changelog相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：应用源码层
+ * - 主要目标：承载前端运行时主逻辑
+ *
+ * 关键职责：
+ * - 承载当前文件的核心实现逻辑
+ * - 处理输入输出与边界行为
+ * - 向上层提供稳定可复用能力
+ *
+ * 主要导出：
+ * - `changelogEntries`
+ *
+ * 依赖关系：
+ * - 上游依赖：无显式外部模块依赖
+ * - 下游影响：供 MPA 入口启动
  */
 
 type ChangelogItem = string | { text: string; children?: string[] };
@@ -18,6 +29,8 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '【清理】删除所有子目录 README.md，仅保留仓库根 README.md 作为统一入口文档',
       '【运维】更新 valpoint-git-description 技能 frontmatter 描述格式并保留触发语义',
       '【运维】移除 .agent/skills/valpoint-git-description/openai.yaml，统一仓库技能结构',
+      '【文档】批量重写文件头注释模板，补充模块定位、关键职责、主要导出与依赖关系说明',
+      '【优化】统一旧版泛化注释表达并细化到分层语义，提升跨模块阅读与维护效率',
     ],
   },
   {

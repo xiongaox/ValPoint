@@ -1,10 +1,21 @@
 /**
- * SubscriptionModal - 共享库Subscription弹窗
+ * SubscriptionModal - 应用壳层(shared)
  *
- * 职责：
- * - 渲染共享库Subscription弹窗内容与操作区域。
- * - 处理打开/关闭、确认/取消等交互。
- * - 与表单校验或数据提交逻辑联动。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `SubscriptionModal`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`lucide-react`、`../logic/subscription`、`../../../components/AlertModal`
+ * - 下游影响：供 index.html 入口挂载
  */
 
 import React, { useState } from 'react';

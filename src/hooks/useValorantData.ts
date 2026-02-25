@@ -1,10 +1,21 @@
 /**
- * useValorantData - ValorantData
+ * useValorantData - Hook 层
  *
- * 职责：
- * - 封装ValorantData相关的状态与副作用。
- * - 对外提供稳定的接口与回调。
- * - 处理订阅、清理或缓存等生命周期细节。
+ * 模块定位：
+ * - 所在层级：Hook 层
+ * - 主要目标：封装状态、副作用与交互流程
+ *
+ * 关键职责：
+ * - 封装状态管理与副作用控制
+ * - 对外暴露清晰的交互动作与派生状态
+ * - 隔离组件层与数据层耦合
+ *
+ * 主要导出：
+ * - `useValorantData`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../types/lineup`、`../data/localAgents`、`../data/localMaps`
+ * - 下游影响：供组件与控制器复用
  */
 
 import { useEffect, useState } from 'react';

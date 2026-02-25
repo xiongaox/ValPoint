@@ -1,10 +1,21 @@
 /**
- * avatarUtils - 头像工具
+ * avatarUtils - 工具层
  *
- * 职责：
- * - 提供头像工具相关的纯函数工具。
- * - 封装常用转换或格式化逻辑。
- * - 降低重复代码并提升可复用性。
+ * 模块定位：
+ * - 所在层级：工具层
+ * - 主要目标：提供无状态工具函数
+ *
+ * 关键职责：
+ * - 提供轻量且可复用的纯工具方法
+ * - 避免重复实现常见转换/解析逻辑
+ * - 维持调用方代码简洁
+ *
+ * 主要导出：
+ * - `AGENT_AVATARS`、`getRandomAvatar`、`getAvatarByUserId`、`getAvatarByEmail`
+ *
+ * 依赖关系：
+ * - 上游依赖：无显式外部模块依赖
+ * - 下游影响：供 hooks/components/services 复用
  */
 
 import {

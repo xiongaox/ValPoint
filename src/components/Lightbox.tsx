@@ -1,10 +1,21 @@
 /**
- * Lightbox - 灯箱
+ * Lightbox - 组件层
  *
- * 职责：
- * - 渲染灯箱相关的界面结构与样式。
- * - 处理用户交互与状态变更并触发回调。
- * - 组合子组件并提供可配置项。
+ * 模块定位：
+ * - 所在层级：组件层
+ * - 主要目标：承载界面渲染与事件分发
+ *
+ * 关键职责：
+ * - 聚焦界面渲染与交互事件回调
+ * - 接收上层 props 并输出稳定 UI 行为
+ * - 避免在组件中堆积跨模块业务逻辑
+ *
+ * 主要导出：
+ * - `default:Lightbox`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`./Icon`、`../types/ui`、`../hooks/useDeviceMode`
+ * - 下游影响：供页面与应用壳组合
  */
 
 import React, { useMemo, useEffect, useLayoutEffect, useCallback, useState, useRef } from 'react';

@@ -1,10 +1,21 @@
 /**
- * valpoint.json - valpointjson
+ * valpoint.json - 函数入口层
  *
- * 职责：
- * - 实现valpointjson相关的云函数入口。
- * - 处理事件输入与结果返回。
- * - 封装可复用的服务逻辑。
+ * 模块定位：
+ * - 所在层级：函数入口层
+ * - 主要目标：承载函数运行时入口与配置输出
+ *
+ * 关键职责：
+ * - 维护函数入口与运行时输出
+ * - 对接部署环境约束
+ * - 保证运行时配置格式稳定
+ *
+ * 主要导出：
+ * - 当前文件以内部实现为主（无显式导出或仅默认匿名导出）
+ *
+ * 依赖关系：
+ * - 上游依赖：`../valpoint.config.js`
+ * - 下游影响：供 serverless 环境调用
  */
 
 import { manifestConfig } from '../valpoint.config.js';

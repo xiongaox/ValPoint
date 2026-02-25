@@ -1,10 +1,21 @@
 /**
- * useSharedController - 共享库控制器
+ * useSharedController - 应用壳层(shared)
  *
- * 职责：
- * - 封装共享库控制器相关的状态与副作用。
- * - 对外提供稳定的接口与回调。
- * - 处理订阅、清理或缓存等生命周期细节。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `useSharedController`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`@supabase/supabase-js`、`../../hooks/useValorantData`、`../../features/lineups/controllers/useMapInfo`
+ * - 下游影响：供 index.html 入口挂载
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';

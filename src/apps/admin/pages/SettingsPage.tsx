@@ -1,10 +1,21 @@
 /**
- * SettingsPage - 管理端设置页面
+ * SettingsPage - 应用壳层(admin)
  *
- * 职责：
- * - 组织管理端设置页面的整体布局与关键区域。
- * - 协调路由、筛选或 Tab 等顶层状态。
- * - 整合数据来源与子组件的交互。
+ * 模块定位：
+ * - 所在层级：应用壳层(admin)
+ * - 主要目标：承载管理后台流程与页面路由
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `default:SettingsPage`
+ *
+ * 依赖关系：
+ * - 上游依赖：`react`、`../../../components/Icon`、`../../../components/AlertModal`、`../../../lib/systemSettings`
+ * - 下游影响：供 admin.html 入口挂载
  */
 
 import React, { useState, useEffect, useMemo } from 'react';

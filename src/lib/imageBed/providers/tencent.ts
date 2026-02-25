@@ -1,10 +1,21 @@
 /**
- * tencent - tencent
+ * tencent - 基础库(provider)
  *
- * 职责：
- * - 承载tencent相关的模块实现。
- * - 组织内部依赖与导出接口。
- * - 为上层功能提供支撑。
+ * 模块定位：
+ * - 所在层级：基础库(provider)
+ * - 主要目标：封装各图床厂商适配实现
+ *
+ * 关键职责：
+ * - 实现各厂商上传/转存差异逻辑
+ * - 统一输入输出协议并处理 provider 细节
+ * - 对上层隐藏 SDK 差异
+ *
+ * 主要导出：
+ * - `tencentDefinition`
+ *
+ * 依赖关系：
+ * - 上游依赖：`cos-js-sdk-v5`、`../types`、`../../../types/imageBed`
+ * - 下游影响：供 imageBed 统一入口调度
  */
 
 import COS from 'cos-js-sdk-v5';

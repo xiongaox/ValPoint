@@ -1,10 +1,21 @@
 /**
- * subscription - 共享库subscription
+ * subscription - 应用壳层(shared)
  *
- * 职责：
- * - 承载共享库subscription的核心业务逻辑。
- * - 组合数据处理与决策流程。
- * - 与上层 UI 或服务模块对接。
+ * 模块定位：
+ * - 所在层级：应用壳层(shared)
+ * - 主要目标：承载共享库业务流程与 UI 组合
+ *
+ * 关键职责：
+ * - 承载应用入口装配与页面级流程
+ * - 协调共享模块与业务模块的组合
+ * - 保证不同 MPA 入口行为一致且可维护
+ *
+ * 主要导出：
+ * - `Subscription`、`getSubscriptionList`、`addSubscription`、`removeSubscription`、`updateSubscription`、`reorderSubscription`
+ *
+ * 依赖关系：
+ * - 上游依赖：无显式外部模块依赖
+ * - 下游影响：供 index.html 入口挂载
  */
 
 export interface Subscription {

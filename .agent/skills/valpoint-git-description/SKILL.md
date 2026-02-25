@@ -1,6 +1,6 @@
 ---
 name: valpoint-git-description
-description: 仅在 ValPoint 项目中使用；当用户输入"git描述"时，根据距离上次提交后的改动生成中文 Git Commit Message，并在生成后同步更新 src/changelog.ts 和 docs/guide/更新日志.md。
+description: Use when user says "git描述" in ValPoint to generate a Chinese commit message from current changes and sync changelog files.
 ---
 
 # ValPoint Git 描述与日志同步

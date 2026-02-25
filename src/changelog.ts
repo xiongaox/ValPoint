@@ -16,6 +16,8 @@ export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
       '【文档】新增分层 AGENTS 知识库，补充 src/apps/features/services/lib/docs/scripts 的目录指引',
       '【运维】根 AGENTS 增加层级优先级说明，明确子目录 AGENTS 覆盖父级规则',
       '【清理】删除所有子目录 README.md，仅保留仓库根 README.md 作为统一入口文档',
+      '【运维】更新 valpoint-git-description 技能 frontmatter 描述格式并保留触发语义',
+      '【运维】移除 .agent/skills/valpoint-git-description/openai.yaml，统一仓库技能结构',
     ],
   },
   {

@@ -1,161 +1,75 @@
-# Agents Guide (ValPoint)
+# PROJECT KNOWLEDGE BASE
 
-ValPoint is a Vite + React + TypeScript app in **MPA** mode (multiple entry HTML files) with a VitePress docs site. Primary backend is Supabase.
+**Generated:** 2026-02-24 17:58 +0800
+**Branch:** main
 
-Agent instruction sources:
-- Cursor rules: none found (`.cursor/rules/` or `.cursorrules`).
-- Copilot rules: none found (`.github/copilot-instructions.md`).
+## OVERVIEW
+ValPoint is a Vite + React + TypeScript MPA app with a co-deployed VitePress docs site (`/wiki/`), backed by Supabase.
 
-## Quick Commands
-Package manager is **npm** (`package-lock.json`). Node **20** is used in CI/Docker.
+## STRUCTURE
+```text
+ValPoint/
+├── src/                  # app source: mpa shells + feature logic + services/lib
+├── docs/                 # VitePress docs site
+├── public/               # static gameplay/media assets (large)
+├── scripts/              # build/release helper scripts
+├── .github/workflows/    # release/docker/deploy automation
+├── index.html            # shared library entry html
+├── user.html             # personal library entry html
+├── admin.html            # admin entry html
+└── 404.html              # not found entry html
+```
 
+## WHERE TO LOOK
+| Task | Location | Notes |
+|------|----------|-------|
+| Add/adjust app entry | `vite.config.ts`, `index.html`, `user.html`, `admin.html`, `404.html` | MPA mode with explicit rollup inputs |
+| Shared/user/admin shell behavior | `src/apps/` | Keep entry files thin (render/init only) |
+| Core lineup workflow | `src/features/lineups/` | Main view + controller composition |
+| Reusable business hooks | `src/hooks/` | Business logic extraction target |
+| Supabase table I/O | `src/services/` | Thin query wrappers + normalization |
+| Upload/download/system helpers | `src/lib/` | Lower-level utilities used by features/apps |
+| Runtime env behavior | `src/supabaseClient.ts`, `scripts/generate-env-config.js`, `docker-entrypoint.sh` | `window.__ENV__` first, then `import.meta.env` |
+| Build/release pipeline | `scripts/build-all.js`, `.github/workflows/*.yml` | Tag-driven release/docker, separate VPS dist deploy |
+| Contributor architecture docs | `docs/dev/技术架构.md`, `docs/dev/开发规范.md` | Ground truth for boundaries |
+
+## CONVENTIONS
+- `vite.config.ts` uses `appType: 'mpa'` and four html inputs; do not treat this as SPA.
+- Dev docs run on VitePress and are proxied in app dev via `/wiki/`.
+- Build behavior is split: `npm run build` builds app; `npm run build:all` builds app + docs and merges docs into `dist/wiki/`.
+- TypeScript strict mode is enabled (`tsconfig.json`); avoid `any`, `@ts-ignore`, `@ts-nocheck`.
+- No enforced formatter/linter scripts; follow `.editorconfig` and nearby style.
+
+## ANTI-PATTERNS (THIS PROJECT)
+- Do not place business logic, Supabase queries, or complex state directly in app entry files (`docs/dev/开发规范.md`).
+- Do not mix UI rendering and business logic in one component; move logic to hooks/controllers.
+- Do not invent test commands: there is no `npm test` script and no `*.test.*` / `*.spec.*` files.
+- Do not assume runtime env only comes from Vite build-time vars; deployment uses `window.__ENV__` injection paths.
+
+## UNIQUE STYLES
+- Tailwind is loaded from CDN in html entry files; there is no `tailwind.config.*` in repo.
+- Large static asset pools under `public/abilities`, `public/agents`, `public/maps/*` are content-heavy and not code modules.
+- Release build workflow can dispatch `deploy-dist-to-vps.yml` after release artifact upload.
+
+## COMMANDS
 ```bash
-# install
 npm install
-npm ci
-
-# dev
-npm run dev         # Vite on :3208
-npm run docs:dev    # VitePress on :5173
-
-# build / typecheck
-npm run build       # tsc && vite build && node scripts/generate-env-config.js
-npm run build:all   # main app + docs (scripts/build-all.js)
-npx tsc -p tsconfig.json --noEmit
-
-# preview
-npm run preview
-npm run docs:build
-npm run docs:preview
-```
-
-Lint/format/tests:
-- No lint/format scripts and no ESLint/Prettier/Biome config; follow `.editorconfig`.
-- No test runner (`npm test` not defined). “Run a single test” is not supported in current repo state.
-
-## Architecture / Boundaries
-High-level layout:
-- `src/apps/`: MPA shells (shared/user/admin). Keep entrypoints thin.
-- `src/features/`: feature modules (feature UI + controllers).
-- `src/components/`: shared UI components.
-- `src/hooks/`: shared hooks (business logic lives here, not in app shells).
-- `src/services/`: API wrappers (Supabase queries, normalization).
-- `src/lib/`: lower-level utilities (upload/download, auth helpers).
-- `docs/`: VitePress documentation.
-
-Tailwind:
-- Tailwind is loaded via CDN in HTML entrypoints (`index.html`, `user.html`, `admin.html`, `404.html`). There is no `tailwind.config.*` in this repo.
-
-MPA entrypoints:
-- `index.html`, `user.html`, `admin.html`, `404.html` (see `vite.config.ts`).
-- Entrypoints should only contain Providers, routing/view switching, and initialization.
-- Do not place business logic / Supabase queries / complex state in app entry files.
-
-Dev wiki:
-- In dev, `/wiki/` is proxied from Vite to VitePress (see `vite.config.ts`).
-
-## Code Style
-Naming:
-- Components: `PascalCase` (e.g. `LineupCard.tsx`).
-- Hooks: `usePascalCase` (prefer named exports).
-- Variables/functions: `camelCase`.
-- Constants: `UPPER_SNAKE_CASE`.
-
-Files:
-- Components: `PascalCase.tsx`; hooks/utils/services: `camelCase.ts` (see `docs/dev/开发规范.md`).
-
-Imports (common convention from docs):
-1) React 2) third-party 3) local components 4) local hooks 5) local utils/services 6) types (`import type`) 7) styles
-
-Notes:
-- The convention is documented in `docs/dev/开发规范.md`, but not mechanically enforced; keep diffs consistent with nearby files.
-
-TypeScript:
-- `strict: true` in `tsconfig.json`; keep it green.
-- Prefer explicit types at module boundaries (hook params/returns, service APIs, external IO).
-- Avoid type suppression (`@ts-ignore`, `@ts-nocheck`) and `any`.
-  - There are legacy exceptions (e.g. `src/components/EditorModal.tsx`); do not copy them into new code.
-
-Type-only imports:
-- Prefer `import type { X } from '...'` for types when it reduces runtime import surface.
-
-UI vs Logic separation:
-- UI components should not contain complex business logic.
-- Put business logic in hooks (`src/hooks/`) or feature controllers (`src/features/.../controllers/`).
-- API calls belong in `src/services/` (thin wrappers, data normalization).
-
-Error handling:
-- Supabase calls: handle `{ data, error }` explicitly; services commonly `throw error;`.
-- For async UI flows: `try/catch/finally`, and always clear loading flags in `finally`.
-- Prefer user-facing errors via existing alert/toast patterns rather than silent failures.
-
-Avoid:
-- Empty `catch` blocks.
-- Leaving loading flags stuck on.
-
-Logging:
-- Existing code uses `console.*` for debugging/ops; avoid adding noisy `console.log` in new code.
-
-## Supabase / Env
-- Env vars are read from `window.__ENV__` (runtime-injected) or `import.meta.env` (see `src/supabaseClient.ts`).
-- Local dev vars: `.env.example`.
-- Docker runtime writes `env-config.js` and `valpoint.json` via `docker-entrypoint.sh`.
-
-Static deploy env:
-- `npm run build` and `npm run build:all` generate `dist/env-config.js` via `scripts/generate-env-config.js`.
-
-## Docs / Source of Truth
-- Dev conventions: `docs/dev/开发规范.md`.
-- Architecture notes: `docs/dev/技术架构.md`.
-- Project overview: `docs/dev/项目概览.md`.
-
-## Formatting / Editor
-- `.editorconfig` is the baseline: 2 spaces, LF, UTF-8, final newline.
-- No formatter is enforced by tooling; keep diffs small and consistent with nearby code.
-
-## Repo Scripts
-Scripts live in `scripts/`:
-- `scripts/build-all.js`: builds main app + docs into one `dist/`.
-- `scripts/generate-env-config.js`: generates `dist/env-config.js` from `.env` and `process.env` (`VITE_*` only).
-- `scripts/auto_tag.js`: tagging/release helper (used by `npm run release`).
-
-## CI / Release Notes
-GitHub Actions (tag-driven):
-- `/.github/workflows/release.yml`: `npm ci` then `npm run build`, then archives `dist/`.
-- `/.github/workflows/docker-build.yml`: builds/pushes Docker image on tags.
-
-## Verification Before Shipping
-No test suite exists; rely on typecheck/build and manual smoke:
-
-```bash
-# fast correctness
-npx tsc -p tsconfig.json --noEmit
-
-# full build
-npm run build
-
-# run the app
 npm run dev
+npm run docs:dev
+npx tsc -p tsconfig.json --noEmit
+npm run build
+npm run build:all
 ```
 
-## Tests (Current State)
-- There are no `*.test.*` / `*.spec.*` files and no `test` script in `package.json`.
-- “Run a single test” is not applicable until a test runner is added.
-
-If you add a runner later (example only; not currently available):
-
-```bash
-# vitest example
-npm run test
-npx vitest run path/to/file.test.ts -t "test name"
-```
-
-## Project Skills
-The following project-local skill is available in this repository only:
-- `valpoint-git-description`: When input contains `git描述`, generate Chinese Git Commit Message from changes since the last commit, then sync-update `src/changelog.ts` and `docs/guide/更新日志.md` (file: `.codex/skills/valpoint-git-description/SKILL.md`).
-
-## Project Trigger Rule
-- Trigger phrase: `git描述`
-- Scope: only this repository (`/Users/xiongaox/Downloads/ValPoint`)
-- Required behavior: invoke `.codex/skills/valpoint-git-description/SKILL.md` workflow, generate the commit message, and then sync-write the same content into both `src/changelog.ts` and `docs/guide/更新日志.md`.
-- Execution policy: when user sends only `git描述`, execute directly without asking for an extra reminder.
+## NOTES
+- CI/Docker uses Node 20.
+- `scripts/generate-env-config.js` writes `dist/env-config.js`; Docker entrypoint writes runtime `env-config.js` and `valpoint.json`.
+- Hierarchical precedence: child `AGENTS.md` guidance overrides root guidance for files under that child directory.
+- Use child AGENTS files for module-level details:
+  - `src/AGENTS.md`
+  - `src/apps/AGENTS.md`
+  - `src/features/lineups/AGENTS.md`
+  - `src/lib/AGENTS.md`
+  - `src/services/AGENTS.md`
+  - `docs/AGENTS.md`
+  - `scripts/AGENTS.md`

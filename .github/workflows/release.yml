@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build:all
 
       - name: Archive dist
         run: tar -czf dist.tar.gz dist

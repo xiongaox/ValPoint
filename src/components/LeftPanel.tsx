@@ -11,7 +11,7 @@ import React from 'react';
 import Icon from './Icon';
 import { getAbilityIcon, getAbilityTitle } from '../utils/abilityIcons';
 import { ActiveTab } from '../types/app';
-import { Ability, AgentData, MapOption } from '../types/lineup';
+import { Ability, AgentData, MapOption, AgentRole } from '../types/lineup';
 
 type MapWithIcon = MapOption & { listViewIcon?: string | null };
 
@@ -56,6 +56,13 @@ const LeftPanel: React.FC<Props> = ({
 }) => {
   const isTabletCompact = layoutMode === 'tablet-compact';
 
+  const [selectedRole, setSelectedRole] = React.useState<AgentRole | 'all'>('all');
+
+  const filteredAgents = React.useMemo(() => {
+    if (selectedRole === 'all') return agents;
+    return agents.filter(a => a.role === selectedRole);
+  }, [agents, selectedRole]);
+
   const handleAgentClick = (agent: AgentData) => {
     if (selectedAgent?.uuid === agent.uuid) {
       if (activeTab === 'view') setSelectedAgent(null);
@@ -79,8 +86,8 @@ const LeftPanel: React.FC<Props> = ({
         </button>
       </div>
 
-      <div className={`${isTabletCompact ? 'p-3 space-y-4' : 'p-4 space-y-6'} flex-1 overflow-y-auto custom-scrollbar`}>
-        <div>
+      <div className={`${isTabletCompact ? 'p-3 space-y-4' : 'p-4 space-y-6'} flex flex-col flex-1 overflow-hidden`}>
+        <div className="flex-shrink-0">
           <div className="flex justify-between items-center mb-2">
             <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">当前地图 (Map)</label>
             {onReset && (
@@ -123,36 +130,79 @@ const LeftPanel: React.FC<Props> = ({
           )}
         </div>
 
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">选择特工 (Agent)</label>
-            {activeTab === 'view' && selectedAgent && (
-              <button onClick={() => setSelectedAgent(null)} className="text-[12px] text-gray-500 hover:text-white">
-                显示全部
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="flex-shrink-0">
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">选择特工 (Agent)</label>
+              {activeTab === 'view' && selectedAgent && (
+                <button onClick={() => setSelectedAgent(null)} className="text-[12px] text-gray-500 hover:text-white">
+                  显示全部
+                </button>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-1.5 mb-3">
+              <button
+                onClick={() => setSelectedRole('all')}
+                className={`group flex-1 h-9 rounded flex items-center justify-center transition-colors border ${selectedRole === 'all' ? 'border-[#ff4655] bg-[#ff4655]/15 text-white' : 'border-white/10 text-gray-500 hover:border-white/30 hover:text-gray-300'}`}
+                title="全部"
+              >
+                <Icon name="LayoutGrid" size={16} />
               </button>
-            )}
+              <button
+                onClick={() => setSelectedRole('initiator')}
+                className={`group flex-1 h-9 rounded flex items-center justify-center transition-colors border ${selectedRole === 'initiator' ? 'border-[#ff4655] bg-[#ff4655]/15' : 'border-white/10 hover:border-white/30'}`}
+                title="先锋"
+              >
+                <img src="/location/先锋.svg" alt="先锋" className={`w-5 h-5 object-contain transition-opacity ${selectedRole === 'initiator' ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
+              </button>
+              <button
+                onClick={() => setSelectedRole('sentinel')}
+                className={`group flex-1 h-9 rounded flex items-center justify-center transition-colors border ${selectedRole === 'sentinel' ? 'border-[#ff4655] bg-[#ff4655]/15' : 'border-white/10 hover:border-white/30'}`}
+                title="哨位"
+              >
+                <img src="/location/哨位.svg" alt="哨位" className={`w-5 h-5 object-contain transition-opacity ${selectedRole === 'sentinel' ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
+              </button>
+              <button
+                onClick={() => setSelectedRole('duelist')}
+                className={`group flex-1 h-9 rounded flex items-center justify-center transition-colors border ${selectedRole === 'duelist' ? 'border-[#ff4655] bg-[#ff4655]/15' : 'border-white/10 hover:border-white/30'}`}
+                title="决斗"
+              >
+                <img src="/location/决斗.svg" alt="决斗" className={`w-5 h-5 object-contain transition-opacity ${selectedRole === 'duelist' ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
+              </button>
+              <button
+                onClick={() => setSelectedRole('controller')}
+                className={`group flex-1 h-9 rounded flex items-center justify-center transition-colors border ${selectedRole === 'controller' ? 'border-[#ff4655] bg-[#ff4655]/15' : 'border-white/10 hover:border-white/30'}`}
+                title="控场"
+              >
+                <img src="/location/控场.svg" alt="控场" className={`w-5 h-5 object-contain transition-opacity ${selectedRole === 'controller' ? 'opacity-100' : 'opacity-50 group-hover:opacity-80'}`} />
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-4 gap-2">
-            {agents.map((agent) => {
-              const count = agentCounts[agent.displayName] || 0;
-              return (
-                <div
-                  key={agent.uuid || agent.displayName}
-                  onClick={() => handleAgentClick(agent)}
-                  className={`agent-item aspect-square rounded cursor-pointer overflow-hidden relative border-2 ${selectedAgent?.uuid === agent.uuid ? 'selected border-[#ff4655]' : 'border-transparent bg-[#0f1923]'
+
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 pr-1">
+            <div className="grid grid-cols-4 gap-2 pb-4 m-1">
+              {filteredAgents.map((agent) => {
+                const count = agentCounts[agent.displayName] || 0;
+                return (
+                  <div
+                    key={agent.uuid || agent.displayName}
+                    onClick={() => handleAgentClick(agent)}
+                  className={`agent-item aspect-square rounded cursor-pointer overflow-hidden relative border-2 transition-transform hover:scale-105 ${selectedAgent?.uuid === agent.uuid ? 'selected border-[#ff4655] bg-[#ff4655]/10' : 'border-transparent bg-[#1f2326] hover:bg-white/5'
                     }`}
                   title={agent.displayName}
                 >
-                  <img src={agent.displayIcon || undefined} alt={agent.displayName} className="w-full h-full object-cover" />
-                  {activeTab === 'view' && <span className={`count-badge ${count > 0 ? 'count-has-data' : 'count-empty'}`}>{count}</span>}
+                  <img src={agent.displayIcon || undefined} alt={agent.displayName} className="w-full h-full object-contain p-0.5" />
+                  {activeTab === 'view' && <span className={`count-badge z-10 ${count > 0 ? 'count-has-data' : 'count-empty'}`}>{count}</span>}
                 </div>
               );
-            })}
+              })}
+            </div>
           </div>
         </div>
 
         {selectedAgent && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex-shrink-0 animate-in fade-in slide-in-from-top-2 duration-300">
             <label className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">
               {activeTab === 'create' ? '选择使用技能 (Ability)' : '按技能筛选 (Filter by Ability)'}
             </label>

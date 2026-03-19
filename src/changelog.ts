@@ -11,6 +11,18 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-03-19',
+    items: [
+      '【新增】左侧面板新增特工角色筛选功能（先锋/哨位/决斗/控场），使用官方 SVG 图标',
+      '【新增】添加新特工迷核 (Miks)，包含头像、四项技能图标及控场角色定义',
+      '【优化】调整左侧面板布局，仅特工列表区域可滚动，地图与技能区域固定悬浮',
+      '【优化】特工头像改为 object-contain 显示，修复裁切问题，hover 效果改为 scale 放大',
+      '【优化】角色筛选按钮选中状态统一使用主题红色 (#ff4655)',
+      '【优化】为所有本地特工数据添加 role 属性，新增 AgentRole 类型定义',
+      '【运维】运行 fetchAbilities 脚本更新 ability_overrides.json，同步迷核技能数据',
+    ],
+  },
+  {
     date: '2026-02-13',
     items: [
       '【文档】将未来计划中的平板端适配标记为已完成',

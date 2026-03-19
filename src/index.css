@@ -116,9 +116,13 @@ body {
   border: 1px solid transparent;
 }
 
+.agent-item img {
+  object-fit: contain;
+}
+
 .agent-item:hover {
   border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
+  transform: scale(1.05);
 }
 
 .agent-item.selected {

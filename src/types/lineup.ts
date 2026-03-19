@@ -63,8 +63,10 @@ export type MapOption = {
   poolStatus?: MapPoolStatus | null;
 };
 
+export type AgentRole = 'initiator' | 'sentinel' | 'duelist' | 'controller';
+
 export type Ability = { slot?: string; displayIcon?: string; name?: string; displayName?: string; keypad?: string };
-export type AgentData = AgentOption & { abilities?: Ability[] };
+export type AgentData = AgentOption & { abilities?: Ability[], role?: AgentRole };
 
 export type NewLineupForm = {
   title: string;

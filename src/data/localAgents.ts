@@ -7,7 +7,7 @@
  * - 为上层功能提供支撑。
  */
 
-import { AgentData } from '../types/lineup';
+import { AgentData, AgentRole } from '../types/lineup';
 
 export const LOCAL_AGENTS: AgentData[] = [
   {
@@ -790,5 +790,70 @@ export const LOCAL_AGENTS: AgentData[] = [
         "displayName": "飘移"
       }
     ]
+  },
+  {
+    "displayName": "迷核",
+    "displayIcon": "/agents/迷核.png",
+    "uuid": "7c8a4701-4de6-9355-b254-e09bc2a34b72",
+    "abilities": [
+      {
+        "slot": "Ability1",
+        "displayIcon": "/abilities/迷核-电音脉冲.png",
+        "displayName": "电音脉冲"
+      },
+      {
+        "slot": "Ability2",
+        "displayIcon": "/abilities/迷核-共振谐律.png",
+        "displayName": "共振谐律"
+      },
+      {
+        "slot": "Grenade",
+        "displayIcon": "/abilities/迷核-声波帷幕.png",
+        "displayName": "声波帷幕"
+      },
+      {
+        "slot": "Ultimate",
+        "displayIcon": "/abilities/迷核-音脉强袭.png",
+        "displayName": "音脉强袭"
+      }
+    ]
   }
 ];
+
+const ROLE_MAP: Record<string, AgentRole> = {
+  '迷核': 'controller',
+  '盖可': 'initiator',
+  '黑梦': 'initiator',
+  '铁臂': 'initiator',
+  '钛狐': 'initiator',
+  'K/O': 'initiator',
+  '斯凯': 'initiator',
+  '猎枭': 'initiator',
+  '钢锁': 'sentinel',
+  '尚勃勒': 'sentinel',
+  '零': 'sentinel',
+  '奇乐': 'sentinel',
+  '维斯': 'sentinel',
+  '贤者': 'sentinel',
+  '禁灭': 'sentinel',
+  '雷兹': 'duelist',
+  '不死鸟': 'duelist',
+  '壹决': 'duelist',
+  '霓虹': 'duelist',
+  '夜露': 'duelist',
+  '幻棱': 'duelist',
+  '芮娜': 'duelist',
+  '捷风': 'duelist',
+  '海神': 'controller',
+  '蝰蛇': 'controller',
+  '星礈': 'controller',
+  '炼狱': 'controller',
+  '暮蝶': 'controller',
+  '幽影': 'controller'
+};
+
+LOCAL_AGENTS.forEach(agent => {
+  if (ROLE_MAP[agent.displayName]) {
+    agent.role = ROLE_MAP[agent.displayName];
+  }
+});

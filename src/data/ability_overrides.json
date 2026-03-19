@@ -782,5 +782,33 @@
       "Grenade": "噬源体",
       "Ultimate": "完全进化"
     }
+  },
+  "迷核": {
+    "iconUrl": {
+      "Ability1": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_c.png",
+      "Ability2": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_q.png",
+      "Grenade": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_e.png",
+      "Ultimate": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_x.png"
+    },
+    "titles": {
+      "Ability1": "电音脉冲",
+      "Ability2": "共振谐律",
+      "Grenade": "声波帷幕",
+      "Ultimate": "音脉强袭"
+    }
+  },
+  "Miks": {
+    "iconUrl": {
+      "Ability1": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_c.png",
+      "Ability2": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_q.png",
+      "Grenade": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_e.png",
+      "Ultimate": "https://game.gtimg.cn/images/val/agamezlk/agentskill/29_x.png"
+    },
+    "titles": {
+      "Ability1": "电音脉冲",
+      "Ability2": "共振谐律",
+      "Grenade": "声波帷幕",
+      "Ultimate": "音脉强袭"
+    }
   }
 }

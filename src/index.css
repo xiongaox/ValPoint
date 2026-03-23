@@ -159,6 +159,7 @@ body {
   transition: all 0.2s;
   opacity: 0.6;
   filter: grayscale(0.8);
+  border-bottom: 2px solid transparent;
 }
 
 .ability-icon:hover {

@@ -11,6 +11,14 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-03-23',
+    items: [
+      '【优化】更新莲华古城地图资源与技能图标样式',
+      '【优化】更新攻守双方莲华古城(Lotus)地图SVG资源',
+      '【优化】为技能图标补充透明下边界预留位置以优化交互状过渡',
+    ],
+  },
+  {
     date: '2026-03-19',
     items: [
       '【新增】左侧面板新增特工角色筛选功能（先锋/哨位/决斗/控场），使用官方 SVG 图标',

@@ -11,6 +11,15 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-05-03',
+    items: [
+      '【修复】修复ESA环境下点位作者主页按钮不显示的问题',
+      '【修复】导出 supabaseClient 中的 supabaseUrl 和 supabaseAnonKey 作为统一入口',
+      '【修复】修复 authorFetcher.ts 因硬编码 import.meta.env 导致获取拆分 Key 失败的问题',
+      '【修复】修复 subscription.ts 共享库配置中同样的环境变量硬编码问题',
+    ],
+  },
+  {
     date: '2026-03-23',
     items: [
       '【优化】更新莲华古城地图资源与技能图标样式',

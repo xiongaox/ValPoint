@@ -7,6 +7,8 @@
  * - 与上层 UI 或服务模块对接。
  */
 
+import { supabaseUrl, supabaseAnonKey } from '../../../supabaseClient';
+
 export interface Subscription {
     id: string; // 说明：UUID 或生成的 ID。
     name: string;
@@ -30,8 +32,8 @@ const getLocalSubscription = (): Subscription => {
         url: window.location.origin,
         mode: 'embed',
         api: {
-            supabaseUrl: (window as any).__ENV__?.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL,
-            supabaseAnonKey: (window as any).__ENV__?.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
+            supabaseUrl,
+            supabaseAnonKey
         },
         addedAt: 0
     };

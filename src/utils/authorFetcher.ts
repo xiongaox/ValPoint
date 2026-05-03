@@ -17,7 +17,7 @@ export type AuthorInfo = {
   source?: 'bilibili' | 'douyin'; // 说明：平台来源。
 };
 
-import { supabase } from '../supabaseClient';
+import { supabase, supabaseUrl, supabaseAnonKey } from '../supabaseClient';
 
 interface EdgeFunctionResponse {
   status: 'success' | 'error';
@@ -69,8 +69,8 @@ export async function fetchAuthorInfo(sourceLink: string): Promise<AuthorInfo | 
 
 async function fetchAuthorViaEdgeFunction(url: string): Promise<AuthorInfo | null> {
   try {
-    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const SUPABASE_URL = supabaseUrl;
+    const SUPABASE_ANON_KEY = supabaseAnonKey;
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.error('Supabase 配置缺失');

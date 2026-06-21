@@ -311,6 +311,7 @@ const AppModals: React.FC<Props> = ({
         isGuest={isGuest}
         onSubmitLineup={onSubmitLineup}
         isAdmin={isAdmin}
+        showErrorMarking={true}
       />
 
       <Lightbox viewingImage={viewingImage} setViewingImage={setViewingImage} />

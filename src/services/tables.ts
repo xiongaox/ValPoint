@@ -10,4 +10,5 @@
 export const TABLE = {
   lineups: 'valorant_lineups',
   shared: 'valorant_shared',
+  errorMarks: 'lineup_error_marks',
 };

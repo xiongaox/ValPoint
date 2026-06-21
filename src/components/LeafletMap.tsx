@@ -8,9 +8,13 @@
  */
 
 // @ts-nocheck
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import L from 'leaflet';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import * as L from 'leaflet';
 import { getAbilityIcon } from '../utils/abilityIcons';
+import { BaseLineup, AgentOption, NewLineupForm, SharedLineup } from '../types/lineup';
+import { ActiveTab } from '../types/app';
+import { useEmailAuth } from '../hooks/useEmailAuth';
+import { useErrorMarks } from '../hooks/useErrorMarks';
 
 type Lineup = {
   id: string;
@@ -37,6 +41,7 @@ type Props = {
   onViewLineup?: (id: string) => void;
   isFlipped: boolean;
   sharedLineup?: any;
+  showErrorMarking?: boolean;
 };
 
 const LeafletMap: React.FC<Props> = ({
@@ -56,7 +61,11 @@ const LeafletMap: React.FC<Props> = ({
   onViewLineup,
   isFlipped,
   sharedLineup,
+  showErrorMarking = false,
 }) => {
+  const { user } = useEmailAuth();
+  const { errorMarks } = useErrorMarks(showErrorMarking ? user?.id : undefined);
+
   const fitBoundsOptions = useMemo(
     () => (disableFitBoundsAnimation ? { animate: false } : undefined),
     [disableFitBoundsAnimation]
@@ -207,13 +216,15 @@ const LeafletMap: React.FC<Props> = ({
     return () => clearTimeout(timer);
   }, [isFlipped, fitBoundsOptions]);
 
-  const createIcon = (type: 'agent' | 'skill', imgUrl?: string) => {
+  const createIcon = (type: 'agent' | 'skill', imgUrl?: string | null, hasError?: boolean) => {
+    const errorOverlay = hasError ? `<div class="absolute inset-0 bg-red-500/50 rounded-full z-10 pointer-events-none"></div>` : '';
+    const errorStyle = hasError ? `style="border-color: #ef4444 !important;"` : '';
     const content = imgUrl
-      ? `<div class="marker-icon-wrapper border-white"><img src="${imgUrl}" class="marker-img ${type === 'skill' ? 'marker-img-skill' : ''
+      ? `<div class="marker-icon-wrapper relative" ${errorStyle}>${errorOverlay}<img src="${imgUrl}" class="marker-img ${type === 'skill' ? 'marker-img-skill' : ''
       }"/></div>`
-      : `<div class="marker-icon-wrapper bg-[#ff4655] text-white font-bold text-xs flex items-center justify-center">${type === 'agent' ? 'A' : 'S'
+      : `<div class="marker-icon-wrapper bg-[#ff4655] text-white font-bold text-xs flex items-center justify-center relative" ${errorStyle}>${errorOverlay}${type === 'agent' ? 'A' : 'S'
       }</div>`;
-    return L.divIcon({ className: `custom-marker`, html: content, iconSize: [32, 32], iconAnchor: [16, 16] });
+    return L.divIcon({ className: `custom-marker ${hasError ? 'marker-error' : ''}`, html: content, iconSize: [32, 32], iconAnchor: [16, 16] });
   };
 
   const updateMarkerStyle = (marker: any, isSelected: boolean, isInactive: boolean) => {
@@ -269,8 +280,9 @@ const LeafletMap: React.FC<Props> = ({
       const viewAgentPos = transformPos(l.agentPos);
       const viewSkillPos = transformPos(l.skillPos);
       if (viewAgentPos && viewSkillPos) {
-        const am = L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon) }).addTo(map);
-        const sm = L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon) }).addTo(map);
+        const hasError = !!errorMarks[l.id];
+        const am = L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon, hasError) }).addTo(map);
+        const sm = L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon, hasError) }).addTo(map);
         const line = L.polyline([viewAgentPos, viewSkillPos], { color: '#ff4655', weight: 3, dashArray: '8, 8' }).addTo(map);
         layers.current.sharedLayer = [am, sm, line];
       }
@@ -328,8 +340,9 @@ const LeafletMap: React.FC<Props> = ({
         const viewSkillPos = transformPos(l.skillPos);
         if (!viewAgentPos || !viewSkillPos) return;
 
-        const am = L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon), keyboard: false }).addTo(map);
-        const sm = L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon), keyboard: false }).addTo(map);
+        const hasError = !!errorMarks[l.id];
+        const am = L.marker(viewAgentPos, { icon: createIcon('agent', l.agentIcon, hasError), keyboard: false }).addTo(map);
+        const sm = L.marker(viewSkillPos, { icon: createIcon('skill', l.skillIcon, hasError), keyboard: false }).addTo(map);
 
         const handler = (e: any) => {
           L.DomEvent.preventDefault(e);
@@ -355,7 +368,7 @@ const LeafletMap: React.FC<Props> = ({
         }
       });
     }
-  }, [lineups, activeTab, newLineupData, selectedAgent, selectedAbilityIndex, isFlipped, sharedLineup]);
+  }, [lineups, activeTab, newLineupData, selectedAgent, selectedAbilityIndex, isFlipped, sharedLineup, errorMarks]);
 
   useEffect(() => {
     const map = mapInstance.current;

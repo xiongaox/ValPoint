@@ -30,6 +30,7 @@
     "qiniu-js": "^3.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-is": "^19.2.7",
     "recharts": "^3.6.0",
     "viewerjs": "^1.11.7",
     "vitepress-plugin-image-viewer": "^1.1.6"

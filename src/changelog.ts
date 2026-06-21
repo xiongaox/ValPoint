@@ -11,6 +11,16 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-06-21',
+    items: [
+      '【新增】个人点位库报错标记功能',
+      '【新增】在 ViewerModal 中增加报错标记下拉菜单（描述错误、图片错误、图片未标记及已处理）',
+      '【新增】在 LeafletMap 中支持根据报错状态渲染红色错误外框与光晕遮罩',
+      '【新增】新增 useErrorMarks Hook，通过 CustomEvent 实现跨组件实时同步点位报错状态',
+      '【优化】通过 showErrorMarking 参数隔离报错功能，仅在个人库展示报错信息，共享库中自动隐藏'
+    ],
+  },
+  {
     date: '2026-03-23',
     items: [
       '【优化】更新莲华古城地图资源与技能图标样式',

@@ -11,6 +11,15 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-06-25',
+    items: [
+      '【新增】增加新地图天枢云阙(Summit)并支持其实时状态展示',
+      '【新增】导入天枢云阙(Summit)攻守方 SVG 地图文件及高清封面',
+      '【优化】更新本地配置 (localMaps, constants) 支持天枢云阙的基础数据和名称映射',
+      '【修复】禁用 mapPoolService 远程请求缓存，修复地图池角标状态无法实时刷新的问题'
+    ],
+  },
+  {
     date: '2026-06-21',
     items: [
       '【新增】个人点位库报错标记功能',

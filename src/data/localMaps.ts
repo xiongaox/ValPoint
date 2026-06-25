@@ -56,5 +56,9 @@ export const LOCAL_MAPS: MapOption[] = [
   {
     "displayName": "Haven",
     "displayIcon": "/maps/covers/隐世修所.webp"
+  },
+  {
+    "displayName": "Summit",
+    "displayIcon": "/maps/covers/天枢云阙.webp"
   }
 ];

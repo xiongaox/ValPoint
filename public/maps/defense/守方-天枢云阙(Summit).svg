@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_1" data-name=" 图层 1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1100 1000">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6, .cls-7 {
+        fill: none;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-7, .cls-8 {
+        stroke: #b0adb0;
+      }
+
+      .cls-1, .cls-8 {
+        stroke-width: 1.5px;
+      }
+
+      .cls-2 {
+        stroke-miterlimit: 4;
+        stroke-width: 1.5px;
+      }
+
+      .cls-3 {
+        stroke-miterlimit: 4;
+        stroke-width: 1.5px;
+      }
+
+      .cls-9 {
+        fill: #575548;
+      }
+
+      .cls-9, .cls-10, .cls-11, .cls-12 {
+        stroke-width: 0px;
+      }
+
+      .cls-4 {
+        stroke: #656569;
+        stroke-width: 1.6px;
+      }
+
+      .cls-5 {
+        stroke: #814194;
+      }
+
+      .cls-5, .cls-6 {
+        opacity: .8;
+        stroke-miterlimit: 10;
+        stroke-width: 10px;
+      }
+
+      .cls-5, .cls-6, .cls-13 {
+        isolation: isolate;
+      }
+
+      .cls-10 {
+        fill: #b0adb0;
+      }
+
+      .cls-6 {
+        stroke: #6bc3c0;
+      }
+
+      .cls-7 {
+        stroke-dasharray: 0 5.1;
+        stroke-width: 1.5px;
+      }
+
+      .cls-11, .cls-8 {
+        fill: #33353b;
+      }
+
+      .cls-12, .cls-13 {
+        fill: #fff;
+      }
+
+      .cls-13 {
+        font-family: SimHei, SimHei;
+        font-size: 16px;
+      }
+    </style>
+  </defs>
+  <g id="Body">
+    <path class="cls-11" d="M82.8,789.4h105.1v-8.1h15.2v16.2h58.3c31.8-.5,48-28.2,48-51.4v-19.6h14.3v78h144.9v148.9l33.4,45.7h92.2s7-10.1,7-10.1v-113.5h232.1l29.4-28.5v-34.3h167.2v-56.8h0v-40.5h-39.5v19.3h-7.1v-30.5h31.4v-112.3l-29.4-28.4h-17.2v-23.3h23.3v-86.1h-133.7v31.4h-30.4v-77h23.3v-102.7c-.3-35.7-29-54.1-53.6-54.4h-77.1v-7.1h2v-55.7h-2v-7.1h8.1v-16.8c-.2-28.7-22.8-41.5-45.5-41.8h-73V25.1c0-13.5-10.8-24.3-24.3-24.3h-45.6c-13.5,0-24.3,10.8-24.3,24.3v144.2h4.1v19.3h-207.7c-17,0-23.3,13.9-23.3,19.1v113.6h24.4v86.2h-31.6v-24.3h-101.3v79h23.3v33h0v44h-30.4v-23.1c0-3.4-6.1-8.3-9.1-8.3h-59.3c-20,.1-33.9,14.1-33.9,31.4v79h31.4v15.2h-31.4v46.6l-13,9.2h-8l-10.4,4v48.7c-.2,20.2,30,48.3,43.8,47.6ZM371.4,758.1v-62.8h-112.5v-14.2h127.7v58.8l4,3h78.1v15.3s-97.4,0-97.4,0ZM491.1,660.8l-22.4,22.3v36.4s-58.9,0-58.9,0v-19.3h24.5s11,.1,11-15.2v-91.2h-15.2v-47.4l21.3-21.6h94.3v18.3h-23.3v102.3h23.4v15.3h-54.6ZM627.8,694.8v133.2h-116.6v-144h19.3v24.3h79v-24.3h18.3v10.8ZM593.3,660.8v-15.3h8.1v-42.6h69.9v-27.4h38.5v92.9h0v43h-20.2l-10.3,11.2h-8v-38.7l-23.3-23.1h-54.7ZM807.2,773.3h-4.1v16.2h-7.2v-16.2h-62.7l-23.4,27.3v27.4s-38.6,0-38.6,0v-81.2h7l11.3,12.1h67.8v-102.3h-23.2v-14.2h68.9v41.6h-19.3v75h23.4v14.2ZM904.4,773.3h-66.9v-14.2h66.9v14.2ZM906.4,648.7h-17.2v39.4h17.2v15.3h-53.7v-70h53.7v15.3ZM998.6,759.1v22.3h-46.6v-22.3h46.6ZM741.2,368.9l19.8-19.8,11.7,11.7v32.4h0v117.5l29.4,29.4h95.2v-15.2h23.4v38.5h-31.4v15.2h-109.4v31.4h-22.3v-66.9h-175.3v-18.3h27.3v-101.3h23.3v-31.5h14.4v31.4h94v-54.7ZM445.3,235.2h113.5v-46.6h-4v-18.3h104.8c10.1,0,14.9,11.2,14.9,11.2h10v7.1h-2v55.7h2v7.1h-6.1v59.8h44.6l13.9,13.9-35.9,35.9h-91.6s-38.6,0-38.6,0v-94.3h-110.3v39.5h-15.3v-71ZM351.8,244.7c4.1,0,7.4,3.3,7.4,7.4s-3.3,7.4-7.4,7.4-7.4-3.3-7.4-7.4,3.3-7.4,7.4-7.4ZM250.8,462.2h23.3v-7.1h7v-8.1h31.6v23.3h51.6l11.1-8.2v-85h16.3v-44.5h-16.3v-10.3h31.5v-50.6h7.1v74h65.9c0,0,12.1,0,12.1,0v14.4h-23.2v102.2h23.2v15.4h-78.1c-17.2,0-31.3,16.3-31.3,30v72.2h15.2v14.3h-27.8c-11.2,0-10.7,12.6-10.7,12.6v42.2s-38.6,0-38.6,0v-124.7h-14.4c-6.6-.3-24.7-3.3-24.1-26.9v-12.6h-31.4v-22.3ZM133.3,571.6h70v61.8h-70v-61.8ZM97.5,715.5l.7-1.2,1.6-2.9h49.6v-30.4h60.9v14.2h-7.1v54.7h-14.2v-8.1h-66.4s-13.8-7.7-26.6-23.8l1.5-2.5Z"/>
+  </g>
+  <g id="Bombsite">
+    <path class="cls-9" d="M133.9,633.4v-14.3h.4s0-46.6,0-46.6h10.7s28,0,28,0v-33.8h.7c0,0,0-23.1,0-23.1l-1.8-4.4-3.9-3-4.1-1.5-9.3.2h-53.2c0-.1-6.8,1.1-6.8,1.1l-8.3,3.1-6.9,5-4.7,5.6-3,5.5-1.9,8.1v14s0,18.3,0,18.3l-.2,17.6.3,33.6h31.5v14.5h32.5Z"/>
+    <path class="cls-9" d="M983.4,759.8v-54.5h32.1v-21.8h0v-34.9h-126.9v40.8h16.8v13.9h-52.6v56.4h130.7Z"/>
+  </g>
+  <rect class="cls-11" x="953.1" y="643.9" width="15.5" height="15.5" transform="translate(-197.1 567.7) rotate(-30)"/>
+  <g id="Lines">
+    <g>
+      <rect class="cls-10" x="966.6" y="780.8" width="1.1" height="32.3"/>
+      <rect class="cls-10" x="903.4" y="759.1" width="49.2" height="1.2"/>
+      <rect class="cls-10" x="862.8" y="772.7" width="1.1" height="40.9"/>
+    </g>
+    <path class="cls-7" d="M951,772.7h-46"/>
+    <g>
+      <rect class="cls-8" x="882" y="743.8" width="15.1" height="16.1"/>
+      <rect class="cls-8" x="998.6" y="688.1" width="16.9" height="17"/>
+      <rect class="cls-8" x="990.3" y="695.1" width="8.3" height="10"/>
+    </g>
+    <g>
+      <rect class="cls-2" x="963.9" y="631.6" width="15.5" height="15.5" transform="translate(-189.5 571.5) rotate(-30)"/>
+      <rect class="cls-2" x="953.1" y="643.9" width="15.5" height="15.5" transform="translate(-197.1 567.7) rotate(-30)"/>
+      <rect class="cls-1" x="873.7" y="577.9" width="14.7" height="16.1"/>
+    </g>
+    <rect class="cls-10" x="857" y="468.5" width="135.3" height="1.2"/>
+    <g>
+      <rect class="cls-1" x="811.8" y="447" width="16.4" height="15.8"/>
+      <rect class="cls-1" x="685.6" y="360.1" width="14.7" height="16.3"/>
+      <g>
+        <rect class="cls-1" x="592.9" y="424.4" width="17.4" height="15.2"/>
+        <circle class="cls-1" cx="548.4" cy="413.1" r="12.8" transform="translate(-116.3 241.3) rotate(-22.5)"/>
+        <rect class="cls-1" x="538.4" y="345.8" width="33.3" height="14.4"/>
+        <rect class="cls-1" x="561.1" y="336.7" width="10.6" height="9"/>
+        <rect class="cls-1" x="709" y="696.3" width="16" height="14.4"/>
+      </g>
+    </g>
+    <rect class="cls-10" x="544.9" y="645.6" width="49.2" height="1.6"/>
+    <g>
+      <g>
+        <path class="cls-7" d="M592.4,660.1h-46"/>
+        <path class="cls-7" d="M257.6,694.5h-46"/>
+        <path class="cls-7" d="M257.6,681.9h-46"/>
+      </g>
+      <g>
+        <rect class="cls-1" x="558.7" y="154.9" width="14.4" height="16.2"/>
+        <g>
+          <rect class="cls-1" x="604.4" y="74.4" width="5.9" height="16.7"/>
+          <rect class="cls-1" x="555.5" y="0" width="16.7" height="5.8"/>
+          <polygon class="cls-1" points="521.4 44.8 514.4 44.8 514.5 29.5 521.4 29.5 521.4 44.8"/>
+        </g>
+        <rect class="cls-1" x="531.4" y="492.9" width="13.6" height="32.9"/>
+      </g>
+    </g>
+    <path class="cls-10" d="M431.4,549.4v-23.2h23.4v-1.2h-24.6v24.5h1.2Z"/>
+    <g>
+      <rect class="cls-1" x="430.9" y="593.1" width="15.3" height="48.5"/>
+      <rect class="cls-1" x="437.2" y="641.6" width="8.9" height="7.2"/>
+      <polygon class="cls-3" points="293 591.7 265.4 601.3 260.7 587.9 288.3 578.3 293 591.7"/>
+      <g>
+        <rect class="cls-1" x="305.5" y="523.2" width="16" height="17.1"/>
+        <circle class="cls-1" cx="351.8" cy="252.1" r="7.4"/>
+        <rect class="cls-1" x="366.4" y="336.6" width="9.7" height="16"/>
+      </g>
+    </g>
+    <rect class="cls-10" x="375.3" y="329.1" width="1.6" height="49.2"/>
+    <g>
+      <rect class="cls-1" x="311.9" y="392.2" width="15.7" height="14.5"/>
+      <rect class="cls-1" x="521.6" y="615.2" width="16" height="31.1"/>
+      <g>
+        <rect class="cls-1" x="537.5" y="630.4" width="7.4" height="15.9"/>
+        <rect class="cls-1" x="512" y="827.2" width="14.5" height="17"/>
+        <rect class="cls-1" x="575.7" y="994" width="15.6" height="6"/>
+        <rect class="cls-1" x="548.3" y="994" width="15.6" height="6"/>
+        <rect class="cls-1" x="505.1" y="994" width="16.1" height="6"/>
+        <circle class="cls-1" cx="535.4" cy="996.8" r="2.8"/>
+        <rect class="cls-1" x="259.7" y="694.4" width="13.5" height="16"/>
+        <rect class="cls-1" x="150.2" y="664.9" width="15.2" height="16.9"/>
+      </g>
+    </g>
+    <rect class="cls-8" x="69.7" y="603.2" width="16.9" height="15.9"/>
+    <rect class="cls-8" x="102.9" y="539.9" width="14.1" height="15.7"/>
+  </g>
+  <g id="Outlines">
+    <path class="cls-4" d="M594.7,1000l7.4-10.7v-112.9h231.6l29.9-29v-33.9h167.2v-58.4h0v-40.5h-41.1v19.3h-5.5v-28.8h31.4v-113.5l-29.9-28.9h-16.7v-21.7h23.3v-87.7h-135.3v31.4h-28.8v-75.4h23.3v-103.5c-.3-36.2-29.4-54.9-54.4-55.2h-76.3v-5.5h2v-57.3h-2v-5.5h8.1v-17.6c-.2-29.2-23.2-42.3-46.3-42.7h-72.2V25.1C610.3,11.2,599.1,0,585.2,0h-45.6c-13.9,0-25.1,11.2-25.1,25.1v145h4.1v17.7h-206.9c-17.3,0-24.1,14.1-24.1,19.9v114.4h24.4v84.6h-29.9v-24.3h-102.9v80.6h23.3v33h0v42.4h-28.8v-22.3c0-3.9-6.4-9.1-9.9-9.1h-59.3c-20.4.1-34.7,14.4-34.7,32.2v79.8h31.4v13.6h-31.4v46.9l-12.5,8.8h-7.9l-11.1,4.3v49.2c0,4.2,1.2,8.7,3.2,13.1,4.1,8.9,11.6,17.8,19.4,24.5,7.7,6.5,16.1,11.1,21.9,10.8h105.9v-8.1h13.6v16.2h59.1c32.3-.5,48.8-28.6,48.8-52.2v-18.8h12.6v78h144.9v148.4l33.8,46.2h93ZM709.1,827.2h-37v-79.5h5.9l11.3,12.1h68.9v-103.9h-23.2v-12.6h67.3v39.9h-19.3v76.6h23.4v12.6h-4.1v16.2h-5.5v-16.2h-63.9l-23.8,27.8v26.9ZM626.9,827.2h-114.9v-142.3h17.7v24.3h80.6v-24.3h16.6v142.3ZM997.8,780.6h-45v-20.7h45v20.7ZM903.6,772.4h-65.3v-12.6h65.3v12.6ZM467.9,757.3h-95.7v-62.8h-112.5v-12.6h126.1v58.4l4.6,3.4h77.5v13.6ZM202.4,749.2h-12.6v-8.1h-67c-.2-.1-.3-.2-.9-.6-.5-.3-1.1-.7-1.9-1.2-1.3-.9-2.9-2-4.8-3.4-3.1-2.4-6.9-5.6-10.9-9.7-2.4-2.4-4.8-5.2-7.3-8.2l1.2-2.1.7-1.2,1.4-2.4h50v-30.4h59.3v12.6h-7.1v54.7ZM679,721.9h-6.9v-38.2l-23.8-23.6h-54.2v-13.6h8.1v-42.6h69.9v-27.4h36.9v92.9h0v41.4h-19.8l-10.3,11.2ZM467.9,718.7h-57.2v-17.7h23.7c.3,0,.8,0,1.3-.1,3.1-.5,10.5-3.1,10.5-15.9v-92h-15.2v-46.3l20.8-21.1h93.1v16.7h-23.3v103.9h23.4v13.6h-54.2l-22.9,22.8v35.9ZM905.6,702.6h-52.1v-68.4h52.1v13.6h-17.2v41.1h17.2v13.7ZM358.4,647.9h-36.9v-124.7h-15.2c-3.2-.1-9.2-1-14.3-4.6-2.5-1.8-4.8-4.3-6.5-7.8-1.7-3.5-2.7-8-2.5-13.8h0v-13.4h-31.4v-20.7h23.3v-7.1h7v-8.1h29.9v23.3h52.7l11.6-8.6v-84.6h16.3v-46.2h-16.3v-8.6h31.5v-50.6h5.5v74h67.5c0,0,10.4,0,10.4,0v12.7h-23.2v103.8h23.2v13.7h-77.3c-17.6,0-32.1,16.6-32.1,30.9v73h15.2v12.6h-27c-7.2,0-9.9,4.9-11,8.8-.4,1.5-.6,3.4-.6,4.6h0s0,41.3,0,41.3ZM202.4,632.6h-68.3v-60.2h68.3v60.2ZM778.9,609.3h-20.7v-66.9h-175.3v-16.7h27.3v-101.3h23.3v-31.5h12.8v31.4h95.7v-55.2l19-19,10.9,10.9v31.3h0v118.7l29.9,29.8h96.3v-15.2h21.7v36.9h-31.4v15.2h-109.4v31.4ZM700.7,360.1h-90.4s-38.6,0-38.6,0v-94.3h-111.9v39.5h-13.6v-69.4h113.5v-48.2h-4v-16.7h104c1.9,0,3.6.4,5.1,1.1,1.2.5,2.3,1.2,3.3,2,1.9,1.6,3.4,3.5,4.4,5,.4.6.7,1.1.9,1.6q.3.6.5,1l.2.5h9.7v5.5h-2v57.3h2v5.5h-6.1v61.4h45l13.1,13.1-35.1,35.1Z"/>
+  </g>
+  <g id="Callouts">
+    <text class="cls-13" transform="translate(493 937.6)"><tspan x="0" y="0">守方 重生点</tspan></text>
+    <text class="cls-13" transform="translate(368.7 787.6)"><tspan x="0" y="0">A区 大堂</tspan></text>
+    <text class="cls-13" transform="translate(220.5 754.5)"><tspan x="0" y="0">A区 画架</tspan></text>
+    <text class="cls-13" transform="translate(64 767.1)"><tspan x="0" y="0">A区 洞穴</tspan></text>
+    <text class="cls-13" transform="translate(232.4 636.4)"><tspan x="0" y="0">A区 花园</tspan></text>
+    <text class="cls-13" transform="translate(271.3 433.5)"><tspan x="0" y="0">A区 大道</tspan></text>
+    <text class="cls-13" transform="translate(317.8 236.3)"><tspan x="0" y="0">A区 大厅</tspan></text>
+    <text class="cls-13" transform="translate(480.7 308.6)"><tspan x="0" y="0">中区 坡顶</tspan></text>
+    <text class="cls-13" transform="translate(506.5 452.7)"><tspan x="0" y="0">中区 喷泉</tspan></text>
+    <text class="cls-13" transform="translate(399.7 508.3)"><tspan x="0" y="0">中区 拐角</tspan></text>
+    <text class="cls-13" transform="translate(559.6 580.1)"><tspan x="0" y="0">中区 坡底</tspan></text>
+    <text class="cls-13" transform="translate(536.5 691.7)"><tspan x="0" y="0">中区 窗户</tspan></text>
+    <text class="cls-13" transform="translate(689.7 744.5)"><tspan x="0" y="0">B区 奖杯</tspan></text>
+    <text class="cls-13" transform="translate(703.3 585.8)"><tspan x="0" y="0">B区 小道</tspan></text>
+    <text class="cls-13" transform="translate(649.8 405.3)"><tspan x="0" y="0">中区 青砖路</tspan></text>
+    <text class="cls-13" transform="translate(762.1 317.4)"><tspan x="0" y="0">B区 大厅</tspan></text>
+    <text class="cls-13" transform="translate(902.8 505.3)"><tspan x="0" y="0">B区 大道</tspan></text>
+    <text class="cls-13" transform="translate(982.3 773)"><tspan x="0" y="0">B区 下坡</tspan></text>
+    <text class="cls-13" transform="translate(887 797.6)"><tspan x="0" y="0">B区 高台</tspan></text>
+    <text class="cls-13" transform="translate(753.1 841.7)"><tspan x="0" y="0">B区 健身房</tspan></text>
+    <text class="cls-13" transform="translate(517.4 68.1)"><tspan x="0" y="0">攻方 重生点</tspan></text>
+    <text class="cls-13" transform="translate(364.5 649.5)"><tspan x="0" y="0">A区 小道</tspan></text>
+    <path class="cls-12" d="M938.2,715.7h9.3c5.9,0,9.5-3,9.5-7.9s-2.8-6.4-6.5-6.7v-.2c2.9-.4,5.2-3,5.2-6s-3.3-6.9-8.4-6.9h-9.1c-1.8,0-2.9,1.1-2.9,3v21.6c0,1.9,1.1,3,2.9,3h0ZM941.1,699.5v-7.2s4.7,0,4.7,0c2.7,0,4.2,1.3,4.2,3.5s-1.8,3.7-4.8,3.7h-4.2ZM941.1,711.4v-8s4.8,0,4.8,0c3.4,0,5.3,1.4,5.3,4s-1.8,4.1-5.1,4.1h-5Z"/>
+    <path class="cls-12" d="M133.3,555.4c1.5,0,2.4-.8,2.9-2.6l1.5-4.3h10s1.5,4.4,1.5,4.4c.5,1.8,1.4,2.5,3,2.5s2.9-1.1,2.9-2.7,0-1.1-.4-1.8l-7.6-20.5c-.8-2.3-2.2-3.3-4.4-3.3s-3.5,1-4.3,3.3l-7.5,20.5c-.2.7-.4,1.4-.4,1.8,0,1.7,1.1,2.7,2.9,2.7h0ZM139,544l3.6-11.3h.1s3.7,11.3,3.7,11.3h-7.4Z"/>
+  </g>
+  <g id="Barrier">
+    <line class="cls-5" x1="919.1" y1="558.5" x2="969.7" y2="558.5"/>
+    <line class="cls-5" x1="676.3" y1="541.5" x2="676.3" y2="577.1"/>
+    <line class="cls-5" x1="544.2" y1="655.8" x2="594.8" y2="655.8"/>
+    <line class="cls-5" x1="396.2" y1="583.2" x2="431.6" y2="583.2"/>
+    <line class="cls-5" x1="201.6" y1="494.7" x2="283.8" y2="494.7"/>
+    <line class="cls-6" x1="311.1" y1="327.4" x2="376.9" y2="327.4"/>
+    <line class="cls-6" x1="412.3" y1="276.6" x2="446.9" y2="276.6"/>
+    <line class="cls-6" x1="771" y1="413.4" x2="828.9" y2="413.4"/>
+    <line class="cls-6" x1="720" y1="339.8" x2="745.9" y2="366.4"/>
+  </g>
+</svg>

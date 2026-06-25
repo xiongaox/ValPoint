@@ -11,13 +11,27 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
-    date: '2026-05-03',
+    date: '2026-06-25',
+    items: [
+      '【新增】增加新地图天枢云阙(Summit)并支持其实时状态展示',
+      '【新增】导入天枢云阙(Summit)攻守方 SVG 地图文件及高清封面',
+      '【优化】更新本地配置 (localMaps, constants) 支持天枢云阙的基础数据和名称映射',
+      '【修复】禁用 mapPoolService 远程请求缓存，修复地图池角标状态无法实时刷新的问题'
+    ],
+  },
+  {
+    date: '2026-06-21',
+    items: [
+      '【新增】个人点位库报错标记功能',
+      '【新增】在 ViewerModal 中增加报错标记下拉菜单（描述错误、图片错误、图片未标记及已处理）',
+      '【新增】在 LeafletMap 中支持根据报错状态渲染红色错误外框与光晕遮罩',
+      '【新增】新增 useErrorMarks Hook，通过 CustomEvent 实现跨组件实时同步点位报错状态',
+      '【优化】通过 showErrorMarking 参数隔离报错功能，仅在个人库展示报错信息，共享库中自动隐藏'    date: '2026-05-03',
     items: [
       '【修复】修复ESA环境下点位作者主页按钮不显示的问题',
       '【修复】导出 supabaseClient 中的 supabaseUrl 和 supabaseAnonKey 作为统一入口',
       '【修复】修复 authorFetcher.ts 因硬编码 import.meta.env 导致获取拆分 Key 失败的问题',
-      '【修复】修复 subscription.ts 共享库配置中同样的环境变量硬编码问题',
-    ],
+      '【修复】修复 subscription.ts 共享库配置中同样的环境变量硬编码问题',    ],
   },
   {
     date: '2026-03-23',

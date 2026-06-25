@@ -56,6 +56,10 @@ export const CUSTOM_MAP_URLS = {
     attack: "/maps/attack/攻方-盐海矿镇(Corrode).svg",
     defense: "/maps/defense/守方-盐海矿镇(Corrode).svg",
   },
+  Summit: {
+    attack: "/maps/attack/攻方-天枢云阙(Summit).svg",
+    defense: "/maps/defense/守方-天枢云阙(Summit).svg",
+  },
 };
 
 export const MAP_TRANSLATIONS: Record<string, string> = {
@@ -71,4 +75,5 @@ export const MAP_TRANSLATIONS: Record<string, string> = {
   Sunset: "日落之城",
   Abyss: "幽邃地窟",
   Corrode: "盐海矿镇",
+  Summit: "天枢云阙",
 };

@@ -49,7 +49,7 @@ export async function fetchMapPoolConfig(): Promise<Record<string, MapPoolStatus
     }
 
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, { cache: 'no-cache' });
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }

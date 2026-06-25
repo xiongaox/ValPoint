@@ -13,6 +13,8 @@ import Icon from './Icon';
 import { fetchAuthorInfo } from '../utils/authorFetcher';
 import { useDeviceMode } from '../hooks/useDeviceMode';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useEmailAuth } from '../hooks/useEmailAuth';
+import { useErrorMarks } from '../hooks/useErrorMarks';
 
 const ViewerModal = ({
   viewingLineup,
@@ -28,6 +30,7 @@ const ViewerModal = ({
   isSavingToPersonal = false,
   onSubmitLineup,
   isAdmin = true,
+  showErrorMarking = false,
 }: any) => {
   const [authorInfo, setAuthorInfo] = useState<{ name: string; avatar: string; uid?: string } | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
@@ -36,6 +39,23 @@ const ViewerModal = ({
   const isMobileLayout = isMobile && !isPadPortrait;
   const isTabletDesktop = isTabletLandscape || isPadPortrait;
   const canEditLineup = !handleCopyShared && !isGuest && !isMobileLayout && !isPadPortrait;
+
+  const { user } = useEmailAuth();
+  const { errorMarks, markError, resolveError } = useErrorMarks(user?.id);
+  const [isErrorMenuOpen, setIsErrorMenuOpen] = useState(false);
+  const errorMenuRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (errorMenuRef.current && !errorMenuRef.current.contains(event.target as Node)) {
+        setIsErrorMenuOpen(false);
+      }
+    };
+    if (isErrorMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isErrorMenuOpen]);
+
+  const hasError = viewingLineup ? !!errorMarks[viewingLineup.id] : false;
 
   const modalSizeClass = isMobileLayout
     ? 'w-full h-full'
@@ -223,6 +243,51 @@ const ViewerModal = ({
                 >
                   <Icon name="Save" size={14} /> {isSavingToPersonal ? '保存中...' : '保存'}
                 </button>
+              )}
+              {user && showErrorMarking && (
+                <div className="relative" ref={errorMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsErrorMenuOpen(!isErrorMenuOpen)}
+                    className={`inline-flex items-center gap-2 rounded-lg border transition-colors whitespace-nowrap ${actionBtnClass} ${hasError ? 'border-red-500/60 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500' : 'border-white/10 bg-white/5 text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655]'}`}
+                    title="报错标记"
+                  >
+                    <Icon name="AlertTriangle" size={14} /> 报错
+                  </button>
+                  {isErrorMenuOpen && (
+                    <div className="absolute top-full right-0 mt-1 w-32 bg-[#252a30] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50">
+                      <button 
+                        onClick={() => { markError(viewingLineup.id, '描述错误'); setIsErrorMenuOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                      >
+                        描述错误
+                      </button>
+                      <button 
+                        onClick={() => { markError(viewingLineup.id, '图片错误'); setIsErrorMenuOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                      >
+                        图片错误
+                      </button>
+                      <button 
+                        onClick={() => { markError(viewingLineup.id, '图片未标记'); setIsErrorMenuOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
+                      >
+                        图片未标记
+                      </button>
+                      {hasError && (
+                        <>
+                          <div className="h-px bg-white/10 my-1" />
+                          <button 
+                            onClick={() => { resolveError(viewingLineup.id); setIsErrorMenuOpen(false); }}
+                            className="w-full text-left px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                          >
+                            已处理
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
               {!isMobileLayout && (
                 <button

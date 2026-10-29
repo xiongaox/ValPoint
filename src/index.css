@@ -42,13 +42,15 @@ body {
 }
 
 /* 区块：Leaflet 样式。 */
+/* 说明：以下弹窗覆盖规则统一加 `.leaflet-container` 前缀提高优先级，
+   避免生产构建把 leaflet.css 排在 index.css 之后时默认白底 (#fff) 覆盖自定义样式。 */
 .leaflet-container {
   background: transparent !important;
   outline: none;
   z-index: 1;
 }
 
-.leaflet-popup-content-wrapper {
+.leaflet-container .leaflet-popup-content-wrapper {
   background: #1f2326;
   color: #e5e7eb;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -57,19 +59,19 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
-.leaflet-popup-content {
+.leaflet-container .leaflet-popup-content {
   margin: 8px;
   font-size: 12px;
   line-height: 1.4;
 }
 
-.leaflet-popup-tip {
+.leaflet-container .leaflet-popup-tip {
   background: #1f2326;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: none;
 }
 
-.leaflet-container a.leaflet-popup-close-button {
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button {
   color: #9ca3af;
   top: 4px;
   right: 4px;
@@ -80,7 +82,7 @@ body {
   border-radius: 6px;
 }
 
-.leaflet-container a.leaflet-popup-close-button:hover {
+.leaflet-container .leaflet-popup a.leaflet-popup-close-button:hover {
   color: #ff4655;
   background: rgba(255, 70, 85, 0.12);
 }

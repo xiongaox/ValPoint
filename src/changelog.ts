@@ -11,6 +11,14 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-10-29',
+    items: [
+      '【修复】修复生产构建下地图弹窗样式被 Leaflet 默认样式覆盖的问题',
+      '【优化】为 Leaflet 弹窗覆盖规则统一增加 .leaflet-container 前缀，避免生产环境 CSS 顺序变化导致深色样式失效',
+      '【优化】同步调整弹窗内容、箭头与关闭按钮的选择器优先级',
+    ],
+  },
+  {
     date: '2026-10-27',
     items: [
       '【新增】新增复用已有点位标注与相近点位聚合显示',

@@ -200,32 +200,3 @@ export const adminUploadLineup = async (
     }
 };
 
-export const adminUploadMultiple = async (
-    zipFiles: File[],
-    adminProfile: AdminProfile,
-    ossConfig: ImageBedConfig,
-    onProgress?: (fileIndex: number, total: number, progress: AdminUploadProgress) => void,
-): Promise<{ success: number; failed: number; errors: string[] }> => {
-    let success = 0;
-    let failed = 0;
-    const errors: string[] = [];
-
-    for (let i = 0; i < zipFiles.length; i++) {
-        const file = zipFiles[i];
-        const result = await adminUploadLineup(
-            file,
-            adminProfile,
-            ossConfig,
-            (progress) => onProgress?.(i, zipFiles.length, progress),
-        );
-
-        if (result.success) {
-            success++;
-        } else {
-            failed++;
-            errors.push(`${file.name}: ${result.errorMessage}`);
-        }
-    }
-
-    return { success, failed, errors };
-};

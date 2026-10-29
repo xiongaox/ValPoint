@@ -96,7 +96,3 @@ export async function updateSystemSettings(
     return { success: true };
 }
 
-export function invalidateSettingsCache(): void {
-    cachedSettings = null;
-    cacheTimestamp = 0;
-}

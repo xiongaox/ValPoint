@@ -54,13 +54,19 @@ async function getEdgeFunctionBearerToken(projectKey: string): Promise<string | 
 
 export async function fetchAuthorInfo(sourceLink: string): Promise<AuthorInfo | null> {
   try {
-    const url = new URL(sourceLink);
+    // 分享文本常带「01/01 n@q.eB PKJ:/」之类尾巴，先抽出干净的 URL
+    const raw = (sourceLink || '').trim();
+    const urlMatch = raw.match(/https?:\/\/[^\s]+/);
+    if (!urlMatch) return null;
+    const cleanUrl = urlMatch[0].replace(/[.,;!?]+$/, '');
+    const url = new URL(cleanUrl);
 
     if (!url.hostname.includes('bilibili.com') && !url.hostname.includes('douyin.com') && !url.hostname.includes('b23.tv')) {
       return null;
     }
 
-    return await fetchAuthorViaEdgeFunction(sourceLink);
+    // 去掉 ?t=82.5 之类的追踪参数，只保留视频地址
+    return await fetchAuthorViaEdgeFunction(`${url.origin}${url.pathname}`);
   } catch (error) {
     console.error('获取作者信息失败:', error);
     return null;

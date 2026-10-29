@@ -130,7 +130,10 @@ export const syncLineupsToShared = async (
                 land_img: lineup.land_img,
                 land_desc: lineup.land_desc,
                 source_link: lineup.source_link,
-                author_uid: userDisplayId, // 说明：使用用户 custom_id（短 ID）。
+                author_name: lineup.author_name,
+                author_avatar: lineup.author_avatar,
+                author_uid: lineup.author_uid,
+                creator_id: userDisplayId, // 说明：同步者 custom_id（短 ID）。
             };
 
             const { error: insertError } = await shareSupabase

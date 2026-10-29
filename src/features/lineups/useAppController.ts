@@ -16,7 +16,7 @@ import { useLineupFiltering } from '../../hooks/useLineupFiltering';
 import { useModalState } from '../../hooks/useModalState';
 import { usePinnedLineups } from '../../hooks/usePinnedLineups';
 import { useLineupDownload } from '../../hooks/useLineupDownload';
-import { AgentOption, BaseLineup, LibraryMode, SharedLineup, MapOption } from '../../types/lineup';
+import { AgentOption, BaseLineup, LibraryMode, SharedLineup, MapOption, LineupPosition } from '../../types/lineup';
 import { useMapInfo } from './controllers/useMapInfo';
 import { useActionMenu } from './controllers/useActionMenu';
 import { useAppLifecycle } from './controllers/useAppLifecycle';
@@ -30,6 +30,7 @@ import { buildUiProps } from './controllers/useUiProps';
 import { useAppState } from './controllers/useAppState';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import { supabase } from '../../supabaseClient';
+import { clusterPositions, uniqueCandidates, POSITION_MERGE_TOLERANCE } from './lineupPositions';
 
 const DEFAULT_PINNED_COUNT = 8;
 
@@ -53,6 +54,8 @@ export function useAppController() {
     setNewLineupData,
     placingType,
     setPlacingType,
+    pickingExisting,
+    setPickingExisting,
   } = useAppState();
 
   const { maps, agents, selectedMap, setSelectedMap, selectedAgent, setSelectedAgent } = useValorantData();
@@ -223,6 +226,7 @@ export function useAppController() {
     setEditingLineupId,
     setIsEditorOpen: modal.setIsEditorOpen,
     setPlacingType,
+    setPickingExisting,
     setNewLineupData,
     setAlertMessage: modal.setAlertMessage,
   });
@@ -235,6 +239,7 @@ export function useAppController() {
     selectedSide,
     setActiveTab,
     setPlacingType,
+    setPickingExisting,
     setSelectedLineupId,
     setViewingLineup,
     setEditingLineupId,
@@ -263,6 +268,7 @@ export function useAppController() {
     setSelectedAbilityIndex,
     setActiveTab,
     setPlacingType,
+    setPickingExisting,
     setIsEditorOpen: modal.setIsEditorOpen,
     setEditingLineupId,
     setSelectedLineupId,
@@ -443,8 +449,99 @@ export function useAppController() {
       modal.setAlertMessage('游客模式无法标注点位，请先输入密码进入登录模式');
       return;
     }
+    setPickingExisting(null);
     setPlacingType((prev) => (prev === type ? null : type));
   };
+
+  // 说明：同地图 + 同英雄的已有站位/落点候选，用于复用与合并显示。
+  const sameMapSameAgentLineups = useMemo(() => {
+    if (!selectedMap || !selectedAgent) return [];
+    const mapKey = selectedMap.displayName;
+    const mapKeyEn = mapNameZhToEn[mapKey] || mapKey;
+    return lineups.filter(
+      (l) =>
+        (l.mapName === mapKey || l.mapName === mapKeyEn) &&
+        l.agentName === selectedAgent.displayName &&
+        l.id !== editingLineupId,
+    );
+  }, [lineups, selectedMap, selectedAgent, mapNameZhToEn, editingLineupId]);
+
+  const standCandidates = useMemo(
+    () =>
+      uniqueCandidates(
+        clusterPositions(sameMapSameAgentLineups, (l) => l.agentPos, (l) => l.agentName),
+        (c) => c.members[0]?.agentIcon || null,
+      ),
+    [sameMapSameAgentLineups],
+  );
+
+  // 说明：未选技能时也列出全部落点，选定技能后再收窄到该技能。
+  const landCandidates = useMemo(() => {
+    const scope =
+      selectedAbilityIndex === null
+        ? sameMapSameAgentLineups
+        : sameMapSameAgentLineups.filter((l) => l.abilityIndex === selectedAbilityIndex);
+    return uniqueCandidates(
+      clusterPositions(scope, (l) => l.skillPos, (l) => `${l.agentName}|${l.abilityIndex ?? ''}`),
+      // 说明：落点候选显示该技能图标，而不是英雄头像。
+      (c) => c.members[0]?.skillIcon || null,
+    );
+  }, [sameMapSameAgentLineups, selectedAbilityIndex]);
+
+  // 说明：切换地图/英雄/技能/阵营后，旧的拾取态不再适用。
+  useEffect(() => {
+    setPickingExisting(null);
+  }, [selectedMap?.displayName, selectedAgent?.displayName, selectedAbilityIndex, selectedSide, setPickingExisting]);
+
+  const handlePickExisting = useCallback(
+    (type: 'agent' | 'skill', pos: LineupPosition) => {
+      // 说明：命中已有站位/落点后，直接把该点位的图片与描述带进来，编辑器里无需再选。
+      const field = type === 'agent' ? 'agentPos' : 'skillPos';
+      const source = sameMapSameAgentLineups.find((l) => {
+        const p = l[field];
+        return p && Math.hypot(p.lat - pos.lat, p.lng - pos.lng) <= POSITION_MERGE_TOLERANCE;
+      });
+      const imageKeys =
+        type === 'agent'
+          ? ({ img: 'standImg', desc: 'standDesc' } as const)
+          : ({ img: 'landImg', desc: 'landDesc' } as const);
+
+      setNewLineupData((prev) => ({
+        ...prev,
+        [field]: pos,
+        ...(source
+          ? {
+              [imageKeys.img]: prev[imageKeys.img] || source[imageKeys.img] || '',
+              [imageKeys.desc]: prev[imageKeys.desc] || source[imageKeys.desc] || '',
+            }
+          : {}),
+      }));
+      setPickingExisting(null);
+      // 说明：补齐另一侧，让用户继续下一步标注。
+      const other = type === 'agent' ? newLineupData.skillPos : newLineupData.agentPos;
+      setPlacingType(other ? null : type === 'agent' ? 'skill' : 'agent');
+    },
+    [
+      newLineupData.agentPos,
+      newLineupData.skillPos,
+      sameMapSameAgentLineups,
+      setNewLineupData,
+      setPickingExisting,
+      setPlacingType,
+    ],
+  );
+
+  const togglePickingExisting = useCallback(
+    (type: 'agent' | 'skill') => {
+      if (isGuest) {
+        modal.setAlertMessage('游客模式无法标注点位，请先输入密码进入登录模式');
+        return;
+      }
+      setPlacingType(null);
+      setPickingExisting((prev) => (prev === type ? null : type));
+    },
+    [isGuest, modal, setPickingExisting, setPlacingType],
+  );
 
   const mainViewProps = buildMainViewProps({
     activeTab,
@@ -473,6 +570,11 @@ export function useAppController() {
     setNewLineupData,
     placingType,
     setPlacingType,
+    pickingExisting,
+    standCandidates,
+    landCandidates,
+    onTogglePicking: togglePickingExisting,
+    onPickExisting: handlePickExisting,
     onViewLineup: (id: string) => {
       setSelectedLineupId(id);
       const lineup = orderedLineups.find((l) => l.id === id);

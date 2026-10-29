@@ -22,14 +22,6 @@ export const AGENT_AVATARS = [
     '雷兹.png', '霓虹.png', '黑梦.png'
 ];
 
-export const getRandomAvatar = (): string => {
-    return getDefaultPlayerCardAvatar();
-};
-
-export const getAvatarByUserId = (userId: string): string => {
-    return getPlayerCardAvatarByEmail(userId);
-};
-
 export const getAvatarByEmail = (email: string): string => {
     return getPlayerCardAvatarByEmail(email);
 };

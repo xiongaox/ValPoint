@@ -817,6 +817,33 @@ export const LOCAL_AGENTS: AgentData[] = [
         "displayName": "音脉强袭"
       }
     ]
+  },
+  {
+    "displayName": "遐思",
+    "displayIcon": "/agents/遐思.png",
+    "uuid": "ddd5a15c-4fbe-42fa-3789-11a55ca5ee04",
+    "abilities": [
+      {
+        "slot": "Ability1",
+        "displayIcon": "/abilities/遐思-身随念动.png",
+        "displayName": "身随念动"
+      },
+      {
+        "slot": "Ability2",
+        "displayIcon": "/abilities/遐思-灵光一念.png",
+        "displayName": "灵光一念"
+      },
+      {
+        "slot": "Grenade",
+        "displayIcon": "/abilities/遐思-念落星移.png",
+        "displayName": "念落星移"
+      },
+      {
+        "slot": "Ultimate",
+        "displayIcon": "/abilities/遐思-万念皆空.png",
+        "displayName": "万念皆空"
+      }
+    ]
   }
 ];
 
@@ -844,6 +871,7 @@ const ROLE_MAP: Record<string, AgentRole> = {
   '幻棱': 'duelist',
   '芮娜': 'duelist',
   '捷风': 'duelist',
+  '遐思': 'duelist',
   '海神': 'controller',
   '蝰蛇': 'controller',
   '星礈': 'controller',

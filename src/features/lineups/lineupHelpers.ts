@@ -144,5 +144,3 @@ export const getMapDisplayName = (map: MapOption | null, translations: Record<st
 export const getMapEnglishName = (displayName: string, translations: Record<string, string>) =>
   Object.keys(translations).find((key) => translations[key] === displayName) || displayName;
 
-export const getAbilityIconSafe = (agent: AgentOption | null, abilityIndex: number | null, getter: any) =>
-  agent && abilityIndex !== null ? getter(agent, abilityIndex) : null;

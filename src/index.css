@@ -50,13 +50,39 @@ body {
 
 .leaflet-popup-content-wrapper {
   background: #1f2326;
-  color: white;
-  border: 1px solid #ff4655;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
   padding: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+.leaflet-popup-content {
+  margin: 8px;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .leaflet-popup-tip {
-  background: #ff4655;
+  background: #1f2326;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #9ca3af;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #ff4655;
+  background: rgba(255, 70, 85, 0.12);
 }
 
 /* 区块：Leaflet SVG 覆盖层。 */
@@ -224,4 +250,52 @@ body {
 
 .tablet-bottom-safe {
   padding-bottom: max(0.5rem, var(--vp-safe-bottom));
+}
+
+/* 区块：站位/落点拾取候选点。 */
+.marker-candidate .marker-icon-wrapper {
+  border-color: #ff4655;
+  color: #ff4655;
+  font-weight: 700;
+  font-size: 12px;
+  animation: marker-candidate-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes marker-candidate-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 70, 85, 0.55); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 70, 85, 0); }
+}
+
+/* 区块：合并站位弹层。 */
+.cluster-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+}
+
+.cluster-popup-header {
+  padding: 2px 8px 6px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cluster-popup-item {
+  text-align: left;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #e5e7eb;
+  font-size: 12px;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cluster-popup-item:hover {
+  background: rgba(255, 70, 85, 0.15);
+  color: #ffffff;
 }

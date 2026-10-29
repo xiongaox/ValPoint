@@ -28,6 +28,7 @@ type EditorParams = {
   setSelectedAbilityIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setActiveTab: (tab: ActiveTab) => void;
   setPlacingType: React.Dispatch<React.SetStateAction<'agent' | 'skill' | null>>;
+  setPickingExisting: React.Dispatch<React.SetStateAction<'agent' | 'skill' | null>>;
   setIsEditorOpen: (val: boolean) => void;
   setEditingLineupId: React.Dispatch<React.SetStateAction<string | null>>;
   setSelectedLineupId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -60,6 +61,7 @@ export function useEditorController({
   setSelectedAbilityIndex,
   setActiveTab,
   setPlacingType,
+  setPickingExisting,
   setIsEditorOpen,
   setEditingLineupId,
   setSelectedLineupId,
@@ -92,6 +94,7 @@ export function useEditorController({
     setEditingLineupId(null);
     setNewLineupData(createEmptyLineup());
     setPlacingType(null);
+    setPickingExisting(null);
     setActiveTab('view');
     setSelectedAbilityIndex(null);
     setSelectedLineupId(null);
@@ -136,6 +139,7 @@ export function useEditorController({
     setViewingLineup(null);
     setActiveTab('create');
     setPlacingType(null);
+    setPickingExisting(null);
     setIsEditorOpen(true);
   };
 
@@ -218,6 +222,7 @@ export function useEditorController({
       setSelectedLineupId(null);
       setViewingLineup(null);
       setPlacingType(null);
+      setPickingExisting(null);
       setActiveTab('view');
       fetchLineups(userId);
     } catch (e) {
@@ -244,6 +249,7 @@ export function useEditorController({
     setSelectedLineupId,
     setViewingLineup,
     setPlacingType,
+    setPickingExisting,
     setActiveTab,
     fetchLineups,
   ]);

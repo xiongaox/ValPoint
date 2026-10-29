@@ -19,23 +19,6 @@ export const ensureHttps = (url: string) => url.replace(/^http:\/\//i, 'https://
 
 const pad = (num: number, len = 2) => num.toString().padStart(len, '0');
 
-export const buildDateSegments = () => {
-  const d = new Date();
-  return [d.getFullYear().toString(), pad(d.getMonth() + 1), pad(d.getDate())];
-};
-
-export const buildTimestampName = () => {
-  const d = new Date();
-  return (
-    d.getFullYear().toString() +
-    pad(d.getMonth() + 1) +
-    pad(d.getDate()) +
-    pad(d.getHours()) +
-    pad(d.getMinutes()) +
-    pad(d.getSeconds()) +
-    pad(d.getMilliseconds(), 3)
-  );
-};
 
 export const generateUUID = (): string => {
   return crypto.randomUUID().replace(/-/g, '');

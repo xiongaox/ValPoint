@@ -11,7 +11,6 @@ import React from 'react';
 import MapPickerModal from '../../components/MapPickerModal';
 import PreviewModal from '../../components/PreviewModal';
 import AlertModal from '../../components/AlertModal';
-import DeleteConfirmModal from '../../components/DeleteConfirmModal';
 import ClearLineupsModal from '../../components/ClearLineupsModal';
 
 import ImageBedConfigModal from '../../components/ImageBedConfigModal';
@@ -260,7 +259,19 @@ const AppModals: React.FC<Props> = ({
         onClose={onAlertClose}
       />
 
-      <DeleteConfirmModal deleteTargetId={deleteTargetId} onCancel={onDeleteCancel} onConfirm={onDeleteConfirm} />
+      {deleteTargetId && (
+        <AlertModal
+          variant="danger"
+          title="确认删除点位"
+          subtitle="安全操作"
+          message="删除后不可恢复"
+          onClose={onDeleteCancel}
+          actionLabel="确认删除"
+          onAction={onDeleteConfirm}
+          secondaryLabel="取消"
+          onSecondary={onDeleteCancel}
+        />
+      )}
       <ClearLineupsModal
         isOpen={isClearConfirmOpen}
         selectedAgentName={selectedAgentName}

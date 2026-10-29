@@ -19,6 +19,7 @@ type Params = {
   selectedSide: 'all' | 'attack' | 'defense';
   setActiveTab: (tab: ActiveTab) => void;
   setPlacingType: (val: 'agent' | 'skill' | null) => void;
+  setPickingExisting: (val: 'agent' | 'skill' | null) => void;
   setSelectedLineupId: React.Dispatch<React.SetStateAction<string | null>>;
   setViewingLineup: React.Dispatch<React.SetStateAction<BaseLineup | null>>;
   setEditingLineupId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -40,6 +41,7 @@ export function useViewController({
   selectedSide,
   setActiveTab,
   setPlacingType,
+  setPickingExisting,
   setSelectedLineupId,
   setViewingLineup,
   setEditingLineupId,
@@ -58,6 +60,7 @@ export function useViewController({
     }
     setActiveTab(tab);
     setPlacingType(null);
+    setPickingExisting(null);
     setSelectedLineupId(null);
     setViewingLineup(null);
     setEditingLineupId(null);

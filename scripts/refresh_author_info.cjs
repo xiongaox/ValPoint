@@ -2,6 +2,7 @@
  * 批量刷新作者信息脚本
  * 
  * 用途：修复 author_name 为空或"未提取到"的记录
+ * 优先复用 valorant_lineups 中同 source_id 的作者信息，取不到才调用 Edge Function
  * 
  * 使用方法：
  * 1. 确保 .env 文件中配置了 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY
@@ -151,6 +152,17 @@ async function supabaseUpdate(baseUrl, apiKey, table, id, data) {
     }, data);
 }
 
+// 从个人库按 source_id 复用作者信息（共享库专用）
+async function fetchAuthorFromPersonal(supabaseUrl, apiKey, sourceId) {
+    if (!sourceId) return null;
+    const query = `select=author_name,author_avatar,author_uid&id=eq.${sourceId}&limit=1`;
+    const rows = await supabaseQuery(supabaseUrl, apiKey, 'valorant_lineups', query);
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const row = rows[0];
+    if (!row.author_name || row.author_name === '未提取到') return null;
+    return row;
+}
+
 // 调用 Edge Function
 async function callEdgeFunction(baseUrl, apiKey, sourceLink) {
     const url = `${baseUrl}/functions/v1/get-video-author`;
@@ -193,10 +205,17 @@ async function main() {
         log('警告: 访问个人库需要 Service Role Key，请在 .env 中添加 VITE_SUPABASE_SERVICE_KEY', 'warn');
     }
 
+    if (options.table === 'valorant_shared' && !env.VITE_SUPABASE_SERVICE_KEY) {
+        log('提示: 未配置 VITE_SUPABASE_SERVICE_KEY，读取个人库复用作者可能受 RLS 限制，将回退到 Edge Function', 'warn');
+    }
+
     // 查询需要更新的记录
     log('正在查询需要更新的记录...');
 
-    const query = `select=id,title,source_link,author_name,author_avatar,author_uid&or=(author_name.is.null,author_name.eq.,author_name.eq.未提取到)&source_link=not.is.null&source_link=neq.&limit=${options.limit}`;
+    const selectCols = options.table === 'valorant_shared'
+        ? 'id,title,source_link,source_id,author_name,author_avatar,author_uid'
+        : 'id,title,source_link,author_name,author_avatar,author_uid';
+    const query = `select=${selectCols}&or=(author_name.is.null,author_name.eq.,author_name.eq.未提取到)&source_link=not.is.null&source_link=neq.&limit=${options.limit}`;
     const records = await supabaseQuery(supabaseUrl, supabaseKey, options.table, query);
 
     if (!Array.isArray(records)) {
@@ -238,8 +257,33 @@ async function main() {
 
         log(`${progress} 处理: ${record.title || record.id}`);
 
+        // 优先复用个人库中同一 source_id 的作者信息，避免不必要的 Edge Function 请求
+        let localAuthor = null;
+        if (options.table === 'valorant_shared') {
+            try {
+                localAuthor = await fetchAuthorFromPersonal(supabaseUrl, supabaseKey, record.source_id || record.id);
+            } catch (err) {
+                log(`  读取个人库作者失败: ${err.message}`, 'warn');
+            }
+        }
+
         if (options.dryRun) {
             log(`  链接: ${record.source_link}`);
+            log(localAuthor
+                ? `  可复用个人库作者: ${localAuthor.author_name}`
+                : `  个人库无作者，将调用 Edge Function`);
+            continue;
+        }
+
+        if (localAuthor) {
+            await supabaseUpdate(supabaseUrl, supabaseKey, options.table, record.id, {
+                author_name: localAuthor.author_name,
+                author_avatar: localAuthor.author_avatar || record.author_avatar,
+                author_uid: localAuthor.author_uid || record.author_uid,
+            });
+            log(`  复用个人库作者: ${localAuthor.author_name}`, 'success');
+            successCount++;
+            if (i < records.length - 1) await sleep(Math.min(options.delay, 300));
             continue;
         }
 

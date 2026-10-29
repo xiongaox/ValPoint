@@ -810,5 +810,33 @@
       "Grenade": "声波帷幕",
       "Ultimate": "音脉强袭"
     }
+  },
+  "遐思": {
+    "iconUrl": {
+      "Ability1": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_c.png",
+      "Ability2": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_q.png",
+      "Grenade": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_e.png",
+      "Ultimate": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_x.png"
+    },
+    "titles": {
+      "Ability1": "身随念动",
+      "Ability2": "灵光一念",
+      "Grenade": "念落星移",
+      "Ultimate": "万念皆空"
+    }
+  },
+  "Hush": {
+    "iconUrl": {
+      "Ability1": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_c.png",
+      "Ability2": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_q.png",
+      "Grenade": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_e.png",
+      "Ultimate": "https://game.gtimg.cn/images/val/agamezlk/agentskill/30_x.png"
+    },
+    "titles": {
+      "Ability1": "身随念动",
+      "Ability2": "灵光一念",
+      "Grenade": "念落星移",
+      "Ultimate": "万念皆空"
+    }
   }
 }

@@ -443,16 +443,19 @@ const EditorModal = ({
                     <div className="text-[#ff4655] font-bold text-sm flex items-center gap-2 uppercase tracking-wider">
                       <Icon name="Image" size={14} /> {field.l}
                     </div>
-                    {field.toggleKey && (
-                      <button
-                        type="button"
-                        onClick={() => toggleField(field)}
-                        className="px-3 py-1 rounded border border-[#1b1f2a] text-xs text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
-                      >
-                        关闭
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {field.toggleKey && (
+                        <button
+                          type="button"
+                          onClick={() => toggleField(field)}
+                          className="px-3 py-1 rounded border border-[#1b1f2a] text-xs text-gray-300 hover:border-[#ff4655] hover:text-[#ff4655] transition-colors"
+                        >
+                          关闭
+                        </button>
+                      )}
+                    </div>
                   </div>
+
                   <div className="flex flex-col gap-3">
                     {!showLinkInput && (
                       <>

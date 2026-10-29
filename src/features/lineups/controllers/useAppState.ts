@@ -24,6 +24,8 @@ export function useAppState() {
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
   const [newLineupData, setNewLineupData] = useState<NewLineupForm>(createEmptyLineup());
   const [placingType, setPlacingType] = useState<'agent' | 'skill' | null>(null);
+  /** 正在从已有点位中挑选站位/落点。 */
+  const [pickingExisting, setPickingExisting] = useState<'agent' | 'skill' | null>(null);
 
   return {
     activeTab,
@@ -44,5 +46,7 @@ export function useAppState() {
     setNewLineupData,
     placingType,
     setPlacingType,
+    pickingExisting,
+    setPickingExisting,
   };
 }

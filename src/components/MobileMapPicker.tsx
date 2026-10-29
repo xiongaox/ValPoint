@@ -9,17 +9,9 @@
 
 import React from 'react';
 import Icon from './Icon';
-import { MapOption, MapPoolStatus } from '../types/lineup';
-import { MAP_TRANSLATIONS } from '../constants/maps';
+import { MapOption } from '../types/lineup';
+import { translateMapName, mapNameToEnglish, POOL_STATUS_CONFIG } from '../constants/maps';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-
-/** 角标配置：状态 -> 显示文字、背景色 */
-const POOL_STATUS_CONFIG: Record<MapPoolStatus, { label: string; className: string }> = {
-    'in-pool': { label: '在池', className: 'bg-emerald-500/90' },
-    'returning': { label: '回归', className: 'bg-blue-500/90' },
-    'rotated-out': { label: '轮出', className: 'bg-red-500/90' },
-    'new': { label: '新增', className: 'bg-violet-600/90' },
-};
 
 interface MobileMapPickerProps {
     isOpen: boolean;
@@ -45,10 +37,7 @@ function MobileMapPicker({
         onClose();
     };
 
-    const getMapEnglishId = (displayName: string): string => {
-        const entry = Object.entries(MAP_TRANSLATIONS).find(([, zh]) => zh === displayName);
-        return entry ? entry[0] : displayName;
-    };
+    const getMapEnglishId = (displayName: string): string => mapNameToEnglish(displayName);
 
     return (
         <>
@@ -73,7 +62,7 @@ function MobileMapPicker({
                         {maps.map((map) => {
                             const isSelected = selectedMap?.displayName === map.displayName;
                             const mapEnglishName = map.displayName;
-                            const mapChineseName = MAP_TRANSLATIONS[mapEnglishName] || mapEnglishName;
+                            const mapChineseName = translateMapName(mapEnglishName);
                             const coverUrl = `/maps/covers/${mapChineseName}.webp`;
                             const statusConfig = map.poolStatus ? POOL_STATUS_CONFIG[map.poolStatus] : null;
 

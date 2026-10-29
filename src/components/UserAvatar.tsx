@@ -208,14 +208,4 @@ export const updateAvatarCache = (email: string, avatar: string) => {
     notifySubscribers();
 };
 
-export const clearAvatarCache = (email?: string) => {
-    if (email) {
-        avatarCache.delete(email.toLowerCase());
-    } else {
-        avatarCache.clear();
-    }
-    persistCache(); // 说明：写入本地缓存。
-    notifySubscribers();
-};
-
 export default UserAvatar;

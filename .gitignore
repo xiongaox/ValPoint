@@ -8,7 +8,7 @@ notes/local/
 *.bak
 dist
 coverage
-docs/.obsidian/workspace.json
+docs/.obsidian/
 .vscode
 supabase/cloud
 data

@@ -23,6 +23,7 @@ type Params = {
   setEditingLineupId: (val: string | null) => void;
   setIsEditorOpen: (val: boolean) => void;
   setPlacingType: (val: 'agent' | 'skill' | null) => void;
+  setPickingExisting: (val: 'agent' | 'skill' | null) => void;
   setNewLineupData: (val: NewLineupForm) => void;
   setAlertMessage: (msg: string) => void;
 };
@@ -38,6 +39,7 @@ export function useAppLifecycle({
   setEditingLineupId,
   setIsEditorOpen,
   setPlacingType,
+  setPickingExisting,
   setNewLineupData,
   setAlertMessage,
 }: Params) {
@@ -61,6 +63,7 @@ export function useAppLifecycle({
     setEditingLineupId(null);
     setIsEditorOpen(false);
     setPlacingType(null);
+    setPickingExisting(null);
     setNewLineupData(createEmptyLineup());
     setActiveTab('view');
   }, [
@@ -70,6 +73,7 @@ export function useAppLifecycle({
     setLineups,
     setNewLineupData,
     setPlacingType,
+    setPickingExisting,
     setSelectedLineupId,
     setViewingLineup,
     userId,

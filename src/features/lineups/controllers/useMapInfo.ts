@@ -8,7 +8,7 @@
  */
 
 import { useMemo } from 'react';
-import { CUSTOM_MAP_URLS, MAP_TRANSLATIONS } from '../../../constants/maps';
+import { CUSTOM_MAP_URLS, MAP_TRANSLATIONS, translateMapName, mapNameToEnglish } from '../../../constants/maps';
 import { ActiveTab } from '../../../types/app';
 import { MapOption, SharedLineup } from '../../../types/lineup';
 
@@ -28,10 +28,9 @@ export function useMapInfo({ selectedMap, selectedSide }: MapInfoParams) {
     return reverse;
   }, []);
 
-  const getMapDisplayName = (apiMapName: string) => MAP_TRANSLATIONS[apiMapName] || apiMapName;
+  const getMapDisplayName = translateMapName;
 
-  const getMapEnglishName = (displayName: string) =>
-    Object.keys(MAP_TRANSLATIONS).find((key) => MAP_TRANSLATIONS[key] === displayName) || displayName;
+  const getMapEnglishName = mapNameToEnglish;
 
   const getMapUrl = (): string | null => {
     if (!selectedMap) return null;

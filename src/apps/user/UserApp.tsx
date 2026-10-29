@@ -9,8 +9,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 
-import '../../index.css';
 import 'leaflet/dist/leaflet.css';
+import '../../index.css';
 import MainView from '../../features/lineups/MainView';
 import AppModals from '../../features/lineups/AppModals';
 import { useAppController } from '../../features/lineups/useAppController';

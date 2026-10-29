@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '../../../components/Icon';
-import { MAP_TRANSLATIONS } from '../../../constants/maps';
+import { translateMapName } from '../../../constants/maps';
 import { useEscapeClose } from '../../../hooks/useEscapeClose';
 
 interface Props {
@@ -58,7 +58,7 @@ const BatchDownloadModal: React.FC<Props> = ({
         }
     };
 
-    const mapNameDisplay = currentMapName ? (MAP_TRANSLATIONS[currentMapName] || currentMapName) : '未选择';
+    const mapNameDisplay = currentMapName ? translateMapName(currentMapName) : '未选择';
 
     return ReactDOM.createPortal(
         <div className="fixed inset-0 z-[1500] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">

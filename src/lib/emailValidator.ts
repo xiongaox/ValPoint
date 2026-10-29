@@ -69,6 +69,3 @@ export function validateEmail(email: string): EmailValidationResult {
     return { isValid: true };
 }
 
-export function getAllowedDomains(): string[] {
-    return [...ALLOWED_DOMAINS];
-}

@@ -11,6 +11,28 @@ type ChangelogItem = string | { text: string; children?: string[] };
 
 export const changelogEntries: { date: string; items: ChangelogItem[] }[] = [
   {
+    date: '2026-10-27',
+    items: [
+      '【新增】新增复用已有点位标注与相近点位聚合显示',
+      '【新增】新增 lineupPositions 聚类工具，按英雄/技能把相近站位与落点合并为簇（容差 8 地图单位）',
+      '【新增】查看模式按簇渲染地图标记，重叠点位通过弹层列出并可选中，连线改为悬停/选中时按簇锚点绘制',
+      '【新增】标注面板新增"选择已有站位/落点"入口，命中候选后自动带入该点位的图片与描述并提示下一步标注',
+      '【新增】新增 pickingExisting 状态并贯通状态/控制器/MainView，切换地图、英雄、技能或阵营时自动退出拾取',
+      '【优化】重绘 Leaflet 弹层与合并弹层样式，新增候选点呼吸光圈与关闭按钮交互',
+      '【新增】新增 scripts/check-position-clusters.ts 聚类断言脚本',
+      '【修复】数据库建表文档调整通用函数顺序，并为旧版 user_profiles 补齐 role 字段、默认值与角色约束',
+      '【运维】清理 ui-ux-pro-max __pycache__ 残留文件，统一 CSS 引入顺序',
+    ],
+  },
+  {
+    date: '2026-07-29',
+    items: [
+      '【修复】修复 Supabase 一键建表脚本兼容旧版 user_profiles 表',
+      '【修复】调整数据库函数定义顺序，确保 user_profiles 表初始化后再引用 role 字段',
+      '【修复】为已有 user_profiles 表自动补齐 role 字段、默认值和角色约束',
+    ],
+  },
+  {
     date: '2026-06-25',
     items: [
       '【新增】增加新地图天枢云阙(Summit)并支持其实时状态展示',

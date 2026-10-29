@@ -152,10 +152,13 @@ npx vitest run path/to/file.test.ts -t "test name"
 
 ## Project Skills
 The following project-local skill is available in this repository only:
-- `valpoint-git-description`: When input contains `git描述`, generate Chinese Git Commit Message from changes since the last commit, then sync-update `src/changelog.ts` and `docs/guide/更新日志.md` (file: `.codex/skills/valpoint-git-description/SKILL.md`).
+- `valpoint-git-description`: 中文 Commit Message 与发版流程（file: `.agent/skills/valpoint-git-description/SKILL.md`）。
 
 ## Project Trigger Rule
-- Trigger phrase: `git描述`
+- 触发词（优先匹配最长）：
+  - `git描述`：生成中文 Commit Message 并本地提交；不写日志、不推送。
+  - `git描述并提交`：+ 同步写 `src/changelog.ts` 与 `docs/guide/更新日志.md`，提交后再 `git push`。
+  - `git描述提交并构建`：+ 运行 `npm run release` 打标签，触发 GitHub Actions（网页 dist/VPS 部署 + Docker）；未指明版本号须先询问版本。
 - Scope: only this repository (`/Users/xiongaox/Downloads/ValPoint`)
-- Required behavior: invoke `.codex/skills/valpoint-git-description/SKILL.md` workflow, generate the commit message, and then sync-write the same content into both `src/changelog.ts` and `docs/guide/更新日志.md`.
-- Execution policy: when user sends only `git描述`, execute directly without asking for an extra reminder.
+- Required behavior: invoke `.agent/skills/valpoint-git-description/SKILL.md` workflow.
+- Execution policy: 用户只发触发词时直接执行，不再索要额外提醒；构建模式未给版本号必须先问，不得默认。

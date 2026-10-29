@@ -7,6 +7,8 @@
  * - 支持不同环境或场景的可配置性。
  */
 
+import type { MapPoolStatus } from '../types/lineup';
+
 export const CUSTOM_MAP_URLS = {
   Ascent: {
     attack: "/maps/attack/攻方-亚海悬城(Ascent).svg",
@@ -76,4 +78,19 @@ export const MAP_TRANSLATIONS: Record<string, string> = {
   Abyss: "幽邃地窟",
   Corrode: "盐海矿镇",
   Summit: "天枢云阙",
+};
+
+/** 英文地图名 -> 中文显示名（未收录则原样返回） */
+export const translateMapName = (en: string): string => MAP_TRANSLATIONS[en] || en;
+
+/** 中文显示名 -> 英文地图名（未收录则原样返回） */
+export const mapNameToEnglish = (displayName: string): string =>
+  Object.keys(MAP_TRANSLATIONS).find((key) => MAP_TRANSLATIONS[key] === displayName) || displayName;
+
+/** 地图池状态角标：状态 -> 显示文字、背景色 */
+export const POOL_STATUS_CONFIG: Record<MapPoolStatus, { label: string; className: string }> = {
+  'in-pool': { label: '在池', className: 'bg-emerald-500/90' },
+  'returning': { label: '回归', className: 'bg-blue-500/90' },
+  'rotated-out': { label: '轮出', className: 'bg-red-500/90' },
+  'new': { label: '新增', className: 'bg-violet-600/90' },
 };

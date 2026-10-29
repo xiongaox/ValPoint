@@ -11,7 +11,8 @@ import React from 'react';
 import { User } from '@supabase/supabase-js';
 import MainView from '../MainView';
 import { ActiveTab } from '../../../types/app';
-import { AgentOption, BaseLineup, LibraryMode, MapOption, NewLineupForm, SharedLineup } from '../../../types/lineup';
+import { AgentOption, BaseLineup, LibraryMode, LineupPosition, MapOption, NewLineupForm, SharedLineup } from '../../../types/lineup';
+import type { PositionCandidate } from '../../lineups/lineupPositions';
 
 type Params = {
   activeTab: ActiveTab;
@@ -40,6 +41,11 @@ type Params = {
   setNewLineupData: (fn: (prev: NewLineupForm) => NewLineupForm) => void;
   placingType: 'agent' | 'skill' | null;
   setPlacingType: React.Dispatch<React.SetStateAction<'agent' | 'skill' | null>>;
+  pickingExisting: 'agent' | 'skill' | null;
+  standCandidates: PositionCandidate[];
+  landCandidates: PositionCandidate[];
+  onTogglePicking: (type: 'agent' | 'skill') => void;
+  onPickExisting: (type: 'agent' | 'skill', pos: LineupPosition) => void;
   onViewLineup: (id: string) => void;
   isFlipped: boolean;
   isActionMenuOpen: boolean;
@@ -122,9 +128,12 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       setPlacingType: params.setPlacingType,
       selectedAgent: params.selectedAgent,
       selectedAbilityIndex: params.selectedAbilityIndex,
+      pickingExisting: params.pickingExisting,
+      existingAgentPoints: params.standCandidates,
+      existingSkillPoints: params.landCandidates,
+      onPickExisting: params.onPickExisting,
       onViewLineup: params.onViewLineup,
       isFlipped: params.isFlipped,
-
     },
     quickActions: {
       isOpen: params.isActionMenuOpen,
@@ -149,6 +158,10 @@ export function buildMainViewProps(params: Params): React.ComponentProps<typeof 
       setSelectedSide: params.setSelectedSide,
       placingType: params.placingType,
       togglePlacingType: params.togglePlacingType,
+      pickingExisting: params.pickingExisting,
+      onTogglePicking: params.onTogglePicking,
+      standCandidateCount: params.standCandidates.length,
+      landCandidateCount: params.landCandidates.length,
       newLineupData: params.newLineupData,
       handleOpenEditor: params.handleOpenEditor,
       searchQuery: params.searchQuery,

@@ -18,6 +18,10 @@ type Props = {
   setSelectedSide: (v: string) => void;
   placingType: string | null;
   togglePlacingType: (type: string) => void;
+  pickingExisting: string | null;
+  onTogglePicking: (type: string) => void;
+  standCandidateCount: number;
+  landCandidateCount: number;
   newLineupData: any;
   handleOpenEditor: () => void;
   searchQuery: string;
@@ -47,6 +51,10 @@ const RightPanel: React.FC<Props> = ({
   setSelectedSide,
   placingType,
   togglePlacingType,
+  pickingExisting,
+  onTogglePicking,
+  standCandidateCount,
+  landCandidateCount,
   newLineupData,
   handleOpenEditor,
   searchQuery,
@@ -177,8 +185,40 @@ const RightPanel: React.FC<Props> = ({
                   <span className="text-xs font-bold">{newLineupData.skillPos ? '落点已定' : '设置落点'}</span>
                 </button>
               </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                {standCandidateCount > 0 && (
+                  <button
+                    onClick={() => onTogglePicking('agent')}
+                    className={`p-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${pickingExisting === 'agent'
+                      ? 'bg-[#ff4655]/15 border-[#ff4655] text-[#ff4655]'
+                      : 'bg-[#0f1923] border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                      }`}
+                  >
+                    <Icon name="Users" size={14} />
+                    选择已有站位 ({standCandidateCount})
+                  </button>
+                )}
+                {landCandidateCount > 0 && (
+                  <button
+                    onClick={() => onTogglePicking('skill')}
+                    className={`p-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${pickingExisting === 'skill'
+                      ? 'bg-[#ff4655]/15 border-[#ff4655] text-[#ff4655]'
+                      : 'bg-[#0f1923] border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
+                      }`}
+                  >
+                    <Icon name="Crosshair" size={14} />
+                    选择已有落点 ({landCandidateCount})
+                  </button>
+                )}
+              </div>
               <p className="text-[12px] text-gray-500 mt-2 text-center">
-                {placingType ? '请在地图上点击位置完成标注' : '点击上方按钮开始标注'}
+                {pickingExisting === 'agent'
+                  ? '请在地图上点击已有的站位'
+                  : pickingExisting === 'skill'
+                    ? '请在地图上点击已有的落点'
+                    : placingType
+                      ? '请在地图上点击位置完成标注'
+                      : '点击上方按钮开始标注'}
               </p>
             </div>
 

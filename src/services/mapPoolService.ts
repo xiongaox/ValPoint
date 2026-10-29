@@ -69,9 +69,3 @@ export async function fetchMapPoolConfig(): Promise<Record<string, MapPoolStatus
     }
 }
 
-/**
- * 清除缓存（用于手动刷新）
- */
-export function clearMapPoolCache() {
-    cachedConfig = null;
-}

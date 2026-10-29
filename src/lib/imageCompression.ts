@@ -122,11 +122,6 @@ export const convertBlobToWebpFile = async (blob: Blob, options: ImageCompressOp
   return convertBlobToImageFile(blob, 'webp', options);
 };
 
-export const compressClipboardImage = async (blob: Blob, nameHint: string) => {
-  const format = defaultImageProcessingSettings.pngConvertFormat;
-  const convert = format === 'webp' ? convertBlobToWebpFile : convertBlobToJpegFile;
-  return convert(blob, { fileName: nameHint, quality: defaultImageProcessingSettings.jpegQuality, maxWidth: 1920, maxHeight: 1920 });
-};
 
 export const prepareClipboardImage = async (blob: Blob, nameHint: string, settings?: Partial<ImageProcessingSettings>) => {
   const normalized = normalizeProcessingSettings(settings);

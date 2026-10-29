@@ -8,8 +8,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import '../../index.css';
 import 'leaflet/dist/leaflet.css';
+import '../../index.css';
 import { useEmailAuth } from '../../hooks/useEmailAuth';
 import SharedLoginPage from './SharedLoginPage';
 import SharedMainView from './SharedMainView';

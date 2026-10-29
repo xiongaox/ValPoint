@@ -26,7 +26,8 @@ import { getAbilityList, getAbilityIcon } from '../../utils/abilityIcons';
 import LeftPanel from '../../components/LeftPanel';
 import RightPanel from '../../components/RightPanel';
 import ICPFooter from '../../components/ICPFooter';
-import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm, LibraryMode } from '../../types/lineup';
+import { BaseLineup, SharedLineup, AgentOption, MapOption, NewLineupForm, LibraryMode, LineupPosition } from '../../types/lineup';
+import type { PositionCandidate } from './lineupPositions';
 import { ActiveTab } from '../../types/app';
 
 type LeftProps = {
@@ -62,6 +63,10 @@ type MapProps = {
   setPlacingType: React.Dispatch<React.SetStateAction<'agent' | 'skill' | null>>;
   selectedAgent: AgentOption | null;
   selectedAbilityIndex: number | null;
+  pickingExisting: 'agent' | 'skill' | null;
+  existingAgentPoints: PositionCandidate[];
+  existingSkillPoints: PositionCandidate[];
+  onPickExisting: (type: 'agent' | 'skill', pos: LineupPosition) => void;
   onViewLineup: (id: string) => void;
   isFlipped: boolean;
 };
@@ -90,6 +95,10 @@ type RightProps = {
   setSelectedSide: React.Dispatch<React.SetStateAction<'all' | 'attack' | 'defense'>>;
   placingType: 'agent' | 'skill' | null;
   togglePlacingType: (type: 'agent' | 'skill') => void;
+  pickingExisting: 'agent' | 'skill' | null;
+  onTogglePicking: (type: 'agent' | 'skill') => void;
+  standCandidateCount: number;
+  landCandidateCount: number;
   newLineupData: NewLineupForm;
   handleOpenEditor: () => void;
   searchQuery: string;
@@ -213,6 +222,10 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           setPlacingType={(val) => map.setPlacingType(val as 'agent' | 'skill' | null)}
           selectedAgent={map.selectedAgent}
           selectedAbilityIndex={map.selectedAbilityIndex}
+          pickingExisting={map.pickingExisting}
+          existingAgentPoints={map.existingAgentPoints}
+          existingSkillPoints={map.existingSkillPoints}
+          onPickExisting={map.onPickExisting}
           onViewLineup={(id) => {
             map.onViewLineup(id);
             if (isTabletHybrid) {
@@ -588,6 +601,10 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
                 setSelectedSide={(val) => right.setSelectedSide(val as 'all' | 'attack' | 'defense')}
                 placingType={right.placingType}
                 togglePlacingType={(type) => right.togglePlacingType(type as 'agent' | 'skill')}
+                pickingExisting={right.pickingExisting}
+                onTogglePicking={(type) => right.onTogglePicking(type as 'agent' | 'skill')}
+                standCandidateCount={right.standCandidateCount}
+                landCandidateCount={right.landCandidateCount}
                 newLineupData={right.newLineupData}
                 handleOpenEditor={right.handleOpenEditor}
                 searchQuery={right.searchQuery}
@@ -624,6 +641,10 @@ const MainView: React.FC<Props> = ({ activeTab, clearSelection, left, map, quick
           setSelectedSide={(val) => right.setSelectedSide(val as 'all' | 'attack' | 'defense')}
           placingType={right.placingType}
           togglePlacingType={(type) => right.togglePlacingType(type as 'agent' | 'skill')}
+          pickingExisting={right.pickingExisting}
+          onTogglePicking={(type) => right.onTogglePicking(type as 'agent' | 'skill')}
+          standCandidateCount={right.standCandidateCount}
+          landCandidateCount={right.landCandidateCount}
           newLineupData={right.newLineupData}
           handleOpenEditor={right.handleOpenEditor}
           searchQuery={right.searchQuery}

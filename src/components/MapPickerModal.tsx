@@ -11,15 +11,8 @@
 import React from 'react';
 import Icon from './Icon';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { MapOption, MapPoolStatus } from '../types/lineup';
-
-/** 角标配置：状态 -> 显示文字、背景色 */
-const POOL_STATUS_CONFIG: Record<MapPoolStatus, { label: string; className: string }> = {
-  'in-pool': { label: '在池', className: 'bg-emerald-500/90' },
-  'returning': { label: '回归', className: 'bg-blue-500/90' },
-  'rotated-out': { label: '轮出', className: 'bg-red-500/90' },
-  'new': { label: '新增', className: 'bg-violet-600/90' },
-};
+import { MapOption } from '../types/lineup';
+import { POOL_STATUS_CONFIG } from '../constants/maps';
 
 type MapPickerModalProps = {
   isOpen: boolean;
